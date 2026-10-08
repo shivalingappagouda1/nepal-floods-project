@@ -401,7 +401,7 @@ export const AppShell: React.FC = () => {
         </main>
       </div>
 
-      {/* Bottom Telemetry & Attribution Status Bar (Exactly ONE GEO-ENGINE status message) */}
+      {/* Bottom Telemetry & Attribution Status Bar */}
       <footer className="h-7 bg-command-panel border-t border-command-border px-4 flex items-center justify-between text-[10px] font-mono text-command-dim z-30">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-emerald-400">
@@ -411,13 +411,13 @@ export const AppShell: React.FC = () => {
           <span>|</span>
           <span>CRS: <strong className="text-command-text">WGS 84 / UTM Zone 45N (EPSG:32645)</strong></span>
           <span>|</span>
-          <span>INITIAL VIEWPORT: <strong className="text-command-text">Bhote Koshi Corridor (DEMO Ref)</strong></span>
+          <span>AOI: <strong className="text-command-text">DEMO NAVIGATION REFERENCE</strong></span>
         </div>
 
         <div className="flex items-center gap-4">
           <span>DATA PROVENANCE: <strong className="text-amber-400">STEP 3 PROTOTYPE LAYERS</strong></span>
           <span>|</span>
-          <span className="text-command-muted">HIMALAYA-SHIELD DISASTER INTELLIGENCE PLATFORM</span>
+          <span className="text-command-muted">HIMALAYA-SHIELD DISASTER INTELLIGENCE SYSTEM</span>
         </div>
       </footer>
     </div>

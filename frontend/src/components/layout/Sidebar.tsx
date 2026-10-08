@@ -6,8 +6,7 @@ import {
   Building2, 
   Flame, 
   ShieldAlert, 
-  ChevronRight,
-  MapPin
+  ChevronRight
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -33,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className={`bg-command-panel border-r border-command-border flex flex-col justify-between transition-all duration-200 ${
       isCollapsed ? 'w-16' : 'w-64'
     }`}>
-      {/* Navigation Links */}
+      {/* Navigation Links - Exactly one of each entry */}
       <div className="p-3 space-y-1">
         <div className="px-3 py-2 text-[10px] font-mono text-command-dim uppercase tracking-wider font-semibold">
           Operational Modules
@@ -77,20 +76,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Bottom Mission Support Links */}
-      <div className="p-3 border-t border-command-border space-y-2">
-        <div className="p-2.5 rounded-lg bg-command-card border border-command-border text-[11px] font-mono">
-          <div className="flex items-center gap-1.5 text-command-accent-glow font-semibold mb-1">
-            <MapPin className="w-3.5 h-3.5" />
-            <span>NAVIGATION CONTEXT</span>
-          </div>
-          <p className="text-[10px] text-command-dim leading-tight">
-            Transboundary Corridor Viewport (DEMO / Navigation Reference)
-          </p>
-        </div>
-
+      {/* Clean Bottom Navigation Status */}
+      <div className="p-3 border-t border-command-border">
         <div className="text-[10px] font-mono text-command-dim text-center py-1">
-          HIMALAYA-SHIELD © 2026
+          STEP 3 PROTOTYPE
         </div>
       </div>
     </aside>
