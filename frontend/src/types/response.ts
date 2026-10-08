@@ -32,6 +32,8 @@ export interface ResponseFactorAssessment {
   level: FactorLevel;
   normalizedScore?: number; // 0.0 to 1.0 (undefined if data missing)
   description: string;
+  statusDisplay: 'DEMO / ILLUSTRATIVE' | 'PRECOMPUTED ANALYSIS — SYNTHETIC INPUT' | 'Not available' | 'Target reference / Not currently connected';
+  provenanceTier: 'DEMO_VALUE' | 'AI_COMPUTED' | 'VERIFIED';
   isAvailable: boolean;
   missingReason?: string;
 }
@@ -41,9 +43,7 @@ export interface RouteStatus {
   roadPassability: 'SEVERED' | 'IMPASSABLE_DEBRIS' | 'RESTRICTED_SINGLE_LANE' | 'OPEN_ALL_VEHICLES' | 'UNAVAILABLE';
   routeDescription: string;
   primaryObstacle?: string;
-  estimatedTransitTime?: string;
-  corridorDistanceKm?: number;
-  alternativeAccessMethod: string; // e.g. 'Air reconnaissance / High-line ropeway / Foot patrol'
+  alternativeAccessMethod: string;
 }
 
 export interface PriorityZone {
@@ -57,12 +57,11 @@ export interface PriorityZone {
   prototypeScoreLabel: 'Prototype response priority score';
   severity: ResponseSeverity;
   populationExposure: string;
-  populationEstimate?: number;
   infrastructureImpact: string;
   accessibility: string;
   secondaryHazardRisk: string;
   medicalUrgency: string;
-  whyFactors: string[]; // ['high population exposure', 'severe detected damage', ...]
+  whyFactors: string[]; // ['high population exposure (prototype input)', 'severe detected damage (precomputed)', ...]
   recommendedAction: string;
   confidence?: number; // Omitted (displays 'CONFIDENCE: Not available')
   verificationStatus: 'Human verification required' | 'Prioritize for assessment' | 'Field team assigned';

@@ -179,10 +179,12 @@ export const ResponseView: React.FC<ResponseViewProps> = ({
               <div className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-command-accent-glow" />
                 <h3 className="text-xs font-bold text-command-text uppercase tracking-wider">
-                  STAGED RESPONSE UNITS ({stagedUnits.length})
+                  DEMO ASSET ROSTER ({stagedUnits.length})
                 </h3>
               </div>
-              <span className="text-[10px] text-command-dim">BARHABISE HUB</span>
+              <span className="text-[9px] font-bold text-amber-300 bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-800">
+                ILLUSTRATIVE TEMPLATE
+              </span>
             </div>
 
             <div className="space-y-2">
@@ -216,7 +218,7 @@ export const ResponseView: React.FC<ResponseViewProps> = ({
               layers={layers}
               onToggleLayer={onToggleLayer}
               onOpacityChange={onOpacityChange}
-              activeAoiName={`Tactical AOI: ${selectedZone.name}`}
+              activeAoiName={`PROTOTYPE RESPONSE PRIORITY: ${selectedZone.name}`}
               coordinates={selectedZone.coordinates}
               heightClass="h-[380px]"
               focusedWaypoint={focusedWaypoint}
