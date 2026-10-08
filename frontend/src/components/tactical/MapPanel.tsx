@@ -1,5 +1,7 @@
 import React from 'react';
 import type { MapLayerConfig } from '../../types';
+import type { SearchableLocation } from '../../data/searchLocations';
+import type { ProvinceProperties } from '../../data/nepalProvincesGeoJson';
 import { InteractiveMap } from '../map/InteractiveMap';
 
 interface MapPanelProps {
@@ -10,6 +12,9 @@ interface MapPanelProps {
   coordinates: [number, number];
   heightClass?: string;
   focusedWaypoint?: [number, number] | null;
+  selectedLocation?: SearchableLocation | null;
+  onSelectProvince?: (prov: ProvinceProperties) => void;
+  initialViewMode?: 'NATION' | 'CORRIDOR';
 }
 
 export const MapPanel: React.FC<MapPanelProps> = ({
@@ -20,6 +25,9 @@ export const MapPanel: React.FC<MapPanelProps> = ({
   coordinates,
   heightClass = "h-full min-h-[560px]",
   focusedWaypoint,
+  selectedLocation,
+  onSelectProvince,
+  initialViewMode = 'NATION',
 }) => {
   return (
     <InteractiveMap
@@ -30,6 +38,9 @@ export const MapPanel: React.FC<MapPanelProps> = ({
       coordinates={coordinates}
       heightClass={heightClass}
       focusedWaypoint={focusedWaypoint}
+      selectedLocation={selectedLocation}
+      onSelectProvince={onSelectProvince}
+      initialViewMode={initialViewMode}
     />
   );
 };

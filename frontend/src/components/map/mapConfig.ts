@@ -1,12 +1,19 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
 /**
- * Navigation Reference Coordinates (Map initial viewport — DEMO / navigation reference)
- * Used purely as a geographical viewport focus point for the Himalayan transboundary corridor.
+ * Nepal National Center Coordinates and Initial Viewport
  */
-export const NEPAL_CENTER: [number, number] = [85.9380, 27.9150]; // [lng, lat] (DEMO Navigation Reference)
+export const NEPAL_NATION_CENTER: [number, number] = [84.1240, 28.3949]; // [lng, lat]
+export const NEPAL_NATION_ZOOM = 6.4;
+export const NEPAL_NATION_PITCH = 0;
+export const NEPAL_NATION_BEARING = 0;
+
+/**
+ * Disaster AOI Corridor Coordinates (Bhote Koshi / Tatopani)
+ */
+export const NEPAL_CENTER: [number, number] = [85.9380, 27.9150]; // [lng, lat]
 export const NEPAL_INITIAL_ZOOM = 12;
-export const NEPAL_PITCH = 40;
+export const NEPAL_PITCH = 35;
 export const NEPAL_BEARING = -15;
 
 export const NEPAL_COUNTRY_BOUNDS: [[number, number], [number, number]] = [
@@ -20,11 +27,11 @@ export const TRANSBOUNDARY_AOI_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 /**
- * Tactical Dark Basemap Style Definition for MapLibre GL JS
+ * Clean Tactical Geographic Basemap Style Definition for MapLibre GL JS
  */
 export const DARK_TACTICAL_STYLE: StyleSpecification = {
   version: 8,
-  name: 'Himalaya Tactical Dark',
+  name: 'Himalaya Tactical Geographic',
   sources: {
     'carto-dark': {
       type: 'raster',

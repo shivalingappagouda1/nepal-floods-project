@@ -9,9 +9,11 @@ import type {
   RiskZoneMetric, 
   ActivityEvent 
 } from '../../types';
+import type { SearchableLocation } from '../../data/searchLocations';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { DemoWorkflowBar } from './DemoWorkflowBar';
+import { HowItWorksModal } from '../tactical/HowItWorksModal';
 import { DashboardView } from '../../features/dashboard/DashboardView';
 import { SatelliteView } from '../../features/satellite/SatelliteView';
 import { DamageView } from '../../features/damage/DamageView';
@@ -21,6 +23,9 @@ import { ResponseView } from '../../features/response/ResponseView';
 export const AppShell: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
   const [isMapFocused, setIsMapFocused] = useState(false);
+  const [isExpertMode, setIsExpertMode] = useState(false);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<SearchableLocation | null>(null);
 
   // Active Incident Information (Nepal-China Border 2026 Demonstration Case)
   const incident: IncidentInfo = {
@@ -339,6 +344,9 @@ export const AppShell: React.FC = () => {
         systemStatus={systemStatus}
         isMapFocused={isMapFocused}
         onToggleFocusMap={handleToggleFocusMap}
+        isExpertMode={isExpertMode}
+        onToggleExpertMode={() => setIsExpertMode((prev) => !prev)}
+        onOpenHowItWorks={() => setIsHowItWorksOpen(true)}
       />
 
       {/* Main Command Workspace */}
@@ -371,6 +379,10 @@ export const AppShell: React.FC = () => {
                 onOpacityChange={handleOpacityChange}
                 onApproveAction={handleApproveAction}
                 isMapFocused={isMapFocused}
+                selectedLocation={selectedLocation}
+                onSelectLocation={setSelectedLocation}
+                onNavigateTab={setCurrentTab}
+                isExpertMode={isExpertMode}
               />
             )}
 
@@ -414,6 +426,16 @@ export const AppShell: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* 5-Step How Does This Work Modal */}
+      <HowItWorksModal
+        isOpen={isHowItWorksOpen}
+        onClose={() => setIsHowItWorksOpen(false)}
+        onNavigateTab={(tab) => {
+          setCurrentTab(tab);
+          setIsHowItWorksOpen(false);
+        }}
+      />
 
       {/* Compact Telemetry & Attribution Footer */}
       <footer className="h-6 bg-command-panel border-t border-command-border px-4 flex items-center justify-between text-[10px] font-mono text-command-dim z-30 shrink-0">
