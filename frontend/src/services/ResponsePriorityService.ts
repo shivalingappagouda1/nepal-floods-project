@@ -1,0 +1,600 @@
+/**
+ * HIMALAYA-SHIELD: Emergency Response Priority Service
+ * 
+ * FACTUAL INTEGRITY & DECISION SUPPORT NOTICE:
+ * 1. This system transforms hazard + damage + exposure + accessibility information into an explainable RESPONSE PRIORITY.
+ * 2. The system does NOT autonomously order real emergency operations or dispatch real personnel.
+ *    It provides decision support recommendations for Incident Command and human emergency responders.
+ * 3. Priority categories describe multi-factor triage urgency:
+ *    - PRIORITY 1: Critical urgency / immediate field verification & rescue-resource assessment.
+ *    - PRIORITY 2: High urgency / urgent staging, debris clearance & lifeline restoration.
+ *    - PRIORITY 3: Moderate urgency / active monitoring, relief staging & medical logistics support.
+ * 4. Route analysis explicitly states "Route analysis unavailable" when road segments are severed or data is unverified.
+ * 5. Numerical confidence is omitted ('CONFIDENCE: Not available') as empirical calibration datasets are not connected.
+ */
+
+import type { 
+  PriorityZone, 
+  ResponsePriorityTier, 
+  StagedReliefUnit 
+} from '../types/response';
+import type { FeatureCollection, Polygon } from 'geojson';
+
+export const INITIAL_PRIORITY_ZONES: PriorityZone[] = [
+  {
+    id: 'Zone A',
+    zoneCode: 'ZONE-A-TATOPANI',
+    name: 'Tatopani Border Gorge & Customs Sector',
+    sector: 'Northern Transboundary Corridor (Arniko Highway km 114)',
+    priorityTier: 'PRIORITY_1',
+    priorityRank: 1,
+    score: 94,
+    prototypeScoreLabel: 'Prototype response priority score',
+    severity: 'CRITICAL',
+    populationExposure: 'High — ~1,400 residents, border logistics personnel & stranded transit workers',
+    populationEstimate: 1400,
+    infrastructureImpact: 'Arniko Highway severed; Miteri Border Bridge approach inundated; customs dry port perimeter flooded',
+    accessibility: 'Severe road obstruction; vehicular access severed at Larcha bottleneck; aerial or foot-path access only',
+    secondaryHazardRisk: 'High — Steep canyon walls (>40°) prone to secondary rockfall & upstream surge wave funnels',
+    medicalUrgency: 'Critical — Tatopani health post isolated with depleted emergency trauma supplies',
+    whyFactors: [
+      'High population exposure in narrow transboundary valley',
+      'Severe detected image damage to primary transit artery',
+      'Road access severed creating physical isolation',
+      'Critical international border infrastructure severed',
+    ],
+    recommendedAction: 'Recommended: Immediate field verification and rescue-resource assessment; prioritize aerial supply drops.',
+    verificationStatus: 'Human verification required',
+    routeStatus: {
+      isAvailable: false,
+      roadPassability: 'SEVERED',
+      routeDescription: 'Route analysis unavailable: Arniko Highway road artery severed at Larcha confluence (km 112). Direct vehicular routing impassable; aerial reconnaissance recommended.',
+      primaryObstacle: 'Severed roadbed at Larcha confluence & flooded Miteri approach ramp',
+      alternativeAccessMethod: 'Nepal Army helicopter landing at Tatopani helipad or high-line cableway',
+    },
+    coordinates: [85.9461, 27.9575],
+    polygon: [
+      [85.9380, 27.9650],
+      [85.9540, 27.9650],
+      [85.9520, 27.9450],
+      [85.9360, 27.9450],
+      [85.9380, 27.9650],
+    ],
+    coordinateProvenance: 'OpenStreetMap Relation 184633 / NDRRMA Nepal Road Network Baseline',
+    factors: {
+      populationExposure: {
+        key: 'populationExposure',
+        label: 'Population Exposure',
+        level: 'HIGH',
+        normalizedScore: 0.92,
+        description: 'Estimated 1,400 individuals in gorge corridor requiring immediate food, clean water, and shelter triage.',
+        isAvailable: true,
+      },
+      damageSeverity: {
+        key: 'damageSeverity',
+        label: 'Damage Severity (Image Evidence)',
+        level: 'CRITICAL',
+        normalizedScore: 0.95,
+        description: 'Severe detected road scarp modification and approach ramp submergence in precomputed satellite passes.',
+        isAvailable: true,
+      },
+      criticalInfrastructure: {
+        key: 'criticalInfrastructure',
+        label: 'Critical Infrastructure Lifelines',
+        level: 'CRITICAL',
+        normalizedScore: 0.96,
+        description: 'Key Nepal-China commercial freight conduit and dry port processing terminal.',
+        isAvailable: true,
+      },
+      accessibility: {
+        key: 'accessibility',
+        label: 'Accessibility & Physical Isolation',
+        level: 'CRITICAL',
+        normalizedScore: 0.98,
+        description: 'Complete vehicular cutoff due to downstream debris blockage; physical foot access only.',
+        isAvailable: true,
+      },
+      secondaryHazard: {
+        key: 'secondaryHazard',
+        label: 'Secondary Hazard Vulnerability',
+        level: 'HIGH',
+        normalizedScore: 0.88,
+        description: 'Steep lateral schist slopes subject to secondary sliding during continuing monsoon rains.',
+        isAvailable: true,
+      },
+      medicalUrgency: {
+        key: 'medicalUrgency',
+        label: 'Medical & Health Triage Urgency',
+        level: 'CRITICAL',
+        normalizedScore: 0.94,
+        description: 'Local health clinic cut off from regional referral hospital in Barhabise.',
+        isAvailable: true,
+      },
+    },
+    provenance: {
+      tier: 'DEMO_VALUE',
+      source: 'HIMALAYA-SHIELD Response Priority Engine (Prototype decision-support run)',
+      algorithm: 'Multi-Criteria Response Urgency Weighting',
+    },
+  },
+  {
+    id: 'Zone B',
+    zoneCode: 'ZONE-B-LARCHA',
+    name: 'Larcha / Bhairabkunda Khola Confluence Fan',
+    sector: 'Tributary Bottleneck Sector (Arniko Highway km 112)',
+    priorityTier: 'PRIORITY_1',
+    priorityRank: 2,
+    score: 88,
+    prototypeScoreLabel: 'Prototype response priority score',
+    severity: 'CRITICAL',
+    populationExposure: 'Moderate — ~650 residents in confluence hamlet and stranded vehicle operators',
+    populationEstimate: 650,
+    infrastructureImpact: 'Highway bridge approaches buried under 350m active debris cone; powerline feeder damaged',
+    accessibility: 'Completely blocked for vehicular traffic; active sediment mobilization',
+    secondaryHazardRisk: 'Critical — Tributary damming potential could trigger sudden downstream surge wave',
+    medicalUrgency: 'High — Immediate first-aid and evacuation assistance required for riverside houses',
+    whyFactors: [
+      'Active tributary debris cone blocking primary transport lifeline',
+      'High risk of tributary debris damming and secondary surge',
+      'Direct physical barrier isolating upstream Tatopani sector',
+      'Structural approach damage visible in precomputed imagery',
+    ],
+    recommendedAction: 'Recommended: Prioritize for assessment; deploy Armed Police Force (APF) and heavy earthmoving machinery for channel clearance.',
+    verificationStatus: 'Human verification required',
+    routeStatus: {
+      isAvailable: false,
+      roadPassability: 'IMPASSABLE_DEBRIS',
+      routeDescription: 'Route analysis unavailable: Road corridor buried by tributary debris fan. Vehicular routing impassable; heavy equipment clearance recommended.',
+      primaryObstacle: '350m boulder and silt debris cone spanning highway right-of-way',
+      alternativeAccessMethod: 'Foot path across upper slope or emergency suspension ropeway',
+    },
+    coordinates: [85.9220, 27.9050],
+    polygon: [
+      [85.9140, 27.9150],
+      [85.9300, 27.9150],
+      [85.9280, 27.8950],
+      [85.9120, 27.8950],
+      [85.9140, 27.9150],
+    ],
+    coordinateProvenance: 'OpenStreetMap Baseline / ICIMOD Catchment Survey',
+    factors: {
+      populationExposure: {
+        key: 'populationExposure',
+        label: 'Population Exposure',
+        level: 'MEDIUM',
+        normalizedScore: 0.70,
+        description: '650 residents in debris path requiring immediate evacuation verification.',
+        isAvailable: true,
+      },
+      damageSeverity: {
+        key: 'damageSeverity',
+        label: 'Damage Severity (Image Evidence)',
+        level: 'CRITICAL',
+        normalizedScore: 0.94,
+        description: 'Roadbed completely buried under high-reflectance debris cone in satellite passes.',
+        isAvailable: true,
+      },
+      criticalInfrastructure: {
+        key: 'criticalInfrastructure',
+        label: 'Critical Infrastructure Lifelines',
+        level: 'HIGH',
+        normalizedScore: 0.88,
+        description: 'Crucial bridge span connecting central Nepal to northern border posts.',
+        isAvailable: true,
+      },
+      accessibility: {
+        key: 'accessibility',
+        label: 'Accessibility & Physical Isolation',
+        level: 'CRITICAL',
+        normalizedScore: 0.96,
+        description: 'Massive physical blockage severing transport corridor in both directions.',
+        isAvailable: true,
+      },
+      secondaryHazard: {
+        key: 'secondaryHazard',
+        label: 'Secondary Hazard Vulnerability',
+        level: 'CRITICAL',
+        normalizedScore: 0.95,
+        description: 'Debris dam formation could breach and trigger catastrophic flash surge downstream.',
+        isAvailable: true,
+      },
+      medicalUrgency: {
+        key: 'medicalUrgency',
+        label: 'Medical & Health Triage Urgency',
+        level: 'HIGH',
+        normalizedScore: 0.82,
+        description: 'Emergency rescue teams required to evacuate stranded vehicle crews.',
+        isAvailable: true,
+      },
+    },
+    provenance: {
+      tier: 'DEMO_VALUE',
+      source: 'HIMALAYA-SHIELD Response Priority Engine (Prototype decision-support run)',
+      algorithm: 'Multi-Criteria Response Urgency Weighting',
+    },
+  },
+  {
+    id: 'Zone C',
+    zoneCode: 'ZONE-C-CHAKU',
+    name: 'Chaku Khola Hydropower & Settlement Corridor',
+    sector: 'Hydropower Lifeline Sector (Arniko Highway km 105)',
+    priorityTier: 'PRIORITY_2',
+    priorityRank: 3,
+    score: 72,
+    prototypeScoreLabel: 'Prototype response priority score',
+    severity: 'SEVERE',
+    populationExposure: 'Moderate — ~1,100 residents and hydropower technical staff',
+    populationEstimate: 1100,
+    infrastructureImpact: 'Hydropower intake siltation; access feeder road damaged by shallow slope failure',
+    accessibility: 'Restricted single-lane access; heavy vehicles prohibited; light 4x4 and pedestrian traffic only',
+    secondaryHazardRisk: 'Moderate-High — Residual slope fissures from 2015 earthquake prone to failure',
+    medicalUrgency: 'Moderate — Local clinic functional but road transport to referral hospital is constrained',
+    whyFactors: [
+      'National power grid generation asset at risk of headworks failure',
+      'Moderate population exposure along riverside settlement',
+      'Restricted single-lane road access creating logistical delay',
+      'Slope destabilization detected in radar interferometry model',
+    ],
+    recommendedAction: 'Recommended: Dispatch technical inspection team; secure transmission corridor and stage emergency power generation backup.',
+    verificationStatus: 'Prioritize for assessment',
+    routeStatus: {
+      isAvailable: true,
+      roadPassability: 'RESTRICTED_SINGLE_LANE',
+      routeDescription: 'Single-lane restricted access from Barhabise (km 98); light 4x4 and emergency response vehicles only.',
+      primaryObstacle: 'Narrowed road shoulder due to minor debris slumps',
+      corridorDistanceKm: 7.2,
+      estimatedTransitTime: '25-35 minutes from Barhabise Base',
+      alternativeAccessMethod: 'Foot patrol or light tactical utility vehicles',
+    },
+    coordinates: [85.9130, 27.8820],
+    polygon: [
+      [85.9050, 27.8920],
+      [85.9220, 27.8920],
+      [85.9200, 27.8720],
+      [85.9030, 27.8720],
+      [85.9050, 27.8920],
+    ],
+    coordinateProvenance: 'OpenStreetMap Baseline / NEA Transmission Grid Reference',
+    factors: {
+      populationExposure: {
+        key: 'populationExposure',
+        label: 'Population Exposure',
+        level: 'MEDIUM',
+        normalizedScore: 0.65,
+        description: '1,100 residents and hydro station employees in valley basin.',
+        isAvailable: true,
+      },
+      damageSeverity: {
+        key: 'damageSeverity',
+        label: 'Damage Severity (Image Evidence)',
+        level: 'HIGH',
+        normalizedScore: 0.68,
+        description: 'Localized slope movement and intake scour detected in precomputed models.',
+        isAvailable: true,
+      },
+      criticalInfrastructure: {
+        key: 'criticalInfrastructure',
+        label: 'Critical Infrastructure Lifelines',
+        level: 'HIGH',
+        normalizedScore: 0.85,
+        description: 'Hydropower generation facility supplying central distribution grid.',
+        isAvailable: true,
+      },
+      accessibility: {
+        key: 'accessibility',
+        label: 'Accessibility & Physical Isolation',
+        level: 'MEDIUM',
+        normalizedScore: 0.60,
+        description: 'Single-lane transit possible with cautionary spotters.',
+        isAvailable: true,
+      },
+      secondaryHazard: {
+        key: 'secondaryHazard',
+        label: 'Secondary Hazard Vulnerability',
+        level: 'HIGH',
+        normalizedScore: 0.72,
+        description: 'Slope above powerhouse vulnerable to additional translational slides during rain.',
+        isAvailable: true,
+      },
+      medicalUrgency: {
+        key: 'medicalUrgency',
+        label: 'Medical & Health Triage Urgency',
+        level: 'MEDIUM',
+        normalizedScore: 0.58,
+        description: 'First aid post operational; evacuation routes partially open to south.',
+        isAvailable: true,
+      },
+    },
+    provenance: {
+      tier: 'DEMO_VALUE',
+      source: 'HIMALAYA-SHIELD Response Priority Engine (Prototype decision-support run)',
+      algorithm: 'Multi-Criteria Response Urgency Weighting',
+    },
+  },
+  {
+    id: 'Zone D',
+    zoneCode: 'ZONE-D-BARHABISE',
+    name: 'Barhabise Municipality & Staging Base',
+    sector: 'Downstream Command & Logistics Hub (Arniko Highway km 98)',
+    priorityTier: 'PRIORITY_3',
+    priorityRank: 4,
+    score: 42,
+    prototypeScoreLabel: 'Prototype response priority score',
+    severity: 'MODERATE',
+    populationExposure: 'High — ~8,200 residents in municipal bazaar and displaced family camps',
+    populationEstimate: 8200,
+    infrastructureImpact: 'Municipal Hospital, helipad, and command center fully operational; minor riverside market inundation',
+    accessibility: 'Open paved highway connection to Dhulikhel and Kathmandu; primary staging base for northern relief operations',
+    secondaryHazardRisk: 'Moderate — Flash flood risk from secondary tributaries (Budi Yawa Khola); main base elevated above flood stage',
+    medicalUrgency: 'Low-Moderate — Barhabise Primary Hospital is the regional medical receiving facility',
+    whyFactors: [
+      'Primary operational staging hub for all upstream emergency missions',
+      'High civilian density requiring organized distribution logistics',
+      'Intact road artery providing direct conduit to Kathmandu capital reserves',
+      'Operational medical and rotary wing air capabilities',
+    ],
+    recommendedAction: 'Recommended: Maintain as primary Emergency Operations Center (EOC) logistics hub; mobilize relief convoys and receive medical evacuations.',
+    verificationStatus: 'Prioritize for assessment',
+    routeStatus: {
+      isAvailable: true,
+      roadPassability: 'OPEN_ALL_VEHICLES',
+      routeDescription: 'Open paved two-lane highway corridor along southern Arniko Highway connecting to Kathmandu EOC.',
+      corridorDistanceKm: 85.0,
+      estimatedTransitTime: '2.5 - 3.0 hours from Kathmandu',
+      alternativeAccessMethod: 'Full vehicular convoy access & twin-engine helicopter landing zone',
+    },
+    coordinates: [85.8980, 27.7890],
+    polygon: [
+      [85.8880, 27.8020],
+      [85.9080, 27.8020],
+      [85.9060, 27.7760],
+      [85.8860, 27.7760],
+      [85.8880, 27.8020],
+    ],
+    coordinateProvenance: 'DHM Station 610 Catalog / NDRRMA Municipality Registry',
+    factors: {
+      populationExposure: {
+        key: 'populationExposure',
+        label: 'Population Exposure',
+        level: 'HIGH',
+        normalizedScore: 0.55,
+        description: 'Large municipal population serving as receiving zone for upstream evacuees.',
+        isAvailable: true,
+      },
+      damageSeverity: {
+        key: 'damageSeverity',
+        label: 'Damage Severity (Image Evidence)',
+        level: 'LOW',
+        normalizedScore: 0.20,
+        description: 'Core infrastructure remains undamaged in post-event satellite passes.',
+        isAvailable: true,
+      },
+      criticalInfrastructure: {
+        key: 'criticalInfrastructure',
+        label: 'Critical Infrastructure Lifelines',
+        level: 'HIGH',
+        normalizedScore: 0.60,
+        description: 'Major regional hospital, district emergency communications hub, and fuel depots.',
+        isAvailable: true,
+      },
+      accessibility: {
+        key: 'accessibility',
+        label: 'Accessibility & Physical Isolation',
+        level: 'LOW',
+        normalizedScore: 0.15,
+        description: 'Unobstructed two-lane highway connection.',
+        isAvailable: true,
+      },
+      secondaryHazard: {
+        key: 'secondaryHazard',
+        label: 'Secondary Hazard Vulnerability',
+        level: 'MEDIUM',
+        normalizedScore: 0.45,
+        description: 'Riverside commercial area vulnerable to sudden downstream flood crests.',
+        isAvailable: true,
+      },
+      medicalUrgency: {
+        key: 'medicalUrgency',
+        label: 'Medical & Health Triage Urgency',
+        level: 'LOW',
+        normalizedScore: 0.30,
+        description: 'Adequate hospital capacity; serves as receiving medical facility for northern sectors.',
+        isAvailable: true,
+      },
+    },
+    provenance: {
+      tier: 'DEMO_VALUE',
+      source: 'HIMALAYA-SHIELD Response Priority Engine (Prototype decision-support run)',
+      algorithm: 'Multi-Criteria Response Urgency Weighting',
+    },
+  },
+  {
+    id: 'Zone E',
+    zoneCode: 'ZONE-E-HEADWATERS',
+    name: 'Upper Bhote Koshi Transboundary Headwaters',
+    sector: 'Remote High-Altitude Moraine Sector',
+    priorityTier: 'PRIORITY_2',
+    priorityRank: 5,
+    score: 68,
+    prototypeScoreLabel: 'Prototype response priority score',
+    severity: 'SEVERE',
+    populationExposure: 'Low — Sparse pastoral seasonal shelters & border security posts (<80 individuals)',
+    populationEstimate: 80,
+    infrastructureImpact: 'High potential energy head; remote moraine stability critical to downstream life safety',
+    accessibility: 'No vehicular road; high alpine terrain accessible only via high-altitude aerial reconnaissance',
+    secondaryHazardRisk: 'Critical — Transboundary moraine breach or glacial lake expansion creates cascading threat',
+    medicalUrgency: 'Data gap: Remote high-altitude telemetry offline',
+    whyFactors: [
+      'Source trigger zone with massive cascading flood potential for all downstream sectors',
+      'High-altitude alpine terrain with zero road access',
+      'Telemetry data gap requires aerial and international satellite verification',
+    ],
+    recommendedAction: 'Recommended: Request priority synthetic aperture radar (SAR) tasking and high-altitude helicopter reconnaissance.',
+    verificationStatus: 'Prioritize for assessment',
+    routeStatus: {
+      isAvailable: false,
+      roadPassability: 'UNAVAILABLE',
+      routeDescription: 'Route analysis unavailable: High-altitude alpine terrain (>3,400m) without vehicular road infrastructure. Aerial/satellite monitoring only.',
+      alternativeAccessMethod: 'High-altitude military helicopter or international satellite tasking',
+    },
+    coordinates: [85.9620, 28.0150],
+    polygon: [
+      [85.9480, 28.0350],
+      [85.9780, 28.0350],
+      [85.9750, 27.9950],
+      [85.9450, 27.9950],
+      [85.9480, 28.0350],
+    ],
+    coordinateProvenance: 'ICIMOD Glacial Lake Inventory / Transboundary Hydrological Map',
+    factors: {
+      populationExposure: {
+        key: 'populationExposure',
+        label: 'Population Exposure',
+        level: 'LOW',
+        normalizedScore: 0.15,
+        description: 'Sparse high-altitude population, but downstream trajectory affects >10,000 residents.',
+        isAvailable: true,
+      },
+      damageSeverity: {
+        key: 'damageSeverity',
+        label: 'Damage Severity (Image Evidence)',
+        level: 'CRITICAL',
+        normalizedScore: 0.90,
+        description: 'Simulated supra-glacial pond expansion detected in prototype satellite models.',
+        isAvailable: true,
+      },
+      criticalInfrastructure: {
+        key: 'criticalInfrastructure',
+        label: 'Critical Infrastructure Lifelines',
+        level: 'MEDIUM',
+        normalizedScore: 0.50,
+        description: 'Remote watershed headwaters controlling downstream lifeline viability.',
+        isAvailable: true,
+      },
+      accessibility: {
+        key: 'accessibility',
+        label: 'Accessibility & Physical Isolation',
+        level: 'CRITICAL',
+        normalizedScore: 0.98,
+        description: 'Completely roadless high-alpine terrain.',
+        isAvailable: true,
+      },
+      secondaryHazard: {
+        key: 'secondaryHazard',
+        label: 'Secondary Hazard Vulnerability',
+        level: 'CRITICAL',
+        normalizedScore: 0.96,
+        description: 'Catastrophic GLOF breach potential if moraine dam gives way.',
+        isAvailable: true,
+      },
+      medicalUrgency: {
+        key: 'medicalUrgency',
+        label: 'Medical & Health Triage Urgency',
+        level: 'DATA_UNAVAILABLE',
+        normalizedScore: undefined,
+        description: 'Telemetry offline; medical urgency weight dynamically renormalized across active factors.',
+        isAvailable: false,
+        missingReason: 'Remote mountain telemetry link offline; missing factor renormalized.',
+      },
+    },
+    provenance: {
+      tier: 'DEMO_VALUE',
+      source: 'HIMALAYA-SHIELD Response Priority Engine (Prototype decision-support run)',
+      algorithm: 'Multi-Criteria Response Urgency Weighting',
+    },
+  },
+];
+
+export const DEMO_STAGED_UNITS: StagedReliefUnit[] = [
+  {
+    id: 'UNIT-01',
+    name: 'Nepal Army Disaster Management Directorate',
+    agency: 'Nepal Army',
+    role: 'Heavy Engineering & River Clearance',
+    callsign: 'NA-ENG-101',
+    baseLocation: 'Barhabise Staging Base',
+    status: 'STAGED_READY',
+    statusLabel: 'Staged at Barhabise Base (Awaiting Command Order)',
+    assignedZoneId: 'Zone B',
+    contactFrequency: 'VHF Ch 16 (156.8 MHz) / EOC Net 1',
+  },
+  {
+    id: 'UNIT-02',
+    name: 'Armed Police Force (APF) Disaster Response Unit',
+    agency: 'Armed Police Force Nepal',
+    role: 'Swift Water Rescue & High-Line Evacuation',
+    callsign: 'APF-RESCUE-4',
+    baseLocation: 'Barhabise Staging Base',
+    status: 'STAGED_READY',
+    statusLabel: 'Staged at Barhabise Base (Ready for Helo Deployment)',
+    assignedZoneId: 'Zone A',
+    contactFrequency: 'Tactical VHF 142.35 MHz',
+  },
+  {
+    id: 'UNIT-03',
+    name: 'Nepal Red Cross Society (NRCS) Emergency Team',
+    agency: 'Nepal Red Cross Society',
+    role: 'Emergency Shelter & Medical First Aid Relief',
+    callsign: 'NRCS-RELIEF-A',
+    baseLocation: 'Barhabise Municipal Hospital Complex',
+    status: 'STAGED_READY',
+    statusLabel: 'Active at Receiving Medical Hub',
+    assignedZoneId: 'Zone D',
+    contactFrequency: 'HF 5.250 MHz / EOC Phone Link',
+  },
+];
+
+export class ResponsePriorityService {
+  private zones: PriorityZone[] = INITIAL_PRIORITY_ZONES;
+  private units: StagedReliefUnit[] = DEMO_STAGED_UNITS;
+
+  async getPriorityZones(filterTier?: ResponsePriorityTier): Promise<PriorityZone[]> {
+    if (!filterTier) return this.zones;
+    return this.zones.filter((z) => z.priorityTier === filterTier);
+  }
+
+  async getZoneById(id: string): Promise<PriorityZone | null> {
+    const found = this.zones.find(
+      (z) => z.id.toLowerCase() === id.toLowerCase() || z.zoneCode.toLowerCase() === id.toLowerCase()
+    );
+    return found || null;
+  }
+
+  async getStagedUnits(): Promise<StagedReliefUnit[]> {
+    return this.units;
+  }
+
+  async getPriorityGeoJson(): Promise<FeatureCollection<Polygon>> {
+    return {
+      type: 'FeatureCollection',
+      features: this.zones.map((zone) => ({
+        type: 'Feature',
+        properties: {
+          id: zone.id,
+          zoneCode: zone.zoneCode,
+          name: zone.name,
+          sector: zone.sector,
+          priorityTier: zone.priorityTier,
+          priorityRank: zone.priorityRank,
+          score: zone.score,
+          severity: zone.severity,
+          populationExposure: zone.populationExposure,
+          infrastructureImpact: zone.infrastructureImpact,
+          accessibility: zone.accessibility,
+          recommendedAction: zone.recommendedAction,
+          verificationStatus: zone.verificationStatus,
+          routeAvailable: zone.routeStatus.isAvailable,
+          routeDescription: zone.routeStatus.routeDescription,
+          coordinateProvenance: zone.coordinateProvenance,
+          provenance: zone.provenance,
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [zone.polygon],
+        },
+      })),
+    };
+  }
+}
+
+export const responsePriorityService = new ResponsePriorityService();
