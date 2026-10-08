@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import type { MapLayerConfig } from '../../types';
-import { DataSourceBadge } from '../../components/common/DataSourceBadge';
+import type { RiskZone, RiskWeights } from '../../types/risk';
+import { 
+  riskAnalysisService, 
+  DEFAULT_RISK_WEIGHTS 
+} from '../../services/RiskAnalysisService';
+import { RiskBreakdown } from './RiskBreakdown';
+import { RiskMapLayer } from './RiskMapLayer';
+import { WeightConfigurator } from './WeightConfigurator';
 import { InteractiveMap } from '../../components/map/InteractiveMap';
+import { DataSourceBadge } from '../../components/common/DataSourceBadge';
 import { 
   Flame, 
-  Info 
+  SlidersHorizontal, 
+  Info,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface RiskViewProps {
@@ -18,132 +29,130 @@ export const RiskView: React.FC<RiskViewProps> = ({
   onToggleLayer,
   onOpacityChange,
 }) => {
-  const riskZones = [
-    {
-      id: 'ZONE-A',
-      name: 'Tatopani Sector (DEMO)',
-      score: 92,
-      debrisRisk: 'HIGH (DEMO Slope Index)',
-      floodRisk: 'CRITICAL (DEMO Inundation)',
-      isolationRisk: 'EXTREME (DEMO Severance)',
-      status: 'DEMO_VALUE' as const,
-    },
-    {
-      id: 'ZONE-B',
-      name: 'Larcha Sector (DEMO)',
-      score: 84,
-      debrisRisk: 'HIGH (DEMO Tributary Index)',
-      floodRisk: 'HIGH (DEMO Surge)',
-      isolationRisk: 'HIGH (DEMO Bridge Impact)',
-      status: 'DEMO_VALUE' as const,
-    },
-    {
-      id: 'ZONE-C',
-      name: 'Barhabise Sector (DEMO)',
-      score: 68,
-      debrisRisk: 'MODERATE (DEMO Scour Index)',
-      floodRisk: 'HIGH (DEMO Floodplain)',
-      isolationRisk: 'MODERATE (DEMO Bypass)',
-      status: 'DEMO_VALUE' as const,
-    },
-  ];
+  const [weights, setWeights] = useState<RiskWeights>(DEFAULT_RISK_WEIGHTS);
+  const [showWeightConfig, setShowWeightConfig] = useState<boolean>(true);
+  const [selectedZoneId, setSelectedZoneId] = useState<string>('ZONE-A');
+  const [focusedWaypoint, setFocusedWaypoint] = useState<[number, number] | null>(null);
+
+  // Recalculate all zones dynamically whenever weights change
+  const zones: RiskZone[] = useMemo(() => {
+    return riskAnalysisService.getRiskZones(weights);
+  }, [weights]);
+
+  const selectedZone: RiskZone = useMemo(() => {
+    const found = zones.find((z) => z.id === selectedZoneId);
+    return found || zones[0];
+  }, [zones, selectedZoneId]);
+
+  const handleSelectZone = (zone: RiskZone) => {
+    setSelectedZoneId(zone.id);
+    setFocusedWaypoint(zone.coordinates);
+  };
+
+  const handleFocusZone = (coords: [number, number]) => {
+    setFocusedWaypoint(coords);
+  };
+
+  const handleWeightsChange = (newWeights: RiskWeights) => {
+    setWeights(newWeights);
+  };
+
+  const handleResetWeights = (presetId?: string) => {
+    const reset = riskAnalysisService.resetWeights(presetId);
+    setWeights(reset);
+  };
 
   return (
     <div className="space-y-4 font-mono">
-      {/* Header */}
-      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Top Header Strip */}
+      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Flame className="w-4 h-4 text-tactical-amber" />
-            <h2 className="text-sm font-bold text-command-text uppercase tracking-wider">
-              MULTI-CRITERIA RISK ENGINE (STEP 3 PROTOTYPE VIEW)
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-700 text-amber-300 font-mono text-[10px] font-bold flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5 text-tactical-amber" />
+              MULTI-CRITERIA DECISION ANALYSIS (MCDA)
+            </span>
+            <h2 className="text-sm font-bold text-command-text font-mono uppercase tracking-wider">
+              EXPLAINABLE GEOSPATIAL RISK ASSESSMENT ENGINE
             </h2>
           </div>
-          <p className="text-xs text-command-muted">
-            Mathematical model framework. Genuine risk scoring will be calculated in Step 6.
+          <p className="text-xs text-command-muted font-mono max-w-2xl">
+            Multi-factor vulnerability modeling synthesizing slope, elevation head, rainfall saturation, bedrock geology, satellite change, and historical disaster recurrence.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setShowWeightConfig(!showWeightConfig)}
+            className="px-3 py-1.5 rounded-lg bg-command-surface hover:bg-command-border border border-command-border text-xs font-bold text-command-text flex items-center gap-1.5 transition-colors shadow-sm"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-command-accent-glow" />
+            <span>{showWeightConfig ? 'HIDE WEIGHTS' : 'CUSTOMIZE WEIGHTS'}</span>
+            {showWeightConfig ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
           <DataSourceBadge
             provenance={{
               tier: 'DEMO_VALUE',
-              source: 'MCDA Prototype Framework (DEMO / ILLUSTRATIVE)',
-              timestamp: '2026-08-27T00:00:00Z',
-              algorithm: 'Multi-Criteria Decision Analysis (AHP Weighted)',
-              confidence: 0.80,
+              source: 'Multi-Criteria Risk Model (Prototype evaluation run)',
+              timestamp: 'Dynamic runtime calculation',
+              algorithm: 'MCDA Multi-Factor Weighted Normalization',
             }}
             showDetails
           />
         </div>
       </div>
 
-      {/* Main Grid: Risk Formulations + Interactive Map */}
+      {/* Interactive Weight Configurator Drawer */}
+      {showWeightConfig && (
+        <WeightConfigurator
+          weights={weights}
+          onWeightsChange={handleWeightsChange}
+          onReset={handleResetWeights}
+        />
+      )}
+
+      {/* Main Grid: Zone List (Left 4 cols) + Map & Deep Breakdown (Right 8 cols) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left: Formula & Zone Breakdown */}
-        <div className="lg:col-span-5 space-y-3">
-          {/* Mathematical Model Formula Card */}
-          <div className="bg-command-panel border border-command-border rounded-lg p-3">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-command-border/60">
-              <div className="flex items-center gap-2">
-                <Info className="w-4 h-4 text-command-accent-glow" />
-                <span className="text-xs font-bold text-command-text">RISK FORMULATION METHODOLOGY</span>
-              </div>
-              <span className="text-[10px] text-command-dim">DECISION SUPPORT</span>
-            </div>
-            <div className="text-[11px] text-command-muted space-y-1">
-              <div className="p-2 bg-command-card rounded border border-command-border text-command-accent-glow font-bold text-xs">
-                Risk Index = 0.35 × (Inundation Hazard) + 0.30 × (Debris Velocity) + 0.20 × (Lifeline Cutoff) + 0.15 × (Population Density)
-              </div>
-              <p className="text-[10px] text-command-dim pt-1">
-                * Note: System produces vulnerability rankings. It does not claim exact prediction of future glacier collapse timings.
-              </p>
-            </div>
-          </div>
+        {/* Left Column: Evaluated Zones Catalog */}
+        <div className="lg:col-span-4">
+          <RiskMapLayer
+            zones={zones}
+            selectedZoneId={selectedZone.id}
+            onSelectZone={handleSelectZone}
+          />
 
-          {/* Priority Risk Zones Table */}
-          <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2">
-            <h3 className="text-xs font-bold text-command-text uppercase tracking-wider mb-2">
-              Sector Rankings (DEMO Data)
-            </h3>
-
-            <div className="space-y-2">
-              {riskZones.map((zone) => (
-                <div key={zone.id} className="p-2.5 rounded bg-command-panel border border-command-border text-xs">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-bold text-command-text">{zone.name}</span>
-                    <span className={`font-mono font-bold text-xs ${zone.score >= 90 ? 'text-tactical-critical' : 'text-tactical-high'}`}>
-                      {zone.score}/100
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1 text-[10px] text-command-muted mb-1.5">
-                    <div>Debris: <span className="text-command-text">{zone.debrisRisk}</span></div>
-                    <div>Flood: <span className="text-command-text">{zone.floodRisk}</span></div>
-                  </div>
-                  <div className="pt-1.5 border-t border-command-border/40 flex items-center justify-between text-[9px]">
-                    <span className="text-rose-300">{zone.isolationRisk}</span>
-                    <DataSourceBadge
-                      provenance={{
-                        tier: zone.status,
-                        source: 'MCDA Prototype Grid (DEMO / ILLUSTRATIVE)',
-                        timestamp: '2026-08-27T00:00:00Z',
-                      }}
-                    />
-                  </div>
-                </div>
-              ))}
+          {/* Methodological Guidance Card */}
+          <div className="mt-3 p-3 rounded-lg bg-command-panel/80 border border-command-border text-[10px] text-command-dim space-y-1.5">
+            <div className="flex items-center gap-1.5 font-bold text-command-text">
+              <Info className="w-3.5 h-3.5 text-command-accent-glow" />
+              <span>SCIENTIFIC & LEGAL NOTICE</span>
             </div>
+            <p className="leading-relaxed">
+              Risk scores are generated via transparent weighted MCDA and presented strictly as <strong>"Prototype risk score"</strong>. They represent decision-support indices rather than definitive predictive forecasts.
+            </p>
           </div>
         </div>
 
-        {/* Right: Interactive Map */}
-        <div className="lg:col-span-7 h-[600px]">
-          <InteractiveMap
-            layers={layers}
-            onToggleLayer={onToggleLayer}
-            onOpacityChange={onOpacityChange}
-            activeAoiName="Map initial viewport — DEMO / navigation reference"
-            heightClass="h-[600px]"
+        {/* Right Column: Interactive Map Viewport & Zone Breakdown */}
+        <div className="lg:col-span-8 flex flex-col gap-4">
+          {/* Interactive Map */}
+          <div className="h-[380px] w-full rounded-lg overflow-hidden border border-command-border">
+            <InteractiveMap
+              layers={layers}
+              onToggleLayer={onToggleLayer}
+              onOpacityChange={onOpacityChange}
+              activeAoiName={`Risk AOI: ${selectedZone.name}`}
+              coordinates={selectedZone.coordinates}
+              heightClass="h-[380px]"
+              focusedWaypoint={focusedWaypoint}
+            />
+          </div>
+
+          {/* Deep Explainability Breakdown Panel */}
+          <RiskBreakdown
+            zone={selectedZone}
+            onFocusZone={handleFocusZone}
           />
         </div>
       </div>
