@@ -11,6 +11,7 @@ import type {
 } from '../../types';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
+import { DemoWorkflowBar } from './DemoWorkflowBar';
 import { DashboardView } from '../../features/dashboard/DashboardView';
 import { SatelliteView } from '../../features/satellite/SatelliteView';
 import { DamageView } from '../../features/damage/DamageView';
@@ -350,6 +351,12 @@ export const AppShell: React.FC = () => {
         {/* Dynamic Main Content Workspace (Each view rendered exactly once) */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-command-bg/95">
           <div className="max-w-7xl mx-auto">
+            {/* 15-Second Executive Walkthrough Bar */}
+            <DemoWorkflowBar
+              currentTab={currentTab}
+              onSelectTab={setCurrentTab}
+            />
+
             {currentTab === 'dashboard' && (
               <DashboardView
                 incident={incident}
