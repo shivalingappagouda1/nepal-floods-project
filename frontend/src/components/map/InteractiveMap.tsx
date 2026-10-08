@@ -449,6 +449,18 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     };
   }, []);
 
+  // Responsive map resize on container dimension change (e.g. Focus Map toggle)
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    const observer = new ResizeObserver(() => {
+      mapRef.current?.resize();
+    });
+    observer.observe(mapContainerRef.current);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   // Handle focusedWaypoint prop changes
   useEffect(() => {
     if (!mapRef.current || !isMapLoaded || !focusedWaypoint) return;

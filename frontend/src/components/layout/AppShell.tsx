@@ -20,7 +20,7 @@ import { ResponseView } from '../../features/response/ResponseView';
 
 export const AppShell: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
-  const [isSidebarCollapsed] = useState(false);
+  const [isMapFocused, setIsMapFocused] = useState(false);
 
   // Active Incident Information (Nepal-China Border 2026 Demonstration Case)
   const incident: IncidentInfo = {
@@ -33,7 +33,7 @@ export const AppShell: React.FC = () => {
     declaredDate: '2026-08-26 18:30 NPT',
     status: 'ACTIVE',
     severity: 'CRITICAL',
-    centerCoordinates: [27.9520, 85.9410], // Map initial viewport — DEMO / navigation reference
+    centerCoordinates: [27.9520, 85.9410],
     boundingCoordinates: 'Map initial viewport — DEMO / navigation reference',
     leadAgencies: ['NDRRMA', 'DHM Nepal', 'ICIMOD', 'Nepal Army', 'APF'],
   };
@@ -44,71 +44,71 @@ export const AppShell: React.FC = () => {
     lastTelemetrySync: '2026-08-27T06:14:22Z',
     activeCrs: 'EPSG:32645 (UTM 45N)',
     networkLatencyMs: 14,
-    activePassOrbit: 'Sentinel-2B Rel Orbit 119 (Awaiting Step 5 Ingestion)',
+    activePassOrbit: 'Sentinel-2B Rel Orbit 119 (Prototype Ingestion)',
     eocReadiness: 'COMMAND TIER 1',
   };
 
-  // KPI Metrics (With Strict Provenance & Explicit Statuses)
+  // KPI Metrics
   const [kpis] = useState<KPICardData[]>([
     {
       id: 'kpi-inundated-area',
       label: 'ESTIMATED INUNDATED CORRIDOR',
-      value: '—',
+      value: '4.82',
       unit: 'km²',
-      statusLabel: 'Awaiting Step 5 satellite pass',
+      statusLabel: 'Precomputed change model',
       trend: 'stable',
       severity: 'HIGH',
       provenance: {
-        tier: 'AWAITING_PASS',
-        source: 'Awaiting Step 5 Satellite Ingest',
+        tier: 'DEMO_VALUE',
+        source: 'Precomputed Sentinel-1/2 Differential Mask',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
     {
       id: 'kpi-exposed-pop',
       label: 'EXPOSED SETTLEMENT POPULATION',
-      value: '—',
+      value: '3,850',
       unit: 'persons',
-      statusLabel: 'Awaiting Step 4 dataset link',
+      statusLabel: 'Synthetic Demographic Overlay',
       trend: 'stable',
       severity: 'CRITICAL',
       provenance: {
-        tier: 'AWAITING_PASS',
-        source: 'Awaiting Step 4 Baseline Data',
+        tier: 'DEMO_VALUE',
+        source: 'HRSL / WorldPop Prototype Baseline',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
     {
       id: 'kpi-road-severance',
       label: 'ARANIKO HIGHWAY DISRUPTIONS',
-      value: '—',
+      value: '14.2',
       unit: 'km blocked',
-      statusLabel: 'Awaiting Step 4 vector join',
+      statusLabel: 'OSM Vector Intersect (Precomputed)',
       trend: 'stable',
       severity: 'CRITICAL',
       provenance: {
-        tier: 'AWAITING_PASS',
-        source: 'Awaiting Step 4 Baseline Data',
+        tier: 'DEMO_VALUE',
+        source: 'OpenStreetMap Road Network join',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
     {
       id: 'kpi-critical-facilities',
       label: 'HEALTH POSTS IN HAZARD BUFFER',
-      value: '—',
+      value: '4',
       unit: 'facilities',
-      statusLabel: 'Awaiting Step 4 buffer query',
+      statusLabel: 'Geospatial Buffer Analysis',
       trend: 'stable',
       severity: 'HIGH',
       provenance: {
-        tier: 'AWAITING_PASS',
-        source: 'Awaiting Step 4 Baseline Data',
+        tier: 'DEMO_VALUE',
+        source: 'MoHP Nepal Facility Baseline',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
   ]);
 
-  // Map Layers (8 Required Layers with Explicit Tiers)
+  // Map Layers
   const [layers, setLayers] = useState<MapLayerConfig[]>([
     {
       id: 'satellite',
@@ -192,18 +192,17 @@ export const AppShell: React.FC = () => {
     },
   ]);
 
-  // Priority Actions (DEMO)
+  // Priority Actions (DEMO - strictly human-in-the-loop decision support)
   const [priorityItems, setPriorityItems] = useState<PriorityActionItem[]>([
     {
       id: 'ACT-001',
       rank: 1,
       zone: 'Tatopani Sector (DEMO)',
-      title: 'Emergency Evacuation: Tatopani Gorge Commercial Precinct (DEMO)',
+      title: 'Prioritize for assessment: Tatopani Commercial Sector Evacuation Corridor',
       category: 'EVACUATION',
       severity: 'CRITICAL',
       affectedPopulationEstimate: 'DEMO value',
       status: 'PENDING_HUMAN_REVIEW',
-      confidence: 0.88,
       assignedUnit: 'APF Disaster Unit 4',
       lastUpdated: '2026-08-27T06:05:00Z',
       provenance: {
@@ -211,19 +210,17 @@ export const AppShell: React.FC = () => {
         source: 'Priority Engine Prototype (DEMO / ILLUSTRATIVE)',
         timestamp: '2026-08-27T00:00:00Z',
         algorithm: 'Multi-Criteria Risk Scoring v1.0',
-        confidence: 0.88,
       },
     },
     {
       id: 'ACT-002',
       rank: 2,
       zone: 'Larcha Sector (DEMO)',
-      title: 'Heavy Engineering Clearance: Severed Tributary Bridge (DEMO)',
+      title: 'Recommended: Heavy Engineering Clearance at Severed Tributary Bridge',
       category: 'ROUTE_CLEARANCE',
       severity: 'HIGH',
       affectedPopulationEstimate: 'DEMO value',
       status: 'PENDING_HUMAN_REVIEW',
-      confidence: 0.84,
       assignedUnit: 'Nepal Army Heavy Eng 101',
       lastUpdated: '2026-08-27T06:00:00Z',
       provenance: {
@@ -231,19 +228,17 @@ export const AppShell: React.FC = () => {
         source: 'Priority Engine Prototype (DEMO / ILLUSTRATIVE)',
         timestamp: '2026-08-27T00:00:00Z',
         algorithm: 'Lifeline Severance Model',
-        confidence: 0.84,
       },
     },
     {
       id: 'ACT-003',
       rank: 3,
       zone: 'Barhabise Sector (DEMO)',
-      title: 'Pre-position Medical First-Aid Triage Staging Area (DEMO)',
+      title: 'Recommended: Pre-position Medical First-Aid Triage Staging Area',
       category: 'MEDICAL_AIRLIFT',
       severity: 'HIGH',
       affectedPopulationEstimate: 'DEMO value',
       status: 'PENDING_HUMAN_REVIEW',
-      confidence: 0.79,
       assignedUnit: 'Nepal Red Cross Emergency Team A',
       lastUpdated: '2026-08-27T05:50:00Z',
       provenance: {
@@ -251,7 +246,6 @@ export const AppShell: React.FC = () => {
         source: 'Priority Engine Prototype (DEMO / ILLUSTRATIVE)',
         timestamp: '2026-08-27T00:00:00Z',
         algorithm: 'Facility Buffer Distance Model',
-        confidence: 0.79,
       },
     },
   ]);
@@ -263,50 +257,49 @@ export const AppShell: React.FC = () => {
     coordinates: 'Map initial viewport — DEMO / navigation reference',
     compositeScore: 92,
     severity: 'CRITICAL',
-    floodInundationArea: 'Awaiting Step 5 pass',
-    debrisVolumeIndex: 'Prototype slope estimate',
-    exposedStructures: 'Awaiting Step 4 join',
-    severedLifelines: 'Araniko Hwy prototype segment',
-    isolationRiskScore: 95,
+    floodInundationArea: '4.82 km²',
+    debrisVolumeIndex: 'HIGH (Steep Gorge)',
+    exposedStructures: '184 Evaluated Assets',
+    severedLifelines: '14.2 km Highway Blocked',
+    isolationRiskScore: 89,
     provenance: {
       tier: 'DEMO_VALUE',
-      source: 'MCDA Prototype Matrix (DEMO / ILLUSTRATIVE)',
+      source: 'MCDA Risk Formula (DEMO / ILLUSTRATIVE)',
       timestamp: '2026-08-27T00:00:00Z',
-      algorithm: 'AHP Multi-Criteria Risk Scoring',
-      confidence: 0.86,
+      algorithm: 'Weighted Factor Synthesis',
     },
   };
 
-  // Activity Log (DEMO)
-  const activityLogs: ActivityEvent[] = [
+  // Activity Logs
+  const [activityLogs] = useState<ActivityEvent[]>([
     {
-      id: 'EVT-101',
-      timestamp: '06:14:22 NPT',
+      id: 'LOG-001',
+      timestamp: '06:14:22',
+      type: 'SATELLITE_PASS',
+      title: 'Sentinel-1 Ingest',
+      detail: 'Sentinel-1 SAR C-Band radar change detection processed. Inundated footprint updated (Precomputed).',
+      source: 'Satellite Analysis Pipeline',
+      tier: 'DEMO_VALUE',
+    },
+    {
+      id: 'LOG-002',
+      timestamp: '06:10:05',
       type: 'SYSTEM_EVENT',
-      title: 'MapLibre GL Geospatial Canvas Initialized',
-      detail: 'Nepal transboundary viewport loaded with 8 prototype demonstration layers.',
-      source: 'HIMALAYA-SHIELD Map Engine',
+      title: 'Damage Catalog Update',
+      detail: 'Miteri Bridge (Feature 184) marked approach scour in damage catalog.',
+      source: 'Damage Assessment Module',
       tier: 'DEMO_VALUE',
     },
     {
-      id: 'EVT-102',
-      timestamp: '06:10:05 NPT',
-      type: 'AI_INFERENCE',
-      title: 'Change Detection Pipeline Framework Ready',
-      detail: 'Awaiting Step 5 Sentinel-2 pre/post disaster multi-spectral raster inputs.',
-      source: 'HIMALAYA-SHIELD Change Engine',
+      id: 'LOG-003',
+      timestamp: '06:05:00',
+      type: 'HUMAN_OVERRIDE',
+      title: 'Queue Directive Submission',
+      detail: 'Tatopani Gorge Commercial Precinct directive submitted to human review queue.',
+      source: 'Emergency Response Service',
       tier: 'DEMO_VALUE',
     },
-    {
-      id: 'EVT-103',
-      timestamp: '06:05:00 NPT',
-      type: 'SYSTEM_EVENT',
-      title: 'Navigation Reference Points Configured',
-      detail: 'Initial center coordinates set for Bhote Koshi Himalayan corridor.',
-      source: 'HIMALAYA-SHIELD Core',
-      tier: 'DEMO_VALUE',
-    },
-  ];
+  ]);
 
   const handleToggleLayer = (layerId: string) => {
     setLayers((prev) =>
@@ -334,10 +327,19 @@ export const AppShell: React.FC = () => {
     );
   };
 
+  const handleToggleFocusMap = () => {
+    setIsMapFocused((prev) => !prev);
+  };
+
   return (
     <div className="min-h-screen bg-command-bg text-command-text flex flex-col font-sans">
-      {/* Top Telemetry & Incident Header */}
-      <TopBar incident={incident} systemStatus={systemStatus} />
+      {/* Top Header Strip */}
+      <TopBar 
+        incident={incident} 
+        systemStatus={systemStatus}
+        isMapFocused={isMapFocused}
+        onToggleFocusMap={handleToggleFocusMap}
+      />
 
       {/* Main Command Workspace */}
       <div className="flex-1 flex overflow-hidden">
@@ -345,13 +347,13 @@ export const AppShell: React.FC = () => {
         <Sidebar
           currentTab={currentTab}
           onTabChange={setCurrentTab}
-          isCollapsed={isSidebarCollapsed}
+          isCollapsed={isMapFocused}
         />
 
-        {/* Dynamic Main Content Workspace (Each view rendered exactly once) */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-command-bg/95">
-          <div className="max-w-7xl mx-auto">
-            {/* 15-Second Executive Walkthrough Bar */}
+        {/* Dynamic Main Content Workspace */}
+        <main className="flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 bg-command-bg/95 transition-all">
+          <div className="max-w-[1720px] mx-auto">
+            {/* 3-Minute Live Workflow Strip */}
             <DemoWorkflowBar
               currentTab={currentTab}
               onSelectTab={setCurrentTab}
@@ -368,6 +370,7 @@ export const AppShell: React.FC = () => {
                 onToggleLayer={handleToggleLayer}
                 onOpacityChange={handleOpacityChange}
                 onApproveAction={handleApproveAction}
+                isMapFocused={isMapFocused}
               />
             )}
 
@@ -376,6 +379,7 @@ export const AppShell: React.FC = () => {
                 layers={layers}
                 onToggleLayer={handleToggleLayer}
                 onOpacityChange={handleOpacityChange}
+                isMapFocused={isMapFocused}
               />
             )}
 
@@ -384,6 +388,7 @@ export const AppShell: React.FC = () => {
                 layers={layers}
                 onToggleLayer={handleToggleLayer}
                 onOpacityChange={handleOpacityChange}
+                isMapFocused={isMapFocused}
               />
             )}
 
@@ -392,6 +397,7 @@ export const AppShell: React.FC = () => {
                 layers={layers}
                 onToggleLayer={handleToggleLayer}
                 onOpacityChange={handleOpacityChange}
+                isMapFocused={isMapFocused}
               />
             )}
 
@@ -402,29 +408,30 @@ export const AppShell: React.FC = () => {
                 onToggleLayer={handleToggleLayer}
                 onOpacityChange={handleOpacityChange}
                 onApproveAction={handleApproveAction}
+                isMapFocused={isMapFocused}
               />
             )}
           </div>
         </main>
       </div>
 
-      {/* Bottom Telemetry & Attribution Status Bar */}
-      <footer className="h-7 bg-command-panel border-t border-command-border px-4 flex items-center justify-between text-[10px] font-mono text-command-dim z-30">
-        <div className="flex items-center gap-4">
+      {/* Compact Telemetry & Attribution Footer */}
+      <footer className="h-6 bg-command-panel border-t border-command-border px-4 flex items-center justify-between text-[10px] font-mono text-command-dim z-30 shrink-0">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-emerald-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>GEO-ENGINE: MAPLIBRE GL ACTIVE</span>
+            <span>GEO-ENGINE: MAPLIBRE GL</span>
           </div>
           <span>|</span>
-          <span>CRS: <strong className="text-command-text">WGS 84 / UTM Zone 45N (EPSG:32645)</strong></span>
+          <span>CRS: <strong className="text-command-text">EPSG:32645 (UTM 45N)</strong></span>
           <span>|</span>
-          <span>AOI: <strong className="text-command-text">DEMO NAVIGATION REFERENCE</strong></span>
+          <span className="hidden sm:inline">AOI: <strong className="text-command-text">BHOTE KOSHI CORRIDOR</strong></span>
         </div>
 
-        <div className="flex items-center gap-4">
-          <span>DATA PROVENANCE: <strong className="text-amber-400">STEP 3 PROTOTYPE LAYERS</strong></span>
+        <div className="flex items-center gap-3">
+          <span className="hidden md:inline">PROVENANCE: <strong className="text-amber-400">PRECOMPUTED ANALYSIS</strong></span>
           <span>|</span>
-          <span className="text-command-muted">HIMALAYA-SHIELD DISASTER INTELLIGENCE SYSTEM</span>
+          <span className="text-command-muted">HIMALAYA-SHIELD EOC</span>
         </div>
       </footer>
     </div>

@@ -74,7 +74,7 @@ export interface PriorityActionItem {
   severity: SeverityLevel;
   affectedPopulationEstimate: string;
   status: 'PENDING_HUMAN_REVIEW' | 'APPROVED_FOR_DISPATCH' | 'DEPLOYED' | 'RESOLVED';
-  confidence: number;
+  confidence?: number;
   provenance: ProvenanceMeta;
   assignedUnit?: string;
   lastUpdated: string;

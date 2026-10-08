@@ -39,19 +39,19 @@ export const PriorityList: React.FC<PriorityListProps> = ({
     switch (status) {
       case 'PENDING_HUMAN_REVIEW':
         return {
-          label: 'PENDING HUMAN EOC APPROVAL',
+          label: 'PENDING HUMAN REVIEW',
           class: 'bg-amber-950/50 text-amber-400 border-amber-800/80',
           icon: Clock,
         };
       case 'APPROVED_FOR_DISPATCH':
         return {
-          label: 'COMMAND APPROVED',
+          label: 'HUMAN REVIEW COMPLETE',
           class: 'bg-emerald-950/50 text-emerald-400 border-emerald-800/80',
           icon: UserCheck,
         };
       case 'DEPLOYED':
         return {
-          label: 'UNITS DEPLOYED',
+          label: 'FIELD UNITS ACTIVE',
           class: 'bg-sky-950/50 text-sky-400 border-sky-800/80',
           icon: Radio,
         };
@@ -65,22 +65,22 @@ export const PriorityList: React.FC<PriorityListProps> = ({
   };
 
   return (
-    <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col h-full">
+    <div className="bg-command-card border border-command-border rounded-lg p-3.5 flex flex-col h-full font-mono">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 mb-3 border-b border-command-border/60">
+      <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-command-border/60">
         <div className="flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-tactical-amber" />
-          <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-command-text">
-            TACTICAL RESPONSE QUEUE (HUMAN-IN-THE-LOOP)
+          <h3 className="text-xs font-bold uppercase tracking-wider text-command-text">
+            DECISION-SUPPORT QUEUE (HUMAN-IN-THE-LOOP)
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-command-dim">
-          {items.length} ACTIVE DIRECTIVES
+        <span className="text-[10px] text-command-dim">
+          {items.length} DIRECTIVES
         </span>
       </div>
 
       {/* Item List */}
-      <div className="space-y-3 overflow-y-auto pr-1 max-h-[480px]">
+      <div className="space-y-2.5 overflow-y-auto pr-1">
         {items.map((item) => {
           const statusInfo = getStatusBadge(item.status);
           const StatusIcon = statusInfo.icon;
@@ -96,21 +96,21 @@ export const PriorityList: React.FC<PriorityListProps> = ({
               }`}
             >
               {/* Top metadata line */}
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-mono text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-command-surface text-command-accent-glow border border-command-border">
+                  <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-command-surface text-command-accent-glow border border-command-border">
                     P{item.rank}
                   </span>
-                  <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded border ${getCategoryColor(item.category)}`}>
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${getCategoryColor(item.category)}`}>
                     {item.category.replace('_', ' ')}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-mono text-command-dim">
+                  <span className="inline-flex items-center gap-1 text-[11px] text-command-dim">
                     <MapPin className="w-3 h-3 text-command-muted" />
                     {item.zone}
                   </span>
                 </div>
 
-                <div className={`inline-flex items-center gap-1 text-[9px] font-mono px-1.5 py-0.5 rounded border ${statusInfo.class}`}>
+                <div className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded border ${statusInfo.class}`}>
                   <StatusIcon className="w-3 h-3" />
                   <span>{statusInfo.label}</span>
                 </div>
@@ -120,7 +120,7 @@ export const PriorityList: React.FC<PriorityListProps> = ({
               <h4 className="text-xs font-semibold text-command-text mb-1">
                 {item.title}
               </h4>
-              <p className="text-[11px] text-command-muted mb-2 font-mono">
+              <p className="text-[11px] text-command-muted mb-2">
                 Est. Exposed: <span className="text-command-text font-bold">{item.affectedPopulationEstimate}</span> | Unit Target: <span className="text-command-text">{item.assignedUnit || 'Unassigned'}</span>
               </p>
 
@@ -134,10 +134,10 @@ export const PriorityList: React.FC<PriorityListProps> = ({
                 {isPending && onApproveAction && (
                   <button
                     onClick={() => onApproveAction(item.id)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono font-bold text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/80 rounded transition-colors"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/80 rounded transition-colors"
                   >
                     <UserCheck className="w-3 h-3" />
-                    APPROVE DISPATCH
+                    REVIEW DIRECTIVE
                   </button>
                 )}
               </div>

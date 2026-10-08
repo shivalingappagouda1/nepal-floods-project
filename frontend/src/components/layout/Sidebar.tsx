@@ -20,22 +20,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onTabChange,
   isCollapsed = false 
 }) => {
-  const navItems: { id: NavigationTab; label: string; icon: React.ElementType; badge?: string }[] = [
-    { id: 'dashboard', label: 'EOC Dashboard', icon: LayoutDashboard },
-    { id: 'satellite', label: 'Satellite Analysis', icon: Satellite, badge: 'STEP 5' },
-    { id: 'damage', label: 'Damage Assessment', icon: Building2, badge: 'STEP 4' },
-    { id: 'risk', label: 'Risk Analysis', icon: Flame, badge: 'STEP 6' },
-    { id: 'response', label: 'Emergency Response', icon: ShieldAlert, badge: 'HITL' },
+  const navItems: { id: NavigationTab; label: string; icon: React.ElementType }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'satellite', label: 'Satellite Analysis', icon: Satellite },
+    { id: 'damage', label: 'Damage Assessment', icon: Building2 },
+    { id: 'risk', label: 'Risk Analysis', icon: Flame },
+    { id: 'response', label: 'Emergency Response', icon: ShieldAlert },
   ];
 
   return (
     <aside className={`bg-command-panel border-r border-command-border flex flex-col justify-between transition-all duration-200 ${
-      isCollapsed ? 'w-16' : 'w-64'
-    }`}>
-      {/* Navigation Links - Exactly one of each entry */}
+      isCollapsed ? 'w-16' : 'w-56 lg:w-60'
+    } shrink-0`}>
+      {/* Navigation Links */}
       <div className="p-3 space-y-1">
         <div className="px-3 py-2 text-[10px] font-mono text-command-dim uppercase tracking-wider font-semibold">
-          Operational Modules
+          Modules
         </div>
 
         {navItems.map((item) => {
@@ -48,39 +48,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => onTabChange(item.id)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-mono transition-all text-left ${
                 isActive
-                  ? 'bg-command-accent/20 border border-command-accent/50 text-command-accent-glow font-bold shadow-tactical-glow'
+                  ? 'bg-command-accent/20 border border-command-accent/60 text-command-accent-glow font-bold shadow-tactical-glow'
                   : 'text-command-muted hover:text-command-text hover:bg-command-surface/50 border border-transparent'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-command-accent-glow' : 'text-command-dim'}`} />
-                {!isCollapsed && <span>{item.label}</span>}
+              <div className="flex items-center gap-3 truncate">
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-command-accent-glow' : 'text-command-dim'}`} />
+                {!isCollapsed && <span className="truncate">{item.label}</span>}
               </div>
 
-              {!isCollapsed && (
-                <div className="flex items-center gap-1.5">
-                  {item.badge && (
-                    <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${
-                      isActive 
-                        ? 'bg-command-accent text-white' 
-                        : 'bg-command-surface text-command-dim border border-command-border'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-command-accent-glow" />}
-                </div>
+              {!isCollapsed && isActive && (
+                <ChevronRight className="w-3.5 h-3.5 text-command-accent-glow shrink-0" />
               )}
             </button>
           );
         })}
       </div>
 
-      {/* Clean Bottom Navigation Status */}
-      <div className="p-3 border-t border-command-border">
-        <div className="text-[10px] font-mono text-command-dim text-center py-1">
-          STEP 3 PROTOTYPE
-        </div>
+      {/* Clean Bottom EOC Status */}
+      <div className="p-3 border-t border-command-border text-[10px] font-mono text-command-dim text-center">
+        {!isCollapsed && <span>COMMAND TIER 1</span>}
       </div>
     </aside>
   );

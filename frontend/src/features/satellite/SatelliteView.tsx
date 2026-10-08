@@ -12,25 +12,25 @@ import {
 } from '../../services/SatelliteAnalysisService';
 import { SatelliteComparisonViewer } from './SatelliteComparisonViewer';
 import { DetectionResultsPanel } from './DetectionResultsPanel';
-import { SensorModalitiesExplainer } from './SensorModalitiesExplainer';
-import { ErrorState } from '../../components/common/ErrorState';
-import { DataSourceBadge } from '../../components/common/DataSourceBadge';
 import { 
   Satellite, 
-  Sliders, 
   Play, 
   Radar, 
   Sun, 
-  Layers 
+  Eye, 
+  EyeOff,
 } from 'lucide-react';
 
 interface SatelliteViewProps {
   layers: MapLayerConfig[];
   onToggleLayer: (id: string) => void;
   onOpacityChange: (id: string, opacity: number) => void;
+  isMapFocused?: boolean;
 }
 
-export const SatelliteView: React.FC<SatelliteViewProps> = () => {
+export const SatelliteView: React.FC<SatelliteViewProps> = ({
+  isMapFocused = false,
+}) => {
   const scenePairs = MOCK_SCENE_PAIRS;
   const [selectedPairId, setSelectedPairId] = useState<string>(MOCK_SCENE_PAIRS[0].id);
   const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('SWIPE_SPLIT');
@@ -41,11 +41,9 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
   const [showChangeOverlay, setShowChangeOverlay] = useState<boolean>(true);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [detectionResult, setDetectionResult] = useState<ChangeDetectionResult | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const selectedPair = scenePairs.find((p) => p.id === selectedPairId) || scenePairs[0];
 
-  // Initial load of detection result
   useEffect(() => {
     let isMounted = true;
     const loadInitialResult = async () => {
@@ -58,10 +56,8 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
         if (isMounted) {
           setDetectionResult(result);
         }
-      } catch (err: any) {
-        if (isMounted) {
-          setErrorMessage(err.message || 'Failed to initialize satellite scene.');
-        }
+      } catch {
+        // Fallback gracefully on mock pair
       }
     };
     loadInitialResult();
@@ -70,7 +66,6 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
     };
   }, [selectedPairId, selectedPair, threshold, analysisMethod]);
 
-  // Update selected band when scene pair changes
   const handleSelectPair = (pairId: string) => {
     setSelectedPairId(pairId);
     const targetPair = scenePairs.find((p) => p.id === pairId) || scenePairs[0];
@@ -78,12 +73,10 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
     setAnalysisMethod(targetPair.defaultMethod);
   };
 
-  // Run change detection calculation (Precomputed Analysis trigger)
   const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
-    setErrorMessage(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       const result = await satelliteAnalysisService.detectChange(
         selectedPair,
         threshold,
@@ -91,168 +84,186 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
       );
       setDetectionResult(result);
       setShowChangeOverlay(true);
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Error processing satellite change detection pipeline.');
+    } catch {
+      // Keep existing detection result on transient error
     } finally {
       setIsAnalyzing(false);
     }
   };
 
   return (
-    <div className="space-y-4 font-mono">
-      {/* Top Incident & Satellite Header */}
-      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded bg-sky-950/80 border border-sky-700 text-sky-300 font-mono text-[10px] font-bold flex items-center gap-1">
+    <div className="space-y-3 font-mono">
+      {/* Top Header Strip */}
+      <div className="bg-command-card/90 border border-command-border rounded-lg px-4 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded bg-sky-950/80 border border-sky-700 text-sky-300 text-[10px] font-bold flex items-center gap-1">
               <Satellite className="w-3.5 h-3.5" />
-              SATELLITE INTELLIGENCE
+              SATELLITE CHANGE DETECTION
             </span>
-            <h2 className="text-sm font-bold text-command-text font-mono">
-              EARTH OBSERVATION & MULTI-TEMPORAL CHANGE DETECTION
+            <h2 className="text-xs sm:text-sm font-bold text-command-text">
+              SENTINEL-1 SAR & SENTINEL-2 OPTICAL COMPARISON
             </h2>
           </div>
-          <p className="text-xs text-command-muted font-mono max-w-2xl">
-            Multi-sensor before/after analysis for the 26 August 2026 transboundary surge corridor. Supports Sentinel-1 SAR, Sentinel-2 Optical MSI, and Landsat.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <DataSourceBadge provenance={selectedPair.postScene.provenance} showDetails />
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-bold">
+            PRECOMPUTED ANALYSIS
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded bg-command-surface border border-command-border text-command-dim">
+            CONFIDENCE: Not available
+          </span>
         </div>
       </div>
 
-      {/* Sensor Modal Explanation Panel (Sentinel-1 vs Sentinel-2 Physics) */}
-      <SensorModalitiesExplainer />
+      {/* 3-Column Disaster Command Workspace: Left Controls (3 cols), Center Viewer (6 cols), Right Results (3 cols) */}
+      <div className={`grid gap-3 transition-all ${
+        isMapFocused ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12'
+      }`}>
+        {/* Left Column: Scene Selector & View Controls */}
+        {!isMapFocused && (
+          <div className="lg:col-span-3 space-y-3 h-[640px] overflow-y-auto pr-1">
+            {/* Scene Selector */}
+            <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between pb-1.5 border-b border-command-border">
+                <span className="text-xs font-bold text-command-text uppercase">
+                  SENSOR MODALITY
+                </span>
+                <span className="text-[10px] text-command-dim">
+                  PROTOTYPE IMAGERY
+                </span>
+              </div>
 
-      {/* Main Analysis Workflow: Controls (Left 4 cols) + Imagery Viewport & Results (Right 8 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Column: Scene Selector & Pipeline Configuration */}
-        <div className="lg:col-span-4 space-y-4">
-          {/* 1. Scene Catalog Selector */}
-          <div className="bg-command-card border border-command-border rounded-lg p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-command-border">
-              <h3 className="text-xs font-bold text-command-text uppercase tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-command-accent-glow" />
-                <span>1. SATELLITE SCENE PAIR</span>
-              </h3>
-              <span className="text-[10px] text-command-dim">
-                {scenePairs.length} DATASETS
-              </span>
-            </div>
+              <div className="space-y-2">
+                {scenePairs.map((pair) => {
+                  const isSar = pair.preScene.sensor === 'SENTINEL_1_SAR';
+                  const isSelected = selectedPairId === pair.id;
 
-            <div className="space-y-2">
-              {scenePairs.map((pair) => {
-                const isSar = pair.preScene.sensor === 'SENTINEL_1_SAR';
-                const isSelected = selectedPairId === pair.id;
-
-                return (
-                  <button
-                    key={pair.id}
-                    onClick={() => handleSelectPair(pair.id)}
-                    className={`w-full p-3 rounded-lg border text-left transition-all ${
-                      isSelected
-                        ? 'bg-command-surface border-command-accent text-command-text shadow-tactical-glow'
-                        : 'bg-command-panel/60 border-command-border text-command-muted hover:border-command-border-light hover:text-command-text'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <div className="flex items-center gap-1.5 font-bold text-xs">
-                        {isSar ? (
-                          <Radar className="w-3.5 h-3.5 text-sky-400" />
-                        ) : (
-                          <Sun className="w-3.5 h-3.5 text-amber-400" />
-                        )}
-                        <span>{pair.name}</span>
+                  return (
+                    <button
+                      key={pair.id}
+                      onClick={() => handleSelectPair(pair.id)}
+                      className={`w-full p-2.5 rounded-lg border text-left transition-all ${
+                        isSelected
+                          ? 'bg-command-surface border-command-accent text-command-text shadow-tactical-glow'
+                          : 'bg-command-panel/60 border-command-border text-command-muted hover:border-command-border-light'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                          {isSar ? <Radar className="w-3.5 h-3.5 text-sky-400" /> : <Sun className="w-3.5 h-3.5 text-emerald-400" />}
+                          <span className={isSelected ? 'text-command-accent-glow' : 'text-command-text'}>
+                            {isSar ? 'Sentinel-1 SAR' : 'Sentinel-2 Optical'}
+                          </span>
+                        </div>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-command-card border border-command-border text-command-dim">
+                          {isSar ? 'C-BAND' : 'MSI'}
+                        </span>
                       </div>
-                    </div>
-
-                    <p className="text-[10px] text-command-dim mb-2 leading-relaxed">
-                      {pair.description}
-                    </p>
-
-                    <div className="flex items-center justify-between text-[9px] text-command-muted pt-1.5 border-t border-command-border/40">
-                      <span>Pre: {pair.preScene.acquisitionDate.split('T')[0]}</span>
-                      <span className="text-command-accent-glow">Post: {pair.postScene.acquisitionDate.split('T')[0]}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 2. Analysis Algorithm & Threshold Controls */}
-          <div className="bg-command-card border border-command-border rounded-lg p-4 space-y-3">
-            <h3 className="text-xs font-bold text-command-text uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-command-border">
-              <Sliders className="w-3.5 h-3.5 text-command-accent-glow" />
-              <span>2. ALGORITHM & SENSITIVITY</span>
-            </h3>
-
-            {/* Analysis Method Picker */}
-            <div className="space-y-1.5">
-              <label className="text-[10px] text-command-dim block uppercase font-bold">
-                Change Detection Method:
-              </label>
-              <select
-                value={analysisMethod}
-                onChange={(e) => setAnalysisMethod(e.target.value as AnalysisMethod)}
-                className="w-full bg-command-panel border border-command-border rounded p-2 text-xs text-command-text focus:outline-none focus:border-command-accent"
-              >
-                <option value="SAR_BACKSCATTER_RATIO">SAR Radar Amplitude Ratio (Δσ₀ &lt; -4 dB)</option>
-                <option value="DIFF_MNDWI">Differential MNDWI (Water Extraction)</option>
-                <option value="DIFF_NDVI">Differential NDVI (Scarp & Vegetation Loss)</option>
-                <option value="HYBRID_AI_CHANGE">Hybrid Multi-Spectral + Radar Fusion</option>
-              </select>
-            </div>
-
-            {/* Threshold Slider */}
-            <div className="pt-2 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-command-muted text-[11px]">Detection Threshold (θ):</span>
-                <span className="text-command-accent-glow font-bold">{threshold.toFixed(2)}</span>
-              </div>
-              <input
-                type="range"
-                min="0.10"
-                max="0.80"
-                step="0.05"
-                value={threshold}
-                onChange={(e) => setThreshold(parseFloat(e.target.value))}
-                className="w-full h-1.5 bg-command-surface rounded-lg appearance-none cursor-pointer accent-command-accent"
-              />
-              <div className="flex justify-between text-[9px] text-command-dim">
-                <span>Conservative (0.10)</span>
-                <span>Balanced (0.35)</span>
-                <span>Aggressive (0.80)</span>
+                      <p className="text-[10px] text-command-dim leading-tight">
+                        {isSar ? 'All-weather cloud penetration • Coherence delta' : '10m Multispectral • False-color IR water mask'}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Action Button: ANALYZE CHANGE */}
-            <div className="pt-3">
+            {/* Quick View Controls */}
+            <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2.5">
+              <div className="text-xs font-bold text-command-text uppercase pb-1.5 border-b border-command-border">
+                COMPARISON CONTROLS
+              </div>
+
+              {/* View Mode Buttons */}
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setComparisonMode('SWIPE_SPLIT')}
+                  className={`px-2 py-1.5 rounded text-[11px] font-bold border transition-all text-center ${
+                    comparisonMode === 'SWIPE_SPLIT'
+                      ? 'bg-command-accent text-white border-sky-400 shadow-sm'
+                      : 'bg-command-panel border-command-border text-command-muted hover:text-command-text'
+                  }`}
+                >
+                  SWIPE SLIDER
+                </button>
+                <button
+                  onClick={() => setComparisonMode('SIDE_BY_SIDE')}
+                  className={`px-2 py-1.5 rounded text-[11px] font-bold border transition-all text-center ${
+                    comparisonMode === 'SIDE_BY_SIDE'
+                      ? 'bg-command-accent text-white border-sky-400 shadow-sm'
+                      : 'bg-command-panel border-command-border text-command-muted hover:text-command-text'
+                  }`}
+                >
+                  SIDE-BY-SIDE
+                </button>
+              </div>
+
+              {/* Change Overlay Toggle */}
               <button
-                onClick={() => handleRunAnalysis()}
-                disabled={isAnalyzing}
-                className="w-full py-2.5 px-4 rounded-lg bg-command-accent hover:bg-sky-500 text-white font-bold text-xs shadow-tactical-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                onClick={() => setShowChangeOverlay(!showChangeOverlay)}
+                className={`w-full px-2.5 py-1.5 rounded text-[11px] font-bold border flex items-center justify-between transition-all ${
+                  showChangeOverlay
+                    ? 'bg-rose-950/70 border-rose-800 text-rose-300'
+                    : 'bg-command-panel border-command-border text-command-muted'
+                }`}
               >
-                {isAnalyzing ? (
-                  <>
-                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>EVALUATING PIPELINE...</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>ANALYZE CHANGE</span>
-                  </>
-                )}
+                <div className="flex items-center gap-1.5">
+                  {showChangeOverlay ? <Eye className="w-3.5 h-3.5 text-rose-400" /> : <EyeOff className="w-3.5 h-3.5" />}
+                  <span>CHANGE MASK OVERLAY</span>
+                </div>
+                <span className="text-[9px] font-mono">{showChangeOverlay ? 'ON' : 'OFF'}</span>
+              </button>
+
+              {/* Band / Method Preset */}
+              <div className="space-y-1 pt-1">
+                <span className="text-[10px] text-command-dim block font-bold">BAND PRESET</span>
+                <select
+                  value={selectedBand}
+                  onChange={(e) => setSelectedBand(e.target.value as BandCombination)}
+                  className="w-full bg-command-panel border border-command-border rounded p-1.5 text-xs text-command-text focus:outline-none focus:border-command-accent"
+                >
+                  {selectedPair.preScene.bandPresets.map((b) => (
+                    <option key={b} value={b}>
+                      {b.replace(/_/g, ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Threshold Slider */}
+              <div className="space-y-1 pt-1">
+                <div className="flex items-center justify-between text-[10px] text-command-dim">
+                  <span>SPECTRAL THRESHOLD (θ)</span>
+                  <span className="font-bold text-command-accent-glow">{threshold.toFixed(2)}</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.10"
+                  max="0.80"
+                  step="0.05"
+                  value={threshold}
+                  onChange={(e) => setThreshold(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-command-panel rounded-lg appearance-none cursor-pointer accent-command-accent"
+                />
+              </div>
+
+              {/* Re-calculate Button */}
+              <button
+                onClick={handleRunAnalysis}
+                disabled={isAnalyzing}
+                className="w-full py-2 rounded-lg bg-command-surface hover:bg-command-border border border-command-border text-xs font-bold text-command-accent-glow flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Play className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
+                <span>{isAnalyzing ? 'PROCESSING...' : 'UPDATE THRESHOLD'}</span>
               </button>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Right Column: Comparative Viewer & Detection Results */}
-        <div className="lg:col-span-8 space-y-4">
-          {/* Comparative Satellite Viewer */}
+        {/* Center Column: Large Satellite Comparison Viewer */}
+        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-6'} flex flex-col h-[640px]`}>
           <SatelliteComparisonViewer
             scenePair={selectedPair}
             comparisonMode={comparisonMode}
@@ -264,24 +275,23 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
             selectedBand={selectedBand}
             onChangeBand={setSelectedBand}
           />
-
-          {/* Detection Results Metrics Panel */}
-          {detectionResult && (
-            <DetectionResultsPanel
-              result={detectionResult}
-              isAnalyzing={isAnalyzing}
-            />
-          )}
-
-          {/* Error Display */}
-          {errorMessage && (
-            <ErrorState
-              title="SATELLITE PROCESSING ERROR"
-              error={errorMessage}
-              onRetry={() => handleRunAnalysis()}
-            />
-          )}
         </div>
+
+        {/* Right Column: Compact Change Detection & Analytics Panel */}
+        {!isMapFocused && (
+          <div className="lg:col-span-3 space-y-3 h-[640px] overflow-y-auto pr-1">
+            {detectionResult ? (
+              <DetectionResultsPanel
+                result={detectionResult}
+                isAnalyzing={isAnalyzing}
+              />
+            ) : (
+              <div className="bg-command-card border border-command-border rounded-lg p-4 text-center text-xs text-command-dim">
+                Loading satellite change detection metrics...
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import type { IncidentInfo, SystemStatus } from '../../types';
 import { 
-  Clock, 
-  Radio, 
   ShieldAlert, 
+  Maximize2, 
+  Minimize2, 
   UserCheck 
 } from 'lucide-react';
 import { ApiStatusBadge } from '../common/ApiStatusBadge';
@@ -11,34 +11,20 @@ import { ApiStatusBadge } from '../common/ApiStatusBadge';
 interface TopBarProps {
   incident: IncidentInfo;
   systemStatus: SystemStatus;
+  isMapFocused?: boolean;
+  onToggleFocusMap?: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ incident, systemStatus }) => {
-  const [utcTime, setUtcTime] = useState('');
-  const [nptTime, setNptTime] = useState('');
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setUtcTime(now.toUTCString().slice(17, 25) + ' UTC');
-      
-      // Nepal Time is UTC + 5:45
-      const nepalOffset = 5.75 * 60 * 60 * 1000;
-      const nepalDate = new Date(now.getTime() + nepalOffset);
-      setNptTime(nepalDate.toUTCString().slice(17, 25) + ' NPT');
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
+export const TopBar: React.FC<TopBarProps> = ({ 
+  isMapFocused = false,
+  onToggleFocusMap 
+}) => {
   return (
-    <header className="h-14 bg-command-panel border-b border-command-border px-4 flex items-center justify-between text-xs font-mono select-none z-30">
+    <header className="h-14 bg-command-panel/95 backdrop-blur border-b border-command-border px-4 flex items-center justify-between text-xs font-mono select-none z-30 sticky top-0">
       {/* Left: Brand & Incident Identifier */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 md:gap-5">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded bg-sky-950 border border-command-accent-glow flex items-center justify-center text-command-accent-glow font-extrabold shadow-tactical-glow">
+          <div className="w-8 h-8 rounded-lg bg-sky-950 border border-command-accent flex items-center justify-center text-command-accent-glow font-extrabold shadow-tactical-glow">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
@@ -46,63 +32,67 @@ export const TopBar: React.FC<TopBarProps> = ({ incident, systemStatus }) => {
               <span className="font-extrabold tracking-widest text-sm text-command-text">
                 HIMALAYA-SHIELD
               </span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-command-surface border border-command-border text-command-accent-glow">
-                v1.0-EOC
-              </span>
             </div>
-            <span className="text-[10px] text-command-dim tracking-wider block">
-              DISASTER INTELLIGENCE PLATFORM
+            <span className="text-[10px] text-command-dim tracking-wider block font-semibold">
+              DISASTER COMMAND CENTER
             </span>
           </div>
         </div>
 
-        <div className="hidden lg:flex items-center gap-2 pl-4 border-l border-command-border/80">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-950/70 border border-rose-800/80 text-rose-300">
-            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+        {/* Central Event Tag */}
+        <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-command-border">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-rose-950/70 border border-rose-800 text-rose-300">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
             <span className="font-bold text-[11px] tracking-wide">
-              {incident.code}: {incident.title}
+              26 AUG 2026 — NEPAL–CHINA FLOOD / DEBRIS EVENT
             </span>
           </div>
-          <span className="text-[10px] text-command-muted">
-            [{incident.region}, {incident.country}]
-          </span>
         </div>
       </div>
 
-      {/* Center: Real-time Clocks */}
-      <div className="hidden md:flex items-center gap-4 text-command-muted bg-command-card/80 border border-command-border px-3 py-1 rounded-md">
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 text-command-accent-glow" />
-          <span className="text-command-text font-bold">{nptTime || '12:00:00 NPT'}</span>
-        </div>
-        <span className="text-command-dim">|</span>
-        <span className="text-[11px]">{utcTime || '06:15:00 UTC'}</span>
-      </div>
+      {/* Right: Key Status Badges & Focus Map Control */}
+      <div className="flex items-center gap-2 md:gap-3">
+        {/* Precomputed Demo Data Badge */}
+        <span className="hidden lg:inline-flex items-center px-2 py-1 rounded bg-amber-950/70 border border-amber-800 text-amber-300 text-[10px] font-bold tracking-wide">
+          PRECOMPUTED DEMO DATA
+        </span>
 
-      {/* Right: Telemetry & Human-in-the-Loop Mode */}
-      <div className="flex items-center gap-3">
-        <div className="hidden xl:flex items-center gap-2 text-[10px] text-command-dim">
-          <span>CRS: <strong className="text-command-text">{systemStatus.activeCrs}</strong></span>
-          <span>LATENCY: <strong className="text-emerald-400">{systemStatus.networkLatencyMs}ms</strong></span>
-        </div>
-
-        {/* Human in the loop badge */}
+        {/* Decision Support / Human in the loop */}
         <div 
-          className="flex items-center gap-1.5 px-2 py-1 rounded bg-sky-950/50 border border-sky-800/70 text-sky-400 text-[10px]"
-          title="Autonomous execution disabled. Human approval required for priority dispatch."
+          className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded bg-sky-950/60 border border-sky-800 text-sky-400 text-[10px] font-bold"
+          title="Autonomous execution disabled. Human decision-support only."
         >
           <UserCheck className="w-3.5 h-3.5" />
-          <span className="font-bold hidden sm:inline">DECISION-SUPPORT (HITL)</span>
+          <span>DECISION SUPPORT</span>
         </div>
 
-        {/* Explicit Backend API vs Local Fallback Status */}
+        {/* Live / Fallback Backend API Status */}
         <ApiStatusBadge />
 
-        {/* System Online Indicator */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/60 border border-emerald-800/80 text-emerald-400 text-[11px] font-bold">
-          <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
-          <span>{systemStatus.serviceStatus}</span>
-        </div>
+        {/* FOCUS MAP / EXPAND MAP Button */}
+        {onToggleFocusMap && (
+          <button
+            onClick={onToggleFocusMap}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+              isMapFocused
+                ? 'bg-command-accent text-white border-sky-400 shadow-tactical-glow'
+                : 'bg-command-surface hover:bg-command-border text-command-accent-glow border-command-border'
+            }`}
+            title={isMapFocused ? 'Exit Focus Map (Restore Panels)' : 'Focus Map (Maximize Map Viewport)'}
+          >
+            {isMapFocused ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">RESTORE PANELS</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">FOCUS MAP</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </header>
   );

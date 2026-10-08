@@ -6,35 +6,30 @@ import {
   DEFAULT_RISK_WEIGHTS 
 } from '../../services/RiskAnalysisService';
 import { RiskBreakdown } from './RiskBreakdown';
-import { RiskMapLayer } from './RiskMapLayer';
 import { WeightConfigurator } from './WeightConfigurator';
-import { InteractiveMap } from '../../components/map/InteractiveMap';
-import { DataSourceBadge } from '../../components/common/DataSourceBadge';
+import { MapPanel } from '../../components/tactical/MapPanel';
 import { 
   Flame, 
-  SlidersHorizontal, 
-  Info,
-  ChevronDown,
-  ChevronUp
 } from 'lucide-react';
 
 interface RiskViewProps {
   layers: MapLayerConfig[];
   onToggleLayer: (id: string) => void;
   onOpacityChange: (id: string, opacity: number) => void;
+  isMapFocused?: boolean;
 }
 
 export const RiskView: React.FC<RiskViewProps> = ({
   layers,
   onToggleLayer,
   onOpacityChange,
+  isMapFocused = false,
 }) => {
   const [weights, setWeights] = useState<RiskWeights>(DEFAULT_RISK_WEIGHTS);
-  const [showWeightConfig, setShowWeightConfig] = useState<boolean>(true);
   const [selectedZoneId, setSelectedZoneId] = useState<string>('ZONE-A');
   const [focusedWaypoint, setFocusedWaypoint] = useState<[number, number] | null>(null);
+  const [sideTab, setSideTab] = useState<'ZONE' | 'WEIGHTS' | 'ZONES_LIST'>('ZONE');
 
-  // Recalculate all zones dynamically whenever weights change
   const zones: RiskZone[] = useMemo(() => {
     return riskAnalysisService.getRiskZones(weights);
   }, [weights]);
@@ -47,6 +42,7 @@ export const RiskView: React.FC<RiskViewProps> = ({
   const handleSelectZone = (zone: RiskZone) => {
     setSelectedZoneId(zone.id);
     setFocusedWaypoint(zone.coordinates);
+    setSideTab('ZONE');
   };
 
   const handleFocusZone = (coords: [number, number]) => {
@@ -63,98 +59,144 @@ export const RiskView: React.FC<RiskViewProps> = ({
   };
 
   return (
-    <div className="space-y-4 font-mono">
+    <div className="space-y-3 font-mono">
       {/* Top Header Strip */}
-      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
-        <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-700 text-amber-300 font-mono text-[10px] font-bold flex items-center gap-1">
+      <div className="bg-command-card/90 border border-command-border rounded-lg px-4 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-700 text-amber-300 text-[10px] font-bold flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 text-tactical-amber" />
-              MULTI-CRITERIA DECISION ANALYSIS (MCDA)
+              MCDA RISK ENGINE
             </span>
-            <h2 className="text-sm font-bold text-command-text font-mono uppercase tracking-wider">
-              EXPLAINABLE GEOSPATIAL RISK ASSESSMENT ENGINE
+            <h2 className="text-xs sm:text-sm font-bold text-command-text">
+              EXPLAINABLE GEOSPATIAL MULTI-FACTOR RISK ASSESSMENT
             </h2>
           </div>
-          <p className="text-xs text-command-muted font-mono max-w-2xl">
-            Multi-factor vulnerability modeling synthesizing slope, elevation head, rainfall saturation, bedrock geology, satellite change, and historical disaster recurrence.
-          </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setShowWeightConfig(!showWeightConfig)}
-            className="px-3 py-1.5 rounded-lg bg-command-surface hover:bg-command-border border border-command-border text-xs font-bold text-command-text flex items-center gap-1.5 transition-colors shadow-sm"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-command-accent-glow" />
-            <span>{showWeightConfig ? 'HIDE WEIGHTS' : 'CUSTOMIZE WEIGHTS'}</span>
-            {showWeightConfig ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-
-          <DataSourceBadge
-            provenance={{
-              tier: 'DEMO_VALUE',
-              source: 'Multi-Criteria Risk Model (Prototype evaluation run)',
-              timestamp: 'Dynamic runtime calculation',
-              algorithm: 'MCDA Multi-Factor Weighted Normalization',
-            }}
-            showDetails
-          />
+          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-bold">
+            PRECOMPUTED ANALYSIS
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded bg-command-surface border border-command-border text-command-dim">
+            CONFIDENCE: Not available
+          </span>
         </div>
       </div>
 
-      {/* Interactive Weight Configurator Drawer */}
-      {showWeightConfig && (
-        <WeightConfigurator
-          weights={weights}
-          onWeightsChange={handleWeightsChange}
-          onReset={handleResetWeights}
-        />
-      )}
-
-      {/* Main Grid: Zone List (Left 4 cols) + Map & Deep Breakdown (Right 8 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Column: Evaluated Zones Catalog */}
-        <div className="lg:col-span-4">
-          <RiskMapLayer
-            zones={zones}
-            selectedZoneId={selectedZone.id}
-            onSelectZone={handleSelectZone}
+      {/* Main Workspace: Dominant Map (65-70%) + Right Zone Deck (30-35%) */}
+      <div className={`grid gap-3 transition-all ${
+        isMapFocused ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12'
+      }`}>
+        {/* Left/Center Map Viewport */}
+        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-8'} flex flex-col h-[640px]`}>
+          <MapPanel
+            layers={layers}
+            onToggleLayer={onToggleLayer}
+            onOpacityChange={onOpacityChange}
+            activeAoiName="Risk Assessment Sectors"
+            coordinates={selectedZone.coordinates}
+            focusedWaypoint={focusedWaypoint}
           />
+        </div>
 
-          {/* Methodological Guidance Card */}
-          <div className="mt-3 p-3 rounded-lg bg-command-panel/80 border border-command-border text-[10px] text-command-dim space-y-1.5">
-            <div className="flex items-center gap-1.5 font-bold text-command-text">
-              <Info className="w-3.5 h-3.5 text-command-accent-glow" />
-              <span>SCIENTIFIC & LEGAL NOTICE</span>
+        {/* Right Zone Summary & Configuration Deck */}
+        {!isMapFocused && (
+          <div className="lg:col-span-4 flex flex-col h-[640px] space-y-2">
+            {/* Side Tabs Selector */}
+            <div className="flex items-center gap-1 bg-command-card border border-command-border rounded-lg p-1 text-xs shrink-0">
+              <button
+                onClick={() => setSideTab('ZONE')}
+                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                  sideTab === 'ZONE'
+                    ? 'bg-command-accent text-white shadow-sm'
+                    : 'text-command-muted hover:text-command-text'
+                }`}
+              >
+                SELECTED ZONE
+              </button>
+              <button
+                onClick={() => setSideTab('ZONES_LIST')}
+                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                  sideTab === 'ZONES_LIST'
+                    ? 'bg-command-accent text-white shadow-sm'
+                    : 'text-command-muted hover:text-command-text'
+                }`}
+              >
+                ALL ZONES ({zones.length})
+              </button>
+              <button
+                onClick={() => setSideTab('WEIGHTS')}
+                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                  sideTab === 'WEIGHTS'
+                    ? 'bg-command-accent text-white shadow-sm'
+                    : 'text-command-muted hover:text-command-text'
+                }`}
+              >
+                WEIGHTS
+              </button>
             </div>
-            <p className="leading-relaxed">
-              Risk scores are generated via transparent weighted MCDA and presented strictly as <strong>"Prototype risk score"</strong>. They represent decision-support indices rather than definitive predictive forecasts.
-            </p>
-          </div>
-        </div>
 
-        {/* Right Column: Interactive Map Viewport & Zone Breakdown */}
-        <div className="lg:col-span-8 flex flex-col gap-4">
-          {/* Interactive Map */}
-          <div className="h-[380px] w-full rounded-lg overflow-hidden border border-command-border">
-            <InteractiveMap
-              layers={layers}
-              onToggleLayer={onToggleLayer}
-              onOpacityChange={onOpacityChange}
-              activeAoiName={`Risk AOI: ${selectedZone.name}`}
-              coordinates={selectedZone.coordinates}
-              heightClass="h-[380px]"
-              focusedWaypoint={focusedWaypoint}
-            />
-          </div>
+            {/* Tab 1: Selected Zone Breakdown */}
+            {sideTab === 'ZONE' && (
+              <div className="flex-1 overflow-y-auto">
+                <RiskBreakdown
+                  zone={selectedZone}
+                  onFocusZone={handleFocusZone}
+                />
+              </div>
+            )}
 
-          {/* Deep Explainability Breakdown Panel */}
-          <RiskBreakdown
-            zone={selectedZone}
-            onFocusZone={handleFocusZone}
-          />
-        </div>
+            {/* Tab 2: All Zones List */}
+            {sideTab === 'ZONES_LIST' && (
+              <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                {zones.map((z) => {
+                  const isSelected = selectedZoneId === z.id;
+                  let levelColor = 'text-rose-400 border-rose-800 bg-rose-950/60';
+                  if (z.riskLevel === 'HIGH') levelColor = 'text-orange-400 border-orange-800 bg-orange-950/60';
+                  if (z.riskLevel === 'MODERATE') levelColor = 'text-amber-400 border-amber-800 bg-amber-950/60';
+                  if (z.riskLevel === 'LOW') levelColor = 'text-emerald-400 border-emerald-800 bg-emerald-950/60';
+
+                  return (
+                    <div
+                      key={z.id}
+                      onClick={() => handleSelectZone(z)}
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                        isSelected
+                          ? 'bg-command-surface border-command-accent shadow-tactical-glow'
+                          : 'bg-command-panel/70 border-command-border hover:border-command-border-light'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-command-text">{z.id}</span>
+                          <span className="text-xs text-command-muted">{z.name}</span>
+                        </div>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${levelColor}`}>
+                          {z.scaledScore}/100 • {z.riskLevel}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-command-dim line-clamp-1">
+                        {z.recommendedDecisionAction}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Tab 3: Weights Configurator */}
+            {sideTab === 'WEIGHTS' && (
+              <div className="flex-1 overflow-y-auto">
+                <WeightConfigurator
+                  weights={weights}
+                  onWeightsChange={handleWeightsChange}
+                  onReset={handleResetWeights}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

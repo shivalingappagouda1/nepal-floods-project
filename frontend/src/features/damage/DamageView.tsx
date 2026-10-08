@@ -1,164 +1,162 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { MapLayerConfig } from '../../types';
 import type { 
   DamageFeature, 
-  DamageCategory, 
-  DamageSummaryStats 
 } from '../../types/damage';
 import { 
-  damageAssessmentService, 
   MOCK_DAMAGE_FEATURES 
 } from '../../services/DamageAssessmentService';
-import { DamageSummary } from './DamageSummary';
 import { DamageLegend } from './DamageLegend';
 import { DamageDetailsPanel } from './DamageDetailsPanel';
 import { DamageFeatureList } from './DamageFeatureList';
-import { InteractiveMap } from '../../components/map/InteractiveMap';
-import { DataSourceBadge } from '../../components/common/DataSourceBadge';
+import { MapPanel } from '../../components/tactical/MapPanel';
 import { 
   Building2, 
-  CheckCircle2 
 } from 'lucide-react';
 
 interface DamageViewProps {
   layers: MapLayerConfig[];
   onToggleLayer: (id: string) => void;
   onOpacityChange: (id: string, opacity: number) => void;
+  isMapFocused?: boolean;
 }
 
 export const DamageView: React.FC<DamageViewProps> = ({
   layers,
   onToggleLayer,
   onOpacityChange,
+  isMapFocused = false,
 }) => {
   const features: DamageFeature[] = MOCK_DAMAGE_FEATURES;
-  const [selectedCategory, setSelectedCategory] = useState<DamageCategory | 'ALL'>('ALL');
   const [selectedFeature, setSelectedFeature] = useState<DamageFeature | null>(MOCK_DAMAGE_FEATURES[0]);
   const [focusedWaypoint, setFocusedWaypoint] = useState<[number, number] | null>(null);
-  const [summaryStats, setSummaryStats] = useState<DamageSummaryStats | null>(null);
-  const [dispatchNotice, setDispatchNotice] = useState<string | null>(null);
-
-  // Load summary stats on mount
-  useEffect(() => {
-    let isMounted = true;
-    const loadStats = async () => {
-      const stats = await damageAssessmentService.getDamageSummary();
-      if (isMounted) {
-        setSummaryStats(stats);
-      }
-    };
-    loadStats();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const [sideTab, setSideTab] = useState<'FEATURE' | 'CATALOG' | 'LEGEND'>('FEATURE');
 
   const handleSelectFeature = (feature: DamageFeature) => {
     setSelectedFeature(feature);
     setFocusedWaypoint(feature.coordinates);
+    setSideTab('FEATURE');
   };
 
   const handleFocusFeature = (coords: [number, number]) => {
     setFocusedWaypoint(coords);
   };
 
-  const handleAssignFieldInspection = (featureId: string) => {
-    setDispatchNotice(`Asset ${featureId} queued for emergency on-site ground inspection.`);
-    setTimeout(() => {
-      setDispatchNotice(null);
-    }, 4000);
-  };
-
   return (
-    <div className="space-y-4 font-mono">
-      {/* Top Header */}
-      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded bg-orange-950/80 border border-orange-700 text-orange-300 font-mono text-[10px] font-bold flex items-center gap-1">
+    <div className="space-y-3 font-mono">
+      {/* Top Header Strip */}
+      <div className="bg-command-card/90 border border-command-border rounded-lg px-4 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded bg-orange-950/80 border border-orange-700 text-orange-300 text-[10px] font-bold flex items-center gap-1">
               <Building2 className="w-3.5 h-3.5" />
-              IMAGE & GIS DAMAGE EVIDENCE
+              GIS EVIDENCE
             </span>
-            <h2 className="text-sm font-bold text-command-text font-mono uppercase tracking-wider">
+            <h2 className="text-xs sm:text-sm font-bold text-command-text">
               INFRASTRUCTURE DAMAGE & ACCESSIBILITY ASSESSMENT
             </h2>
           </div>
-          <p className="text-xs text-command-muted font-mono max-w-2xl">
-            Multi-sensor optical/SAR spatial analysis isolating severed road arteries, bridge approach scour, and flooded settlements along the Bhote Koshi corridor.
-          </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <DataSourceBadge
-            provenance={{
-              tier: 'DEMO_VALUE',
-              source: 'Precomputed change model (Synthetic Sentinel-2/Sentinel-1 Delta)',
-              timestamp: 'Prototype run reference',
-              algorithm: 'Differential MNDWI & Coherence Delta (Illustrative)',
-            }}
-            showDetails
-          />
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-bold">
+            PRECOMPUTED ANALYSIS
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded bg-command-surface border border-command-border text-command-dim">
+            CONFIDENCE: Not available
+          </span>
         </div>
       </div>
 
-      {/* Dispatch Notification Alert */}
-      {dispatchNotice && (
-        <div className="p-3 rounded-lg bg-emerald-950/70 border border-emerald-700 text-emerald-300 text-xs flex items-center justify-between shadow-tactical-glow animate-in fade-in slide-in-from-top-2">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span className="font-bold">{dispatchNotice}</span>
-          </div>
-          <span className="text-[10px] text-emerald-400/80">EOC QUEUE UPDATED</span>
-        </div>
-      )}
-
-      {/* Damage Summary Statistics Cards */}
-      {summaryStats && (
-        <DamageSummary
-          stats={summaryStats}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-      )}
-
-      {/* Standardized 5-Level Damage Evidence Legend */}
-      <DamageLegend />
-
-      {/* Main Grid: Catalog List (Left 4 cols) + Map & Details (Right 8 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left Column: Evaluated Assets List */}
-        <div className="lg:col-span-4 h-[640px]">
-          <DamageFeatureList
-            features={features}
-            selectedFeatureId={selectedFeature ? selectedFeature.id : null}
-            onSelectFeature={handleSelectFeature}
-            selectedCategory={selectedCategory}
+      {/* Main Workspace: Dominant Map (65-70%) + Right Inspection / Catalog Deck (30-35%) */}
+      <div className={`grid gap-3 transition-all ${
+        isMapFocused ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12'
+      }`}>
+        {/* Left/Center Map Viewport */}
+        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-8'} flex flex-col h-[640px]`}>
+          <MapPanel
+            layers={layers}
+            onToggleLayer={onToggleLayer}
+            onOpacityChange={onOpacityChange}
+            activeAoiName="Araniko Corridor / Damage Sectors"
+            coordinates={selectedFeature ? selectedFeature.coordinates : [27.9520, 85.9410]}
+            focusedWaypoint={focusedWaypoint}
           />
         </div>
 
-        {/* Right Column: Interactive Map Viewport */}
-        <div className="lg:col-span-8 flex flex-col gap-4">
-          <div className="h-[400px] w-full rounded-lg overflow-hidden border border-command-border">
-            <InteractiveMap
-              layers={layers}
-              onToggleLayer={onToggleLayer}
-              onOpacityChange={onOpacityChange}
-              activeAoiName="Bhote Koshi Transboundary Damage Assessment AOI"
-              coordinates={[27.9520, 85.9410]}
-              heightClass="h-[400px]"
-              focusedWaypoint={focusedWaypoint}
-            />
-          </div>
+        {/* Right Inspection & Legend Deck */}
+        {!isMapFocused && (
+          <div className="lg:col-span-4 flex flex-col h-[640px] space-y-2">
+            {/* Side Tabs Selector */}
+            <div className="flex items-center gap-1 bg-command-card border border-command-border rounded-lg p-1 text-xs shrink-0">
+              <button
+                onClick={() => setSideTab('FEATURE')}
+                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                  sideTab === 'FEATURE'
+                    ? 'bg-command-accent text-white shadow-sm'
+                    : 'text-command-muted hover:text-command-text'
+                }`}
+              >
+                ASSET INSPECTION
+              </button>
+              <button
+                onClick={() => setSideTab('CATALOG')}
+                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                  sideTab === 'CATALOG'
+                    ? 'bg-command-accent text-white shadow-sm'
+                    : 'text-command-muted hover:text-command-text'
+                }`}
+              >
+                CATALOG ({features.length})
+              </button>
+              <button
+                onClick={() => setSideTab('LEGEND')}
+                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                  sideTab === 'LEGEND'
+                    ? 'bg-command-accent text-white shadow-sm'
+                    : 'text-command-muted hover:text-command-text'
+                }`}
+              >
+                LEGEND
+              </button>
+            </div>
 
-          {/* Detailed Feature Inspector */}
-          {selectedFeature && (
-            <DamageDetailsPanel
-              feature={selectedFeature}
-              onFocusFeature={handleFocusFeature}
-              onAssignFieldInspection={handleAssignFieldInspection}
-            />
-          )}
-        </div>
+            {/* Tab 1: Selected Feature Inspection */}
+            {sideTab === 'FEATURE' && (
+              <div className="flex-1 overflow-y-auto">
+                {selectedFeature ? (
+                  <DamageDetailsPanel
+                    feature={selectedFeature}
+                    onFocusFeature={handleFocusFeature}
+                  />
+                ) : (
+                  <div className="bg-command-card border border-command-border rounded-lg p-6 text-center text-xs text-command-dim">
+                    Select a feature from the map or catalog to inspect GIS evidence.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tab 2: Feature Catalog */}
+            {sideTab === 'CATALOG' && (
+              <div className="flex-1 overflow-y-auto">
+                <DamageFeatureList
+                  features={features}
+                  selectedFeatureId={selectedFeature?.id || null}
+                  onSelectFeature={handleSelectFeature}
+                  selectedCategory="ALL"
+                />
+              </div>
+            )}
+
+            {/* Tab 3: Damage Categories Legend & Summary */}
+            {sideTab === 'LEGEND' && (
+              <div className="flex-1 overflow-y-auto space-y-3">
+                <DamageLegend />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

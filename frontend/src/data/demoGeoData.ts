@@ -46,7 +46,6 @@ export const demoFloodGeoJson: FeatureCollection<Geometry, GeoFeatureProperties>
           source: 'Prototype Synthetic Mask (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
-          confidence: 0.75,
         },
       },
       geometry: {
@@ -99,7 +98,6 @@ export const demoLandslideGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
           source: 'Prototype Slope Angle Model (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
-          confidence: 0.70,
         },
       },
       geometry: {
@@ -129,7 +127,6 @@ export const demoLandslideGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
           source: 'Prototype Debris Fan Model (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
-          confidence: 0.70,
         },
       },
       geometry: {
