@@ -58,4 +58,8 @@ async def test_submit_advisory_directive(client):
     data = json_data["data"]
     assert data["zoneId"] == "Zone A"
     assert data["status"] == "QUEUED_FOR_COMMAND_SIGN_OFF"
+    assert data["humanReviewRequired"] == "Human review required"
+    assert data["queueType"] == "Decision-support queue only"
     assert "human-in-the-loop" in data["advisoryNotice"]
+    assert "Human review required" in data["advisoryNotice"]
+    assert "Decision-support queue only" in data["advisoryNotice"]

@@ -43,11 +43,13 @@ class ResponseService:
             submissionId=sub_id,
             zoneId=zone.id,
             status="QUEUED_FOR_COMMAND_SIGN_OFF",
+            humanReviewRequired="Human review required",
+            queueType="Decision-support queue only",
             timestamp=now_iso,
-            advisoryNotice="Directive logged as human-in-the-loop decision-support advisory. Requires Incident Commander sign-off.",
+            advisoryNotice="Directive logged as human-in-the-loop decision-support advisory. Decision-support queue only (Human review required — does not autonomously dispatch resources, issue evacuation orders, or invoke emergency systems).",
             provenance=ProvenanceMeta(
                 tier=DataTier.DEMO_VALUE,
-                source="HIMALAYA-SHIELD Incident Command Dispatch Queue",
+                source="HIMALAYA-SHIELD Incident Command Dispatch Queue (Decision-Support Only)",
                 algorithm="Human-in-the-loop Directive Queue",
                 isDemoValue=True
             )

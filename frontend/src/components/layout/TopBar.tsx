@@ -6,6 +6,7 @@ import {
   ShieldAlert, 
   UserCheck 
 } from 'lucide-react';
+import { ApiStatusBadge } from '../common/ApiStatusBadge';
 
 interface TopBarProps {
   incident: IncidentInfo;
@@ -93,6 +94,9 @@ export const TopBar: React.FC<TopBarProps> = ({ incident, systemStatus }) => {
           <UserCheck className="w-3.5 h-3.5" />
           <span className="font-bold hidden sm:inline">DECISION-SUPPORT (HITL)</span>
         </div>
+
+        {/* Explicit Backend API vs Local Fallback Status */}
+        <ApiStatusBadge />
 
         {/* System Online Indicator */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-950/60 border border-emerald-800/80 text-emerald-400 text-[11px] font-bold">

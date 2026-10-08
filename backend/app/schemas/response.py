@@ -83,6 +83,8 @@ class DirectiveSubmissionResponse(BaseModel):
     submissionId: str
     zoneId: str
     status: str = "QUEUED_FOR_COMMAND_SIGN_OFF"
+    humanReviewRequired: str = "Human review required"
+    queueType: str = "Decision-support queue only"
     timestamp: str
-    advisoryNotice: str = "Directive logged as human-in-the-loop decision-support advisory. Requires Incident Commander sign-off."
+    advisoryNotice: str = "Directive logged as human-in-the-loop decision-support advisory. Decision-support queue only (Human review required — does not autonomously dispatch resources, issue evacuation orders, or invoke emergency systems)."
     provenance: ProvenanceMeta
