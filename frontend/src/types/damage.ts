@@ -24,28 +24,31 @@ export type VerificationStatus =
 export interface DamageEvidence {
   description: string;
   spectralAnomaly: string;
-  radarBackscatterDropDb?: number; // e.g. -5.2 dB
-  waterIndexDeltaMndwi?: number;   // e.g. +0.48
-  vegetationIndexDeltaNdvi?: number; // e.g. -0.34
+  radarBackscatterDropDb?: number; // Precomputed model delta (dB)
+  waterIndexDeltaMndwi?: number;   // Precomputed index delta
+  vegetationIndexDeltaNdvi?: number; // Precomputed index delta
   preDisasterObservation: string;
   postDisasterObservation: string;
   opticalBandPreview: string; // 'NATURAL_RGB' | 'MNDWI_WATER' | 'SAR_VV'
+  sensorDetails: string;
 }
 
 export interface DamageFeature {
-  id: string; // e.g. 'DMG-184'
+  id: string; // e.g. 'Feature 184'
   name: string;
   infrastructureType: InfrastructureType;
   category: DamageCategory;
   categoryLabel: string;
-  confidence: number; // e.g. 0.91 (91%)
-  confidenceMethod: string;
-  source: string; // e.g. 'Sentinel-2 MSI Tile T45RWQ / Sentinel-1A SAR'
-  timestamp: string; // ISO 8601
+  confidence?: number; // Omitted if not calibrated against empirical ground truth
+  confidenceMethod?: string;
+  source: string; // e.g. 'Sentinel imagery (Precomputed analysis)'
+  timestamp: string; // Catalog observation timestamp
   verificationStatus: VerificationStatus;
   coordinates: [number, number]; // [lng, lat]
-  affectedDimension: string; // e.g. '180m bridge approach severed'
+  coordinateProvenance: string; // e.g. 'OpenStreetMap Relation 184633 / NDRRMA Baseline'
+  affectedDimension: string; // e.g. '120m riverbank approach change'
   recommendedResponse: string;
+  processingStatus: 'Precomputed analysis' | 'DEMO / ILLUSTRATIVE';
   evidence: DamageEvidence;
   provenance: ProvenanceMeta;
 }
@@ -56,6 +59,7 @@ export interface DamageSummaryStats {
   groundVerificationRecommendedCount: number;
   criticalArteryBlockedCount: number;
   evaluationMethodology: string;
+  metricProvenance: 'Precomputed analysis' | 'DEMO / ILLUSTRATIVE';
   lastAnalysisSync: string;
 }
 

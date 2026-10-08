@@ -89,9 +89,15 @@ export const DamageFeatureList: React.FC<DamageFeatureListProps> = ({
                     </span>
                   </div>
 
-                  <span className="text-[10px] text-command-accent-glow font-bold">
-                    {Math.round(f.confidence * 100)}%
-                  </span>
+                  {f.confidence !== undefined ? (
+                    <span className="text-[10px] text-command-accent-glow font-bold">
+                      {Math.round(f.confidence * 100)}%
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-amber-300 font-mono px-1.5 py-0.2 rounded bg-amber-950/60 border border-amber-800/80">
+                      PRECOMPUTED
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-xs font-semibold text-command-text leading-tight mb-1">

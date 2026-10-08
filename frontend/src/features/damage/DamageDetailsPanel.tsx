@@ -2,7 +2,7 @@ import React from 'react';
 import type { DamageFeature } from '../../types/damage';
 import { DAMAGE_CATEGORY_CONFIGS } from '../../data/damageConfigs';
 import { EvidencePanel } from './EvidencePanel';
-import { ConfidenceBadge } from '../../components/common/ConfidenceBadge';
+import { ConfidenceIndicator } from './ConfidenceIndicator';
 import { 
   Compass, 
   Send 
@@ -35,8 +35,8 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
               {feature.categoryLabel}
             </span>
 
-            <span className="text-[10px] text-command-dim">
-              TYPE: {feature.infrastructureType}
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-950/80 border border-amber-800 text-amber-300 font-bold uppercase">
+              {feature.processingStatus}
             </span>
           </div>
 
@@ -47,10 +47,10 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
 
         {/* Confidence & Action */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <ConfidenceBadge 
-            confidence={feature.confidence} 
-            method={feature.confidenceMethod} 
-            size="md" 
+          <ConfidenceIndicator
+            confidence={feature.confidence}
+            method={feature.confidenceMethod}
+            size="md"
           />
         </div>
       </div>
@@ -77,6 +77,9 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
           <span className="font-bold text-command-text text-[11px] block">
             {feature.coordinates[1].toFixed(4)}° N, {feature.coordinates[0].toFixed(4)}° E
           </span>
+          <span className="text-[9px] text-command-dim italic block truncate" title={feature.coordinateProvenance}>
+            Source: {feature.coordinateProvenance}
+          </span>
         </div>
 
         {/* Source / Satellite Sensor */}
@@ -89,9 +92,9 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
 
         {/* Evaluation Timestamp */}
         <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-0.5">
-          <span className="text-[9px] text-command-dim block font-bold uppercase">OBSERVATION TIME</span>
+          <span className="text-[9px] text-command-dim block font-bold uppercase">OBSERVATION REFERENCE</span>
           <span className="font-bold text-command-muted text-[10px] block">
-            {feature.timestamp.replace('T', ' ').substring(0, 19)} UTC
+            {feature.timestamp}
           </span>
         </div>
       </div>
@@ -100,7 +103,7 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
       <div className="p-3 rounded bg-command-panel/80 border border-command-border space-y-2 text-xs">
         <div>
           <span className="text-[10px] text-command-dim font-bold uppercase block">
-            Observed Physical Modification:
+            Observed Physical Modification (Image Evidence):
           </span>
           <p className="text-command-text text-[11px] font-semibold">
             {feature.affectedDimension}
@@ -127,7 +130,7 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
           className="w-full sm:w-auto px-4 py-2 rounded-lg bg-command-surface hover:bg-command-border border border-command-border text-xs font-bold text-command-accent-glow flex items-center justify-center gap-2 transition-colors"
         >
           <Compass className="w-3.5 h-3.5" />
-          <span>CENTER MAP ON THIS ASSET</span>
+          <span>CENTER MAP ON TARGET</span>
         </button>
 
         {onAssignFieldInspection && (
@@ -136,7 +139,7 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
             className="w-full sm:w-auto px-4 py-2 rounded-lg bg-command-accent hover:bg-sky-500 text-white text-xs font-bold shadow-tactical-glow flex items-center justify-center gap-2 transition-colors"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>DISPATCH TO FIELD INSPECTION QUEUE</span>
+            <span>RECOMMEND FOR FIELD INSPECTION QUEUE</span>
           </button>
         )}
       </div>

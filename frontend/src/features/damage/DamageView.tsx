@@ -91,11 +91,10 @@ export const DamageView: React.FC<DamageViewProps> = ({
         <div className="flex items-center gap-2">
           <DataSourceBadge
             provenance={{
-              tier: 'AI_COMPUTED',
-              source: 'Sentinel-2 MSI Tile T45RWQ + Sentinel-1A SAR Pipeline',
-              timestamp: '2026-08-28T05:14:01Z',
-              algorithm: 'Differential MNDWI & Coherence Delta',
-              confidence: 0.91,
+              tier: 'DEMO_VALUE',
+              source: 'Precomputed change model (Synthetic Sentinel-2/Sentinel-1 Delta)',
+              timestamp: 'Prototype run reference',
+              algorithm: 'Differential MNDWI & Coherence Delta (Illustrative)',
             }}
             showDetails
           />
