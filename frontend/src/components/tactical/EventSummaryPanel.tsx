@@ -112,16 +112,16 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
               </p>
             </div>
 
-            {/* Operational Directives */}
+            {/* Decision-Support Recommendations */}
             <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1.5">
               <span className="text-[10px] font-bold text-command-dim uppercase tracking-wider block">
-                EOC Priority Directives:
+                Decision-Support Recommendations (Human Verification Required):
               </span>
               <ul className="space-y-1 text-[10px] text-command-muted">
-                {caseStudy.operationalDirectives.map((directive, idx) => (
+                {caseStudy.decisionSupportRecommendations.map((rec, idx) => (
                   <li key={idx} className="flex items-start gap-1.5">
                     <span className="text-command-accent-glow font-bold">›</span>
-                    <span>{directive}</span>
+                    <span>{rec}</span>
                   </li>
                 ))}
               </ul>
@@ -142,7 +142,7 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
                     <span className="font-bold text-command-text text-[11px]">{wp.name}</span>
                   </div>
                   <p className="text-[10px] text-command-dim">
-                    {wp.coordinates[1].toFixed(4)}° N, {wp.coordinates[0].toFixed(4)}° E | Elev: {wp.elevationMeters}m
+                    {wp.coordinates[1].toFixed(4)}° N, {wp.coordinates[0].toFixed(4)}° E {wp.elevationMeters ? `| Elev: ${wp.elevationMeters}m` : ''}
                   </p>
                   <p className="text-[10px] text-command-muted italic">
                     Source: {wp.authoritySource}

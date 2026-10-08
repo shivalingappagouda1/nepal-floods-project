@@ -13,11 +13,10 @@ export const verifiedCaseStudyWaypointsGeoJson: FeatureCollection<Point, GeoFeat
       severity: 'HIGH',
       category: 'CASE_STUDY',
       status: 'VERIFIED_AUTHORITATIVE_LOCATION',
-      description: `${wp.significance} (Elev: ${wp.elevationMeters}m). Official source: ${wp.authoritySource}`,
-      isDemo: true, // Tagged in prototype phase with verified geographic baseline
+      description: `${wp.significance}. Official source: ${wp.authoritySource}`,
+      isDemo: false,
       provenance: {
         source: wp.authoritySource,
-        timestamp: '2026-08-26T18:30:00Z',
         tier: 'VERIFIED',
         confidence: 1.0,
       },

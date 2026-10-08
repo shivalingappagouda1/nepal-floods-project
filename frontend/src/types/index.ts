@@ -12,7 +12,7 @@ export type DataTier = 'VERIFIED' | 'AI_COMPUTED' | 'DEMO_VALUE' | 'AWAITING_PAS
 export interface ProvenanceMeta {
   tier: DataTier;
   source: string;
-  timestamp: string;
+  timestamp?: string;
   algorithm?: string;
   sensor?: string;
   confidence?: number;

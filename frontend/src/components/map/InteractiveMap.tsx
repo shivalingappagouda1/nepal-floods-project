@@ -389,11 +389,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               } catch {
                 parsedProvenance = {
                   source: 'Authoritative Baseline Citation',
-                  timestamp: '2026-08-27T00:00:00Z',
                   tier: 'VERIFIED',
                 };
               }
             }
+
+            const isFeatureDemo = typeof props.isDemo === 'boolean' 
+              ? props.isDemo 
+              : (props.isDemo === 'false' ? false : true);
 
             const featureProps: GeoFeatureProperties = {
               id: props.id || 'FEATURE-ID',
@@ -402,11 +405,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               severity: props.severity || 'MODERATE',
               status: props.status || 'ACTIVE',
               description: props.description || 'Geospatial entity in Himalayan transboundary sector.',
-              isDemo: props.isDemo ?? true,
+              isDemo: isFeatureDemo,
               provenance: parsedProvenance || {
-                source: 'Authoritative Baseline',
-                timestamp: '2026-08-27T00:00:00Z',
-                tier: 'DEMO_VALUE',
+                source: isFeatureDemo ? 'Synthetic / Illustrative Prototype' : 'Authoritative Baseline',
+                tier: isFeatureDemo ? 'DEMO_VALUE' : 'VERIFIED',
               },
             };
 

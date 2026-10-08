@@ -24,7 +24,7 @@ export interface VerifiedGeographicWaypoint {
   id: string;
   name: string;
   coordinates: [number, number]; // [lng, lat]
-  elevationMeters: number;
+  elevationMeters?: number;
   significance: string;
   authoritySource: string;
 }
@@ -43,7 +43,7 @@ export interface RealWorldDisasterCaseStudy {
   monitoringReadiness: string;
   verifiedWaypoints: VerifiedGeographicWaypoint[];
   authoritativeSources: AuthoritativeSourceRef[];
-  operationalDirectives: string[];
+  decisionSupportRecommendations: string[];
 }
 
 export const NEPAL_CHINA_BORDER_DISASTER_2026: RealWorldDisasterCaseStudy = {
@@ -63,7 +63,6 @@ export const NEPAL_CHINA_BORDER_DISASTER_2026: RealWorldDisasterCaseStudy = {
       id: 'WP-MITERI',
       name: 'Miteri Friendship Bridge (Transboundary Border Point)',
       coordinates: [85.9461, 27.9575], // [lng, lat]
-      elevationMeters: 1770,
       significance: 'Primary international overland crossing point connecting Nepal (Kodari/Tatopani) and China (Zhangmu/Nyalam).',
       authoritySource: 'OpenStreetMap Relation 184633 / NDRRMA Nepal',
     },
@@ -71,7 +70,6 @@ export const NEPAL_CHINA_BORDER_DISASTER_2026: RealWorldDisasterCaseStudy = {
       id: 'WP-TATOPANI',
       name: 'Tatopani Customs & Dry Port Complex',
       coordinates: [85.9425, 27.9515],
-      elevationMeters: 1680,
       significance: 'Critical commercial customs terminal and transit infrastructure along the narrow canyon bank.',
       authoritySource: 'Nepal Ministry of Industry, Commerce and Supplies / BIPAD Portal',
     },
@@ -79,15 +77,13 @@ export const NEPAL_CHINA_BORDER_DISASTER_2026: RealWorldDisasterCaseStudy = {
       id: 'WP-LARCHA',
       name: 'Larcha / Bhairabkunda Khola Confluence',
       coordinates: [85.9220, 27.9050],
-      elevationMeters: 1420,
       significance: 'High-risk tributary junction known for historical debris flows and bridge approach severance.',
-      authoritySource: 'ICIMOD Koshi Basin Geomorphological Survey / OSM',
+      authoritySource: 'ICIMOD Koshi Basin Baseline / OpenStreetMap',
     },
     {
       id: 'WP-BARHABISE',
       name: 'Barhabise DHM Hydrological Station (Station ID: 610)',
       coordinates: [85.8980, 27.7890],
-      elevationMeters: 820,
       significance: 'Official Department of Hydrology and Meteorology real-time river level and flood warning gauge.',
       authoritySource: 'Department of Hydrology and Meteorology (DHM), Government of Nepal',
     },
@@ -139,10 +135,10 @@ export const NEPAL_CHINA_BORDER_DISASTER_2026: RealWorldDisasterCaseStudy = {
       status: 'CONFIRMED_BASELINE',
     },
   ],
-  operationalDirectives: [
-    'Maintain continuous real-time telemetry monitoring at DHM Barhabise Station 610.',
-    'Stage Sentinel-2 L2A differential MNDWI analysis pipeline for rapid change polygonization.',
-    'Keep Human-in-the-Loop (HITL) mandatory authorization for all tactical priority dispatches.',
-    'Enforce strict source attribution on all analytical and geospatial metrics.',
+  decisionSupportRecommendations: [
+    'Recommended: Prioritize rapid multi-spectral satellite & aerial assessment of upstream transboundary corridor.',
+    'Recommended: Prioritize bridge approach and arterial road assessment along Araniko Highway (NH03).',
+    'Human verification required: Cross-validate river gauge telemetry at DHM Station 610 with field observer reports before emergency decisions.',
+    'Human verification required: Maintain human-in-the-loop authorization for all emergency priority queue items.',
   ],
 };

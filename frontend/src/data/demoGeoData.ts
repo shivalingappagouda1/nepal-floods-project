@@ -22,7 +22,7 @@ export interface GeoFeatureProperties {
   isDemo?: boolean;
   provenance: {
     source: string;
-    timestamp: string;
+    timestamp?: string;
     tier: 'VERIFIED' | 'AI_COMPUTED' | 'DEMO_VALUE';
     confidence?: number;
   };
