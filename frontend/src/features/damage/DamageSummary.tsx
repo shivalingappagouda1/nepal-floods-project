@@ -69,12 +69,12 @@ export const DamageSummary: React.FC<DamageSummaryProps> = ({
         >
           <div className="text-[9px] text-purple-400 uppercase font-bold flex items-center gap-1">
             <XCircle className="w-2.5 h-2.5" />
-            <span>DESTROYED</span>
+            <span>INACCESSIBLE</span>
           </div>
           <div className="text-base font-bold text-purple-300">
             {stats.byCategory.DESTROYED_INACCESSIBLE || 0}
           </div>
-          <div className="text-[9px] text-purple-200/70">Critical breach</div>
+          <div className="text-[9px] text-purple-200/70">Severe disruption</div>
         </button>
 
         {/* Severe Damage */}
@@ -93,7 +93,7 @@ export const DamageSummary: React.FC<DamageSummaryProps> = ({
           <div className="text-base font-bold text-rose-300">
             {stats.byCategory.SEVERE_DAMAGE || 0}
           </div>
-          <div className="text-[9px] text-rose-200/70">Approach severed</div>
+          <div className="text-[9px] text-rose-200/70">Major surface change</div>
         </button>
 
         {/* Moderate Damage */}
@@ -128,7 +128,7 @@ export const DamageSummary: React.FC<DamageSummaryProps> = ({
           <div className="text-base font-bold text-amber-300">
             {stats.byCategory.POSSIBLE_DAMAGE || 0}
           </div>
-          <div className="text-[9px] text-amber-200/70">Drone check req.</div>
+          <div className="text-[9px] text-amber-200/70">Field check req.</div>
         </button>
 
         {/* No Significant Change */}
@@ -142,7 +142,7 @@ export const DamageSummary: React.FC<DamageSummaryProps> = ({
         >
           <div className="text-[9px] text-emerald-400 uppercase font-bold flex items-center gap-1">
             <CheckCircle2 className="w-2.5 h-2.5" />
-            <span>INTACT</span>
+            <span>NO CHANGE</span>
           </div>
           <div className="text-base font-bold text-emerald-300">
             {stats.byCategory.NO_SIGNIFICANT_CHANGE || 0}

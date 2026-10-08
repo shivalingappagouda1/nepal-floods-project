@@ -22,13 +22,17 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({ feature }) => {
           <span className="uppercase">GEOSPATIAL & SENSOR EVIDENCE DECK</span>
         </div>
         <div className="flex items-center gap-2 text-[10px]">
-          <span className="text-amber-300 font-bold bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-800">
-            PRECOMPUTED MODEL DELTA
+          <span className="text-amber-300 font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800">
+            PRECOMPUTED MODEL DELTA — SYNTHETIC INPUT
           </span>
           <span className="text-command-dim">
             BAND: {evidence.opticalBandPreview}
           </span>
         </div>
+      </div>
+
+      <div className="px-2 py-1 rounded bg-command-surface/50 border border-command-border/40 text-[9px] text-command-dim">
+        <span>PROTOTYPE IMAGERY PREVIEW & SYNTHETIC METRICS (Illustrative models, not live satellite raster processing).</span>
       </div>
 
       {/* Quantitative Sensor Deltas Grid */}

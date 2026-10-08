@@ -40,7 +40,7 @@ export const MOCK_DAMAGE_FEATURES: DamageFeature[] = [
     coordinates: [85.9461, 27.9575], // Miteri Bridge
     coordinateProvenance: 'OpenStreetMap Relation 184633 / NDRRMA Nepal Baseline',
     affectedDimension: 'Observable surface inundation & ~120m riverbank approach modification',
-    recommendedResponse: 'Recommended: Prioritize on-site engineering verification before authorizing heavy transit.',
+    recommendedResponse: 'Recommended: Prioritize on-site field verification before authorizing heavy transit.',
     processingStatus: 'Precomputed analysis',
     evidence: {
       description: 'Precomputed multi-spectral index delta (ΔMNDWI > +0.40) indicates extensive surface water expansion across southern approach ramp in post-event satellite pass.',
@@ -102,7 +102,7 @@ export const MOCK_DAMAGE_FEATURES: DamageFeature[] = [
     coordinates: [85.9425, 27.9515], // Tatopani Customs
     coordinateProvenance: 'Nepal Ministry of Industry / BIPAD Baseline',
     affectedDimension: 'Visible riverside siltation along ~85m perimeter embankment',
-    recommendedResponse: 'Recommended: Conduct foundation & embankment inspection before commercial terminal reopening.',
+    recommendedResponse: 'Recommended: Conduct field & embankment inspection before commercial terminal reopening.',
     processingStatus: 'Precomputed analysis',
     evidence: {
       description: 'Detected surface siltation and perimeter erosion along the lower riverside revetment in available multi-spectral imagery.',
@@ -131,8 +131,8 @@ export const MOCK_DAMAGE_FEATURES: DamageFeature[] = [
     verificationStatus: 'Preliminary satellite triage',
     coordinates: [85.9130, 27.8820], // Chaku
     coordinateProvenance: 'OpenStreetMap Baseline',
-    affectedDimension: 'Localized slope modification detected adjacent to transmission footing',
-    recommendedResponse: 'Recommended: Deploy drone aerial photography to verify transmission tower footing stability.',
+    affectedDimension: 'Localized slope modification detected adjacent to transmission corridor',
+    recommendedResponse: 'Recommended: Deploy drone aerial photography to verify transmission corridor slope stability.',
     processingStatus: 'Precomputed analysis',
     evidence: {
       description: 'Localized SAR coherence reduction detected on steep slope above access road, indicating potential surface displacement.',
@@ -169,7 +169,7 @@ export const MOCK_DAMAGE_FEATURES: DamageFeature[] = [
       waterIndexDeltaMndwi: -0.02,
       vegetationIndexDeltaNdvi: +0.01,
       preDisasterObservation: 'Operational municipal healthcare clinic with unobstructed road and helipad access.',
-      postDisasterObservation: 'Complex intact and accessible in post-event satellite pass.',
+      postDisasterObservation: 'Complex observable and accessible in post-event satellite pass.',
       opticalBandPreview: 'NATURAL_RGB',
       sensorDetails: 'Sentinel-2 L2A Multi-Spectral Observation Reference',
     },

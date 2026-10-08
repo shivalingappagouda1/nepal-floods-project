@@ -9,7 +9,7 @@ export const DAMAGE_CATEGORY_CONFIGS: Record<DamageCategory, DamageCategoryConfi
     borderClass: 'border-emerald-800/80',
     badgeClass: 'bg-emerald-950/80 text-emerald-300 border-emerald-700',
     iconName: 'CheckCircle2',
-    description: 'Observable optical and SAR spectral signatures match baseline within normal seasonal variation (Δ < 0.05).',
+    description: 'Observable optical and SAR signatures show no significant detected change in the available analysis.',
   },
   POSSIBLE_DAMAGE: {
     id: 'POSSIBLE_DAMAGE',
@@ -19,7 +19,7 @@ export const DAMAGE_CATEGORY_CONFIGS: Record<DamageCategory, DamageCategoryConfi
     borderClass: 'border-amber-800/80',
     badgeClass: 'bg-amber-950/80 text-amber-300 border-amber-700',
     iconName: 'HelpCircle',
-    description: 'Minor detected spectral anomaly or localized SAR coherence drop; requires on-site field verification.',
+    description: 'Minor detected spectral or radar anomaly; requires field verification.',
   },
   MODERATE_DAMAGE: {
     id: 'MODERATE_DAMAGE',
@@ -29,7 +29,7 @@ export const DAMAGE_CATEGORY_CONFIGS: Record<DamageCategory, DamageCategoryConfi
     borderClass: 'border-orange-800/80',
     badgeClass: 'bg-orange-950/80 text-orange-300 border-orange-700',
     iconName: 'AlertCircle',
-    description: 'Detected surface siltation, bank erosion, or partial water inundation in available imagery; requires field inspection.',
+    description: 'Detected surface siltation, bank erosion, inundation, or other observable geospatial change; requires field verification.',
   },
   SEVERE_DAMAGE: {
     id: 'SEVERE_DAMAGE',
@@ -39,7 +39,7 @@ export const DAMAGE_CATEGORY_CONFIGS: Record<DamageCategory, DamageCategoryConfi
     borderClass: 'border-rose-800/80',
     badgeClass: 'bg-rose-950/80 text-rose-300 border-rose-700',
     iconName: 'AlertTriangle',
-    description: 'Major detected surface change, observable approach scouring, or extensive flood inundation across transit artery.',
+    description: 'Major detected surface change, extensive inundation, severe erosion, or observable loss of road/approach connectivity; requires field verification.',
   },
   DESTROYED_INACCESSIBLE: {
     id: 'DESTROYED_INACCESSIBLE',
@@ -49,6 +49,6 @@ export const DAMAGE_CATEGORY_CONFIGS: Record<DamageCategory, DamageCategoryConfi
     borderClass: 'border-purple-800/80',
     badgeClass: 'bg-purple-950/80 text-purple-300 border-purple-700',
     iconName: 'XCircle',
-    description: 'Detected loss of observable roadway continuity, extensive debris deposition, or area obscured/inaccessible in imagery.',
+    description: 'Observable imagery indicates severe physical disruption or inaccessible conditions in the analyzed area; field verification required.',
   },
 };
