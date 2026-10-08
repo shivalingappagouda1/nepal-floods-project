@@ -43,22 +43,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded bg-rose-950/80 border border-rose-800 text-rose-300 font-mono text-[10px] font-bold">
-              ACTIVE SITUATION
+            <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800 text-amber-300 font-mono text-[10px] font-bold">
+              DEMONSTRATION CASE
             </span>
             <h2 className="text-sm font-bold text-command-text font-mono">
               {incident.title}
             </h2>
           </div>
           <p className="text-xs text-command-muted font-mono max-w-2xl">
-            Transboundary GLOF surge and debris flow along the Bhote Koshi / Araniko Highway axis. AI change detection and baseline OSM infrastructure correlation active.
+            Transboundary GLOF surge and debris flow demonstration corridor. Step 3 provides the interactive MapLibre map engine with prototype layers.
           </p>
         </div>
 
         <div className="flex items-center gap-3 border-t md:border-t-0 md:border-l border-command-border pt-3 md:pt-0 md:pl-4">
           <div className="text-right font-mono">
-            <span className="text-[10px] text-command-dim block">AOI BOUNDARY</span>
-            <span className="text-xs font-bold text-command-text">{incident.boundingCoordinates}</span>
+            <span className="text-[10px] text-command-dim block">INITIAL VIEWPORT REF</span>
+            <span className="text-xs font-bold text-command-text">DEMO Navigation Coordinates</span>
           </div>
           <div className="text-right font-mono">
             <span className="text-[10px] text-command-dim block">LEAD AGENCIES</span>
@@ -99,7 +99,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="flex items-center gap-1.5">
                 <Activity className="w-3.5 h-3.5 text-command-accent-glow" />
                 <h4 className="font-mono text-xs font-bold text-command-text uppercase tracking-wider">
-                  SATELLITE & SENSOR EVENT STREAM
+                  SYSTEM ACTIVITY & TELEMETRY STREAM
                 </h4>
               </div>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

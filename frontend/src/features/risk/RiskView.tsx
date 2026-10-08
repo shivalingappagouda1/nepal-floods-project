@@ -21,29 +21,29 @@ export const RiskView: React.FC<RiskViewProps> = ({
   const riskZones = [
     {
       id: 'ZONE-A',
-      name: 'Tatopani Border Crossing & Dry Port',
+      name: 'Tatopani Sector (DEMO)',
       score: 92,
-      debrisRisk: 'HIGH (Steep canyon slope > 42°)',
-      floodRisk: 'CRITICAL (Riverbank overflow)',
-      isolationRisk: 'EXTREME (Araniko Hwy severed)',
+      debrisRisk: 'HIGH (DEMO Slope Index)',
+      floodRisk: 'CRITICAL (DEMO Inundation)',
+      isolationRisk: 'EXTREME (DEMO Severance)',
       status: 'DEMO_VALUE' as const,
     },
     {
       id: 'ZONE-B',
-      name: 'Larcha / Bhairabkunda Confluence',
+      name: 'Larcha Sector (DEMO)',
       score: 84,
-      debrisRisk: 'HIGH (Tributary debris fan)',
-      floodRisk: 'HIGH (Backwater surge)',
-      isolationRisk: 'HIGH (Bhairabkunda Bridge severed)',
+      debrisRisk: 'HIGH (DEMO Tributary Index)',
+      floodRisk: 'HIGH (DEMO Surge)',
+      isolationRisk: 'HIGH (DEMO Bridge Impact)',
       status: 'DEMO_VALUE' as const,
     },
     {
       id: 'ZONE-C',
-      name: 'Barhabise Municipality Lower Reach',
+      name: 'Barhabise Sector (DEMO)',
       score: 68,
-      debrisRisk: 'MODERATE (Bank scouring)',
-      floodRisk: 'HIGH (Floodplain inundation)',
-      isolationRisk: 'MODERATE (Secondary bypass open)',
+      debrisRisk: 'MODERATE (DEMO Scour Index)',
+      floodRisk: 'HIGH (DEMO Floodplain)',
+      isolationRisk: 'MODERATE (DEMO Bypass)',
       status: 'DEMO_VALUE' as const,
     },
   ];
@@ -56,22 +56,22 @@ export const RiskView: React.FC<RiskViewProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <Flame className="w-4 h-4 text-tactical-amber" />
             <h2 className="text-sm font-bold text-command-text uppercase tracking-wider">
-              MULTI-CRITERIA DISASTER RISK SCORING ENGINE
+              MULTI-CRITERIA RISK ENGINE (STEP 3 PROTOTYPE VIEW)
             </h2>
           </div>
           <p className="text-xs text-command-muted">
-            Composite vulnerability indices combining terrain slope, hydrological velocity, and lifeline severance.
+            Mathematical model framework. Genuine risk scoring will be calculated in Step 6.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <DataSourceBadge
             provenance={{
-              tier: 'AI_COMPUTED',
-              source: 'HIMALAYA-SHIELD MCDA Engine (v1.0)',
-              timestamp: '2026-08-27T06:00:00Z',
+              tier: 'DEMO_VALUE',
+              source: 'MCDA Prototype Framework (DEMO / ILLUSTRATIVE)',
+              timestamp: '2026-08-27T00:00:00Z',
               algorithm: 'Multi-Criteria Decision Analysis (AHP Weighted)',
-              confidence: 0.86,
+              confidence: 0.80,
             }}
             showDetails
           />
@@ -96,7 +96,7 @@ export const RiskView: React.FC<RiskViewProps> = ({
                 Risk Index = 0.35 × (Inundation Hazard) + 0.30 × (Debris Velocity) + 0.20 × (Lifeline Cutoff) + 0.15 × (Population Density)
               </div>
               <p className="text-[10px] text-command-dim pt-1">
-                * Note: System produces vulnerability rankings. It does not predict future unpredictable glacier collapse timings.
+                * Note: System produces vulnerability rankings. It does not claim exact prediction of future glacier collapse timings.
               </p>
             </div>
           </div>
@@ -104,7 +104,7 @@ export const RiskView: React.FC<RiskViewProps> = ({
           {/* Priority Risk Zones Table */}
           <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2">
             <h3 className="text-xs font-bold text-command-text uppercase tracking-wider mb-2">
-              High-Risk Sector Rankings
+              Sector Rankings (DEMO Data)
             </h3>
 
             <div className="space-y-2">
@@ -125,8 +125,8 @@ export const RiskView: React.FC<RiskViewProps> = ({
                     <DataSourceBadge
                       provenance={{
                         tier: zone.status,
-                        source: 'MCDA Prototype Matrix',
-                        timestamp: '2026-08-27T06:00:00Z',
+                        source: 'MCDA Prototype Grid (DEMO / ILLUSTRATIVE)',
+                        timestamp: '2026-08-27T00:00:00Z',
                       }}
                     />
                   </div>
@@ -142,7 +142,7 @@ export const RiskView: React.FC<RiskViewProps> = ({
             layers={layers}
             onToggleLayer={onToggleLayer}
             onOpacityChange={onOpacityChange}
-            activeAoiName="Disaster Risk Heatmap"
+            activeAoiName="Map initial viewport — DEMO / navigation reference"
             heightClass="h-[600px]"
           />
         </div>

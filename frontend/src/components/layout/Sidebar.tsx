@@ -7,7 +7,7 @@ import {
   Flame, 
   ShieldAlert, 
   ChevronRight,
-  Database
+  MapPin
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,10 +23,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems: { id: NavigationTab; label: string; icon: React.ElementType; badge?: string }[] = [
     { id: 'dashboard', label: 'EOC Dashboard', icon: LayoutDashboard },
-    { id: 'satellite', label: 'Satellite Analysis', icon: Satellite, badge: 'MSI' },
-    { id: 'damage', label: 'Damage Assessment', icon: Building2 },
-    { id: 'risk', label: 'Risk Analysis', icon: Flame, badge: 'AI' },
-    { id: 'response', label: 'Emergency Response', icon: ShieldAlert, badge: 'P1' },
+    { id: 'satellite', label: 'Satellite Analysis', icon: Satellite, badge: 'STEP 5' },
+    { id: 'damage', label: 'Damage Assessment', icon: Building2, badge: 'STEP 4' },
+    { id: 'risk', label: 'Risk Analysis', icon: Flame, badge: 'STEP 6' },
+    { id: 'response', label: 'Emergency Response', icon: ShieldAlert, badge: 'HITL' },
   ];
 
   return (
@@ -80,12 +80,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Bottom Mission Support Links */}
       <div className="p-3 border-t border-command-border space-y-2">
         <div className="p-2.5 rounded-lg bg-command-card border border-command-border text-[11px] font-mono">
-          <div className="flex items-center gap-1.5 text-emerald-400 font-semibold mb-1">
-            <Database className="w-3.5 h-3.5" />
-            <span>GEO-CACHE READY</span>
+          <div className="flex items-center gap-1.5 text-command-accent-glow font-semibold mb-1">
+            <MapPin className="w-3.5 h-3.5" />
+            <span>NAVIGATION CONTEXT</span>
           </div>
           <p className="text-[10px] text-command-dim leading-tight">
-            Transboundary AOI: Bhote Koshi / Tatopani Corridor (EPSG:32645)
+            Transboundary Corridor Viewport (DEMO / Navigation Reference)
           </p>
         </div>
 

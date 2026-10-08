@@ -21,19 +21,19 @@ export const AppShell: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavigationTab>('dashboard');
   const [isSidebarCollapsed] = useState(false);
 
-  // Active Incident Information (Nepal-China Border 2026 Disaster)
+  // Active Incident Information (Nepal-China Border 2026 Demonstration Case)
   const incident: IncidentInfo = {
     id: 'INC-2026-08-26-NP-CN',
     code: 'GLOF-FLASH-0826',
-    title: 'Bhote Koshi / Tatopani Transboundary Debris & Flood Disaster',
-    region: 'Sindhupalchok / Tibet Border Corridor',
-    country: 'Nepal–China Transboundary Zone',
-    disasterType: 'Glacial Lake Outburst Surge & Landslide Dam Breach',
+    title: 'Bhote Koshi / Tatopani Transboundary Debris & Flood Incident (DEMO CASE)',
+    region: 'Map initial viewport — DEMO / navigation reference',
+    country: 'Nepal–China Transboundary Corridor',
+    disasterType: 'Glacial Lake Outburst Surge & Landslide Dam Breach Scenario',
     declaredDate: '2026-08-26 18:30 NPT',
     status: 'ACTIVE',
     severity: 'CRITICAL',
-    centerCoordinates: [27.9520, 85.9410],
-    boundingCoordinates: '27.75°N–28.15°N, 85.80°E–86.05°E',
+    centerCoordinates: [27.9520, 85.9410], // Map initial viewport — DEMO / navigation reference
+    boundingCoordinates: 'Map initial viewport — DEMO / navigation reference',
     leadAgencies: ['NDRRMA', 'DHM Nepal', 'ICIMOD', 'Nepal Army', 'APF'],
   };
 
@@ -43,7 +43,7 @@ export const AppShell: React.FC = () => {
     lastTelemetrySync: '2026-08-27T06:14:22Z',
     activeCrs: 'EPSG:32645 (UTM 45N)',
     networkLatencyMs: 14,
-    activePassOrbit: 'Sentinel-2B Rel Orbit 119',
+    activePassOrbit: 'Sentinel-2B Rel Orbit 119 (Awaiting Step 5 Ingestion)',
     eocReadiness: 'COMMAND TIER 1',
   };
 
@@ -54,14 +54,13 @@ export const AppShell: React.FC = () => {
       label: 'ESTIMATED INUNDATED CORRIDOR',
       value: '—',
       unit: 'km²',
-      statusLabel: 'Awaiting raster pipeline',
+      statusLabel: 'Awaiting Step 5 satellite pass',
       trend: 'stable',
       severity: 'HIGH',
       provenance: {
         tier: 'AWAITING_PASS',
-        source: 'Sentinel-2 L2A differential MNDWI',
-        timestamp: '2026-08-27T04:48:00Z',
-        algorithm: 'ΔMNDWI Threshold (θ=0.35)',
+        source: 'Awaiting Step 5 Satellite Ingest',
+        timestamp: '2026-08-27T00:00:00Z',
       },
     },
     {
@@ -69,12 +68,12 @@ export const AppShell: React.FC = () => {
       label: 'EXPOSED SETTLEMENT POPULATION',
       value: '—',
       unit: 'persons',
-      statusLabel: 'Awaiting spatial join',
+      statusLabel: 'Awaiting Step 4 dataset link',
       trend: 'stable',
       severity: 'CRITICAL',
       provenance: {
         tier: 'AWAITING_PASS',
-        source: 'HDX Nepal Population Density Grid 2026',
+        source: 'Awaiting Step 4 Baseline Data',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
@@ -83,12 +82,12 @@ export const AppShell: React.FC = () => {
       label: 'ARANIKO HIGHWAY DISRUPTIONS',
       value: '—',
       unit: 'km blocked',
-      statusLabel: 'Awaiting vector intersection',
+      statusLabel: 'Awaiting Step 4 vector join',
       trend: 'stable',
       severity: 'CRITICAL',
       provenance: {
         tier: 'AWAITING_PASS',
-        source: 'OSM Nepal Primary Highway Vector',
+        source: 'Awaiting Step 4 Baseline Data',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
@@ -97,12 +96,12 @@ export const AppShell: React.FC = () => {
       label: 'HEALTH POSTS IN HAZARD BUFFER',
       value: '—',
       unit: 'facilities',
-      statusLabel: 'Awaiting 500m buffer query',
+      statusLabel: 'Awaiting Step 4 buffer query',
       trend: 'stable',
       severity: 'HIGH',
       provenance: {
         tier: 'AWAITING_PASS',
-        source: 'Nepal Ministry of Health / HDX Baseline',
+        source: 'Awaiting Step 4 Baseline Data',
         timestamp: '2026-08-27T00:00:00Z',
       },
     },
@@ -112,104 +111,104 @@ export const AppShell: React.FC = () => {
   const [layers, setLayers] = useState<MapLayerConfig[]>([
     {
       id: 'satellite',
-      label: 'Sentinel-2 RGB / False Color',
+      label: 'Satellite Basemap (DEMO)',
       category: 'IMAGERY',
       enabled: true,
       opacity: 0.85,
-      badge: 'VERIFIED',
-      description: 'Copernicus Sentinel-2 MSI 10m true & false color optical imagery.',
+      badge: 'DEMO_VALUE',
+      description: 'Visual prototype satellite basemap layer. Real Sentinel-2 analysis connected in Step 5.',
       availableInMvp: true,
     },
     {
       id: 'flood',
-      label: 'Flood Inundation Extent',
+      label: 'Flood Inundation Extent (DEMO)',
       category: 'HAZARD',
       enabled: true,
       opacity: 0.85,
-      badge: 'AI_COMPUTED',
-      description: 'Differential MNDWI flood surface water mask polygonized from raster.',
+      badge: 'DEMO_VALUE',
+      description: 'Prototype flood boundary mask. Real change detection connected in Step 5.',
       availableInMvp: true,
     },
     {
       id: 'landslide',
-      label: 'Debris Flow & Scarp Zones',
+      label: 'Debris Flow & Scarp Zones (DEMO)',
       category: 'HAZARD',
       enabled: true,
       opacity: 0.8,
-      badge: 'AI_COMPUTED',
-      description: 'Differential NDVI scarp detection and steep-slope debris trajectories.',
+      badge: 'DEMO_VALUE',
+      description: 'Prototype steep-slope debris polygons. Real slope analysis connected in Step 5.',
       availableInMvp: true,
     },
     {
       id: 'damage',
-      label: 'Damage Severity Heatmap',
+      label: 'Damage Severity Sectors (DEMO)',
       category: 'HAZARD',
       enabled: false,
       opacity: 0.75,
-      badge: 'AI_COMPUTED',
-      description: 'Kernel density and multi-criteria disaster severity raster surface.',
+      badge: 'DEMO_VALUE',
+      description: 'Prototype damage zoning polygons. Real MCDA risk connected in Step 6.',
       availableInMvp: true,
     },
     {
       id: 'buildings',
-      label: 'Building Footprints (OSM)',
+      label: 'Building Footprints (DEMO)',
       category: 'INFRASTRUCTURE',
       enabled: true,
       opacity: 0.9,
-      badge: 'VERIFIED',
-      description: 'OpenStreetMap verified residential, commercial, and administrative structures.',
+      badge: 'DEMO_VALUE',
+      description: 'Prototype settlement cluster polygons. Real OSM baseline connected in Step 4.',
       availableInMvp: true,
     },
     {
       id: 'roads',
-      label: 'Roads & Lifeline Bridges',
+      label: 'Roads & Lifelines (DEMO)',
       category: 'INFRASTRUCTURE',
       enabled: true,
       opacity: 0.9,
-      badge: 'VERIFIED',
-      description: 'Araniko Highway (National Highway 03) and connecting arterial roads.',
+      badge: 'DEMO_VALUE',
+      description: 'Prototype highway corridor linestring. Real OSM vector connected in Step 4.',
       availableInMvp: true,
     },
     {
       id: 'hospitals',
-      label: 'Hospitals & Health Posts',
+      label: 'Health Points (DEMO)',
       category: 'INFRASTRUCTURE',
       enabled: true,
       opacity: 1.0,
-      badge: 'VERIFIED',
-      description: 'Hospitals, primary health centers, and emergency first-aid stations.',
+      badge: 'DEMO_VALUE',
+      description: 'Prototype emergency facility markers. Real health dataset connected in Step 4.',
       availableInMvp: true,
     },
     {
       id: 'population',
-      label: 'Population Density Grid',
+      label: 'Population Density (DEMO)',
       category: 'DEMOGRAPHICS',
       enabled: false,
       opacity: 0.6,
       badge: 'DEMO_VALUE',
-      description: 'Humanitarian Data Exchange (HDX) 100m population density baseline.',
+      description: 'Prototype density cell grid. Real demographic dataset connected in Step 4.',
       availableInMvp: true,
     },
   ]);
 
-  // Priority Actions
+  // Priority Actions (DEMO)
   const [priorityItems, setPriorityItems] = useState<PriorityActionItem[]>([
     {
       id: 'ACT-001',
       rank: 1,
-      zone: 'Tatopani Border Checkpoint (Zone A)',
-      title: 'Emergency Evacuation: Tatopani Gorge Commercial Precinct',
+      zone: 'Tatopani Sector (DEMO)',
+      title: 'Emergency Evacuation: Tatopani Gorge Commercial Precinct (DEMO)',
       category: 'EVACUATION',
       severity: 'CRITICAL',
-      affectedPopulationEstimate: 'Demo estimate pending pass',
+      affectedPopulationEstimate: 'DEMO value',
       status: 'PENDING_HUMAN_REVIEW',
       confidence: 0.88,
       assignedUnit: 'APF Disaster Unit 4',
       lastUpdated: '2026-08-27T06:05:00Z',
       provenance: {
-        tier: 'AI_COMPUTED',
-        source: 'HIMALAYA-SHIELD Priority Engine',
-        timestamp: '2026-08-27T06:00:00Z',
+        tier: 'DEMO_VALUE',
+        source: 'Priority Engine Prototype (DEMO / ILLUSTRATIVE)',
+        timestamp: '2026-08-27T00:00:00Z',
         algorithm: 'Multi-Criteria Risk Scoring v1.0',
         confidence: 0.88,
       },
@@ -217,98 +216,97 @@ export const AppShell: React.FC = () => {
     {
       id: 'ACT-002',
       rank: 2,
-      zone: 'Larcha / Bhairabkunda Bridge (Zone B)',
-      title: 'Heavy Engineering Clearance: Severed Tributary Bridge',
+      zone: 'Larcha Sector (DEMO)',
+      title: 'Heavy Engineering Clearance: Severed Tributary Bridge (DEMO)',
       category: 'ROUTE_CLEARANCE',
       severity: 'HIGH',
-      affectedPopulationEstimate: 'Demo estimate pending pass',
+      affectedPopulationEstimate: 'DEMO value',
       status: 'PENDING_HUMAN_REVIEW',
       confidence: 0.84,
       assignedUnit: 'Nepal Army Heavy Eng 101',
       lastUpdated: '2026-08-27T06:00:00Z',
       provenance: {
-        tier: 'AI_COMPUTED',
-        source: 'HIMALAYA-SHIELD Priority Engine',
-        timestamp: '2026-08-27T06:00:00Z',
-        algorithm: 'OSM Lifeline Severance Detection',
+        tier: 'DEMO_VALUE',
+        source: 'Priority Engine Prototype (DEMO / ILLUSTRATIVE)',
+        timestamp: '2026-08-27T00:00:00Z',
+        algorithm: 'Lifeline Severance Model',
         confidence: 0.84,
       },
     },
     {
       id: 'ACT-003',
       rank: 3,
-      zone: 'Barhabise Health Post Buffer (Zone C)',
-      title: 'Pre-position Medical First-Aid Triage Staging Area',
+      zone: 'Barhabise Sector (DEMO)',
+      title: 'Pre-position Medical First-Aid Triage Staging Area (DEMO)',
       category: 'MEDICAL_AIRLIFT',
       severity: 'HIGH',
-      affectedPopulationEstimate: 'Demo estimate pending pass',
+      affectedPopulationEstimate: 'DEMO value',
       status: 'PENDING_HUMAN_REVIEW',
       confidence: 0.79,
       assignedUnit: 'Nepal Red Cross Emergency Team A',
       lastUpdated: '2026-08-27T05:50:00Z',
       provenance: {
-        tier: 'AI_COMPUTED',
-        source: 'HIMALAYA-SHIELD Priority Engine',
-        timestamp: '2026-08-27T05:50:00Z',
-        algorithm: 'Health Facility Buffer Distance Analysis',
+        tier: 'DEMO_VALUE',
+        source: 'Priority Engine Prototype (DEMO / ILLUSTRATIVE)',
+        timestamp: '2026-08-27T00:00:00Z',
+        algorithm: 'Facility Buffer Distance Model',
         confidence: 0.79,
       },
     },
   ]);
 
-  // Composite Risk Metric for the Active Zone
+  // Composite Risk Metric for the Active Zone (DEMO)
   const riskMetric: RiskZoneMetric = {
     id: 'RISK-ZONE-TATOPANI',
-    zoneName: 'Tatopani / Kodari Transboundary Sector',
-    coordinates: '27.9520° N, 85.9410° E',
+    zoneName: 'Tatopani Corridor (DEMO Reference)',
+    coordinates: 'Map initial viewport — DEMO / navigation reference',
     compositeScore: 92,
     severity: 'CRITICAL',
-    floodInundationArea: 'Awaiting raster mask',
-    debrisVolumeIndex: 'High slope instability',
-    exposedStructures: 'Awaiting spatial join',
-    severedLifelines: 'Araniko Hwy Km 112',
+    floodInundationArea: 'Awaiting Step 5 pass',
+    debrisVolumeIndex: 'Prototype slope estimate',
+    exposedStructures: 'Awaiting Step 4 join',
+    severedLifelines: 'Araniko Hwy prototype segment',
     isolationRiskScore: 95,
     provenance: {
-      tier: 'AI_COMPUTED',
-      source: 'HIMALAYA-SHIELD MCDA Engine',
-      timestamp: '2026-08-27T06:00:00Z',
+      tier: 'DEMO_VALUE',
+      source: 'MCDA Prototype Matrix (DEMO / ILLUSTRATIVE)',
+      timestamp: '2026-08-27T00:00:00Z',
       algorithm: 'AHP Multi-Criteria Risk Scoring',
       confidence: 0.86,
     },
   };
 
-  // Activity Log
+  // Activity Log (DEMO)
   const activityLogs: ActivityEvent[] = [
     {
       id: 'EVT-101',
       timestamp: '06:14:22 NPT',
-      type: 'SATELLITE_PASS',
-      title: 'Copernicus Sentinel-2B Tile T45RWQ Ingested',
-      detail: 'Multi-spectral bands B2, B3, B4, B8, B11, B12 normalized to BOA reflectance.',
-      source: 'ESA Copernicus Open Access Hub',
-      tier: 'VERIFIED',
+      type: 'SYSTEM_EVENT',
+      title: 'MapLibre GL Geospatial Canvas Initialized',
+      detail: 'Nepal transboundary viewport loaded with 8 prototype demonstration layers.',
+      source: 'HIMALAYA-SHIELD Map Engine',
+      tier: 'DEMO_VALUE',
     },
     {
       id: 'EVT-102',
       timestamp: '06:10:05 NPT',
       type: 'AI_INFERENCE',
-      title: 'Differential MNDWI Change Detection Run Complete',
-      detail: 'Identified candidate flood inundation polygons along Bhote Koshi main channel.',
-      source: 'HIMALAYA-SHIELD Change Engine (v1.0)',
-      tier: 'AI_COMPUTED',
+      title: 'Change Detection Pipeline Framework Ready',
+      detail: 'Awaiting Step 5 Sentinel-2 pre/post disaster multi-spectral raster inputs.',
+      source: 'HIMALAYA-SHIELD Change Engine',
+      tier: 'DEMO_VALUE',
     },
     {
       id: 'EVT-103',
       timestamp: '06:05:00 NPT',
-      type: 'SENSOR_ALERT',
-      title: 'DHM Nepal River Level Alert (Station: Barhabise)',
-      detail: 'Water level crossed Danger Threshold (+4.8m above baseline).',
-      source: 'Gov of Nepal DHM Hydrology Network',
-      tier: 'VERIFIED',
+      type: 'SYSTEM_EVENT',
+      title: 'Navigation Reference Points Configured',
+      detail: 'Initial center coordinates set for Bhote Koshi Himalayan corridor.',
+      source: 'HIMALAYA-SHIELD Core',
+      tier: 'DEMO_VALUE',
     },
   ];
 
-  // Handler for Layer Toggles
   const handleToggleLayer = (layerId: string) => {
     setLayers((prev) =>
       prev.map((layer) =>
@@ -317,7 +315,6 @@ export const AppShell: React.FC = () => {
     );
   };
 
-  // Handler for Layer Opacity
   const handleOpacityChange = (layerId: string, opacity: number) => {
     setLayers((prev) =>
       prev.map((layer) =>
@@ -326,7 +323,6 @@ export const AppShell: React.FC = () => {
     );
   };
 
-  // Handler for Human-in-the-Loop Action Approval
   const handleApproveAction = (actionId: string) => {
     setPriorityItems((prev) =>
       prev.map((item) =>
@@ -351,7 +347,7 @@ export const AppShell: React.FC = () => {
           isCollapsed={isSidebarCollapsed}
         />
 
-        {/* Dynamic Main Content Workspace */}
+        {/* Dynamic Main Content Workspace (Each view rendered exactly once) */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-command-bg/95">
           <div className="max-w-7xl mx-auto">
             {currentTab === 'dashboard' && (
@@ -405,7 +401,7 @@ export const AppShell: React.FC = () => {
         </main>
       </div>
 
-      {/* Bottom Telemetry & Attribution Status Bar */}
+      {/* Bottom Telemetry & Attribution Status Bar (Exactly ONE GEO-ENGINE status message) */}
       <footer className="h-7 bg-command-panel border-t border-command-border px-4 flex items-center justify-between text-[10px] font-mono text-command-dim z-30">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-emerald-400">
@@ -415,13 +411,13 @@ export const AppShell: React.FC = () => {
           <span>|</span>
           <span>CRS: <strong className="text-command-text">WGS 84 / UTM Zone 45N (EPSG:32645)</strong></span>
           <span>|</span>
-          <span>AOI: <strong className="text-command-text">Bhote Koshi Valley (27.95°N, 85.94°E)</strong></span>
+          <span>INITIAL VIEWPORT: <strong className="text-command-text">Bhote Koshi Corridor (DEMO Ref)</strong></span>
         </div>
 
         <div className="flex items-center gap-4">
-          <span>DATA PROVENANCE PROTOCOL: <strong className="text-command-accent-glow">STRICT ISO-19115</strong></span>
+          <span>DATA PROVENANCE: <strong className="text-amber-400">STEP 3 PROTOTYPE LAYERS</strong></span>
           <span>|</span>
-          <span className="text-command-muted">HIMALAYA-SHIELD DISASTER INTELLIGENCE SYSTEM</span>
+          <span className="text-command-muted">HIMALAYA-SHIELD DISASTER INTELLIGENCE PLATFORM</span>
         </div>
       </footer>
     </div>

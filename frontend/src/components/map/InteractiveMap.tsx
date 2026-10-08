@@ -55,7 +55,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   layers,
   onToggleLayer,
   onOpacityChange,
-  activeAoiName = "Bhote Koshi / Tatopani Corridor",
+  activeAoiName = "Map initial viewport — DEMO / navigation reference",
   coordinates = [27.9520, 85.9410],
   heightClass = "h-full min-h-[500px]",
   showLayerDrawerDefault = true,
@@ -89,13 +89,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         pitch: NEPAL_PITCH,
         bearing: NEPAL_BEARING,
         maxBounds: [
-          [79.0, 25.0], // Southwest boundary
-          [89.5, 31.5], // Northeast boundary
+          [79.0, 25.0],
+          [89.5, 31.5],
         ],
         attributionControl: false,
       });
 
-      // Add zoom and rotation controls to top-right
       map.addControl(
         new NavigationControl({
           visualizePitch: true,
@@ -105,7 +104,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         'top-right'
       );
 
-      // Add Metric Scale bar to bottom-left
       map.addControl(
         new ScaleControl({
           maxWidth: 150,
@@ -114,13 +112,12 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         'bottom-left'
       );
 
-      // Track cursor coordinates
       map.on('mousemove', (e: MapMouseEvent) => {
         setCursorCoords([e.lngLat.lat, e.lngLat.lng]);
       });
 
       map.on('load', () => {
-        // --- 1. SATELLITE RASTER SOURCE ---
+        // --- 1. SATELLITE RASTER SOURCE (Visual Prototype Basemap) ---
         map.addSource('satellite-tiles', {
           type: 'raster',
           tiles: [
@@ -141,7 +138,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 2. POPULATION DENSITY GRID SOURCE & LAYER ---
+        // --- 2. POPULATION DENSITY GRID SOURCE & LAYER (DEMO) ---
         map.addSource('population-source', {
           type: 'geojson',
           data: demoPopulationGeoJson,
@@ -161,7 +158,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 3. DAMAGE ZONES SOURCE & LAYER ---
+        // --- 3. DAMAGE ZONES SOURCE & LAYER (DEMO) ---
         map.addSource('damage-source', {
           type: 'geojson',
           data: demoDamageZonesGeoJson,
@@ -187,7 +184,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 4. FLOOD INUNDATION SOURCE & LAYER ---
+        // --- 4. FLOOD INUNDATION SOURCE & LAYER (DEMO) ---
         map.addSource('flood-source', {
           type: 'geojson',
           data: demoFloodGeoJson,
@@ -221,7 +218,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 5. LANDSLIDE & SCARP SOURCE & LAYER ---
+        // --- 5. LANDSLIDE & SCARP SOURCE & LAYER (DEMO) ---
         map.addSource('landslide-source', {
           type: 'geojson',
           data: demoLandslideGeoJson,
@@ -241,7 +238,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 6. BUILDINGS SOURCE & LAYER ---
+        // --- 6. BUILDINGS SOURCE & LAYER (DEMO) ---
         map.addSource('buildings-source', {
           type: 'geojson',
           data: demoBuildingsGeoJson,
@@ -266,7 +263,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 7. ROADS SOURCE & LAYER ---
+        // --- 7. ROADS SOURCE & LAYER (DEMO) ---
         map.addSource('roads-source', {
           type: 'geojson',
           data: demoRoadsGeoJson,
@@ -297,7 +294,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
-        // --- 8. HOSPITALS SOURCE & LAYER ---
+        // --- 8. HOSPITALS SOURCE & LAYER (DEMO) ---
         map.addSource('hospitals-source', {
           type: 'geojson',
           data: demoHospitalsGeoJson,
@@ -341,14 +338,13 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             const feature = e.features[0];
             const props = feature.properties as any;
             
-            // Parse nested JSON if serialized
             let parsedProvenance = props.provenance;
             if (typeof parsedProvenance === 'string') {
               try {
                 parsedProvenance = JSON.parse(parsedProvenance);
               } catch {
                 parsedProvenance = {
-                  source: 'HIMALAYA-SHIELD Prototype',
+                  source: 'Prototype Data Layer (DEMO / ILLUSTRATIVE)',
                   timestamp: '2026-08-27T00:00:00Z',
                   tier: 'DEMO_VALUE',
                 };
@@ -357,14 +353,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
             const featureProps: GeoFeatureProperties = {
               id: props.id || 'FEATURE-ID',
-              name: props.name || 'Disaster Entity',
+              name: props.name || 'Disaster Entity (DEMO)',
               type: props.type || 'GEOSPATIAL_FEATURE',
               severity: props.severity || 'MODERATE',
-              status: props.status || 'ACTIVE',
-              description: props.description || 'Geospatial feature detected in Himalayan transboundary sector.',
+              status: props.status || 'DEMO_ACTIVE',
+              description: props.description || 'Illustrative feature placeholder for UI and navigation validation.',
               isDemo: true,
               provenance: parsedProvenance || {
-                source: 'Prototype Data Layer',
+                source: 'Prototype Data Layer (DEMO / ILLUSTRATIVE)',
                 timestamp: '2026-08-27T00:00:00Z',
                 tier: 'DEMO_VALUE',
               },
@@ -376,7 +372,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             });
           });
 
-          // Cursor hover effects
           map.on('mouseenter', layerId, () => {
             map.getCanvas().style.cursor = 'pointer';
           });
@@ -468,7 +463,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   }, [layers, isMapLoaded]);
 
-  // Handler: Recenter on Nepal / Transboundary Corridor
   const handleRecenterCorridor = useCallback(() => {
     if (!mapRef.current) return;
     mapRef.current.flyTo({
@@ -480,7 +474,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   }, [is3DMode]);
 
-  // Handler: Fit Nepal Country Extent
   const handleFitNepalCountry = useCallback(() => {
     if (!mapRef.current) return;
     mapRef.current.fitBounds(NEPAL_COUNTRY_BOUNDS, {
@@ -491,7 +484,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   }, []);
 
-  // Handler: Toggle 3D Perspective Pitch
   const handleToggle3D = useCallback(() => {
     if (!mapRef.current) return;
     const nextMode = !is3DMode;
@@ -503,7 +495,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   }, [is3DMode]);
 
-  // Handler: Focus from popup
   const handleFocusLocation = useCallback((coords: [number, number]) => {
     if (!mapRef.current) return;
     mapRef.current.flyTo({
@@ -514,7 +505,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   }, []);
 
-  // Retry on error
   const handleRetry = () => {
     setMapError(null);
     setIsMapLoaded(false);
@@ -532,11 +522,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           </div>
           <span className="text-command-dim">|</span>
           <span className="text-command-muted">
-            {cursorCoords[0].toFixed(4)}° N, {cursorCoords[1].toFixed(4)}° E
+            {cursorCoords[0].toFixed(4)}° N, {cursorCoords[1].toFixed(4)}° E (DEMO Viewport Ref)
           </span>
           <span className="text-command-dim">|</span>
-          <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-1.5 py-0.2 rounded font-bold">
-            EPSG:32645
+          <span className="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-800/80 px-1.5 py-0.2 rounded font-bold">
+            PROTOTYPE MAP
           </span>
         </div>
 
@@ -545,7 +535,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <button
             onClick={handleRecenterCorridor}
             className="px-2.5 py-1.5 rounded-lg border text-xs font-semibold bg-command-panel/90 text-command-muted border-command-border hover:text-white hover:border-command-accent/50 transition-all backdrop-blur-md flex items-center gap-1.5"
-            title="Reset view to Bhote Koshi disaster corridor"
+            title="Reset view to initial navigation reference coordinates"
           >
             <RotateCcw className="w-3.5 h-3.5 text-command-accent-glow" />
             <span>AOI CORRIDOR</span>
@@ -594,8 +584,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         {!isMapLoaded && !mapError && (
           <div className="absolute inset-0 bg-command-bg/90 backdrop-blur-sm z-30 flex items-center justify-center p-6">
             <LoadingState 
-              message="STREAMING HIMALAYAN GEOSPATIAL TILES..." 
-              subtext="Initializing WebGL shader pipelines, satellite raster basemaps & vector layers"
+              message="INITIALIZING MAPLIBRE GL CANVAS..." 
+              subtext="Loading tactical basemap tiles & prototype geospatial layers"
             />
           </div>
         )}
@@ -641,7 +631,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 </h4>
               </div>
               <span className="text-[10px] text-command-dim">
-                8 LAYERS
+                8 LAYERS (DEMO)
               </span>
             </div>
 
@@ -677,7 +667,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                           : 'bg-amber-950 text-amber-400 border-amber-800'
                       }`}
                     >
-                      {layer.badge === 'DEMO_VALUE' ? 'DEMO' : layer.badge}
+                      {layer.badge === 'DEMO_VALUE' ? 'DEMO / ILLUST.' : layer.badge}
                     </span>
                   </div>
 
@@ -706,8 +696,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               ))}
             </div>
 
-            <div className="pt-2 mt-2 border-t border-command-border text-[9px] font-mono text-command-dim text-center">
-              * Click any polygon/marker to open tactical telemetry inspector.
+            <div className="pt-2 mt-2 border-t border-command-border text-[9px] font-mono text-amber-300/80 text-center">
+              * Prototype layers. Verified datasets connect in Steps 4 & 5.
             </div>
           </div>
         )}

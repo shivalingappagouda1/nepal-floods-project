@@ -24,31 +24,31 @@ export const SatelliteView: React.FC<SatelliteViewProps> = ({
   const spectralIndices = [
     {
       id: 'RGB',
-      name: 'True Color (B4-B3-B2)',
-      description: 'Standard optical natural color visualization (10m GSD).',
+      name: 'True Color (B4-B3-B2) [DEMO / Prototype]',
+      description: 'Standard optical natural color visualization format (Step 5 Ingestion).',
       formula: 'Red / Green / Blue',
-      status: 'VERIFIED' as const,
+      status: 'DEMO_VALUE' as const,
     },
     {
       id: 'MNDWI',
-      name: 'Modified Normalized Difference Water Index',
-      description: 'Suppresses built-up land noise to accurately extract flood water bodies.',
+      name: 'Modified Normalized Difference Water Index (MNDWI)',
+      description: 'Algorithm configured for Step 5 differential water body extraction.',
       formula: '(Green - SWIR) / (Green + SWIR)',
-      status: 'AI_COMPUTED' as const,
+      status: 'DEMO_VALUE' as const,
     },
     {
       id: 'NDVI',
-      name: 'Normalized Difference Vegetation Index',
-      description: 'Highlights scoured slopes, destroyed farmland, and landslide scars.',
+      name: 'Normalized Difference Vegetation Index (NDVI)',
+      description: 'Algorithm configured for Step 5 scarp & vegetation loss detection.',
       formula: '(NIR - Red) / (NIR + Red)',
-      status: 'AI_COMPUTED' as const,
+      status: 'DEMO_VALUE' as const,
     },
     {
       id: 'DIFF_MASK',
-      name: 'Differential Change Detection Mask',
-      description: 'Calculates delta indices between pre- and post-disaster passes.',
+      name: 'Differential Change Detection Mask (Pipeline Preset)',
+      description: 'Computes delta indices between pre- and post-disaster passes in Step 5.',
       formula: 'ΔMNDWI > θ_flood AND ΔNDVI < θ_scarp',
-      status: 'AI_COMPUTED' as const,
+      status: 'DEMO_VALUE' as const,
     },
   ];
 
@@ -60,21 +60,21 @@ export const SatelliteView: React.FC<SatelliteViewProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <Satellite className="w-4 h-4 text-command-accent-glow" />
             <h2 className="text-sm font-bold text-command-text uppercase tracking-wider">
-              SATELLITE CHANGE DETECTION & SPECTRAL ANALYSIS
+              SATELLITE CHANGE DETECTION INTERFACE (STEP 3 FOUNDATION)
             </h2>
           </div>
           <p className="text-xs text-command-muted">
-            Multi-temporal Sentinel-2 MSI analysis across the Bhote Koshi / Tatopani gorge corridor.
+            Map viewport and spectral controls prepared. Live multi-spectral Sentinel-2 ingestion will connect in Step 5.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <DataSourceBadge 
             provenance={{
-              tier: 'VERIFIED',
-              source: 'ESA Copernicus Sentinel-2 L2A (Tile: T45RWQ)',
-              timestamp: '2026-08-27T04:45:00Z',
-              sensor: 'MSI (MultiSpectral Instrument)'
+              tier: 'DEMO_VALUE',
+              source: 'Visual Basemap Prototype (Awaiting Step 5 Real Data)',
+              timestamp: '2026-08-27T00:00:00Z',
+              sensor: 'Prototype Tile Layer'
             }}
             showDetails
           />
@@ -88,7 +88,7 @@ export const SatelliteView: React.FC<SatelliteViewProps> = ({
           <div className="bg-command-card border border-command-border rounded-lg p-4">
             <h3 className="text-xs font-bold text-command-text uppercase tracking-wider mb-3 flex items-center gap-2">
               <Layers className="w-3.5 h-3.5 text-command-accent-glow" />
-              Spectral Index Selection
+              Spectral Index Controls (Step 5 Preset)
             </h3>
 
             <div className="space-y-2">
@@ -134,18 +134,17 @@ export const SatelliteView: React.FC<SatelliteViewProps> = ({
                 className="w-full h-1.5 bg-command-surface rounded-lg appearance-none cursor-pointer accent-command-accent"
               />
               <span className="text-[9px] text-command-dim block mt-1">
-                Higher values restrict flood detection to deep turbid water channels.
+                Threshold parameter ready for Step 5 spectral calculations.
               </span>
             </div>
           </div>
 
-          {/* Dual Pass Information */}
+          {/* Pass Information */}
           <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2">
-            <div className="text-xs font-bold text-command-text">SATELLITE ORBIT TELEMETRY</div>
+            <div className="text-xs font-bold text-command-text">SATELLITE INGEST STATUS</div>
             <div className="text-[11px] text-command-muted space-y-1">
-              <div>Pre-Disaster: <strong className="text-command-text">10 Aug 2026 (Sentinel-2A)</strong></div>
-              <div>Post-Disaster: <strong className="text-rose-300">27 Aug 2026 (Sentinel-2B)</strong></div>
-              <div>Ground Sample Distance: <strong className="text-command-accent-glow">10m / px</strong></div>
+              <div>Status: <strong className="text-amber-300">Awaiting Step 5 Real Data</strong></div>
+              <div>Current Map: <strong className="text-command-text">MapLibre GL Basemap (DEMO)</strong></div>
             </div>
           </div>
         </div>
@@ -156,7 +155,7 @@ export const SatelliteView: React.FC<SatelliteViewProps> = ({
             layers={layers}
             onToggleLayer={onToggleLayer}
             onOpacityChange={onOpacityChange}
-            activeAoiName="Sentinel-2 Spectral Ingest"
+            activeAoiName="Map initial viewport — DEMO / navigation reference"
             heightClass="h-[600px]"
           />
         </div>

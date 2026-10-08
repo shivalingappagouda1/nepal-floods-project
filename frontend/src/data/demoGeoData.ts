@@ -2,11 +2,11 @@
  * HIMALAYA-SHIELD: Geospatial Prototype Dataset
  * 
  * DISCLAIMER / FACTUAL INTEGRITY NOTICE:
- * The spatial geometries below are DEMONSTRATION / PROTOTYPE datasets for UI & architectural validation.
- * They are centered on real geomorphological coordinates of the Bhote Koshi / Tatopani / Araniko Highway 
- * transboundary corridor in Nepal, but must NOT be cited as verified ground-truth damage observations.
+ * All spatial geometries below are strictly DEMO / ILLUSTRATIVE datasets for UI & architectural validation.
+ * Coordinates are used solely as a navigation reference around the Himalayan transboundary corridor.
+ * They are NOT verified ground-truth disaster observations or boundary measurements.
  * 
- * In Steps 4 & 5, these will be replaced with real Sentinel-2 differential change masks and OpenStreetMap vectors.
+ * In Steps 4 & 5, real verified datasets with traceable sources will be integrated.
  */
 
 import type { FeatureCollection, Geometry } from 'geojson';
@@ -23,7 +23,7 @@ export interface GeoFeatureProperties {
   provenance: {
     source: string;
     timestamp: string;
-    tier: 'DEMO_VALUE' | 'VERIFIED' | 'AI_COMPUTED';
+    tier: 'DEMO_VALUE';
     confidence?: number;
   };
 }
@@ -36,17 +36,17 @@ export const demoFloodGeoJson: FeatureCollection<Geometry, GeoFeatureProperties>
       type: 'Feature',
       properties: {
         id: 'FL-001',
-        name: 'Tatopani Gorge Main Channel Surge',
+        name: 'Tatopani Gorge Candidate Flood Corridor (DEMO)',
         type: 'FLOOD_INUNDATION',
         severity: 'CRITICAL',
-        status: 'ACTIVE_SURGE',
-        description: 'High-velocity debris & glacial outburst surge along Bhote Koshi main stem.',
+        status: 'DEMO_SIMULATION',
+        description: 'Illustrative surge corridor placeholder. Real satellite change detection connects in Step 5.',
         isDemo: true,
         provenance: {
-          source: 'Prototype Synthetic Change Mask (Awaiting S2 Pass)',
-          timestamp: '2026-08-27T04:48:00Z',
+          source: 'Prototype Synthetic Mask (DEMO / ILLUSTRATIVE)',
+          timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
-          confidence: 0.85,
+          confidence: 0.75,
         },
       },
       geometry: {
@@ -89,17 +89,17 @@ export const demoLandslideGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'LS-001',
-        name: 'Tatopani East Valley Scarp',
+        name: 'Tatopani East Valley Candidate Scarp (DEMO)',
         type: 'LANDSLIDE_SCARP',
         severity: 'CRITICAL',
-        status: 'UNSTABLE_SLOPE',
-        description: 'Steep colluvial slope displacement threatening dry port access road.',
+        status: 'DEMO_SLOPE_MODEL',
+        description: 'Illustrative slope displacement placeholder. Real slope analysis connects in Step 5.',
         isDemo: true,
         provenance: {
-          source: 'Prototype Slope Angle & NDVI Mask',
-          timestamp: '2026-08-27T04:48:00Z',
+          source: 'Prototype Slope Angle Model (DEMO / ILLUSTRATIVE)',
+          timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
-          confidence: 0.81,
+          confidence: 0.70,
         },
       },
       geometry: {
@@ -119,17 +119,17 @@ export const demoLandslideGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'LS-002',
-        name: 'Larcha Tributary Debris Fan',
+        name: 'Larcha Tributary Debris Fan (DEMO)',
         type: 'DEBRIS_FLOW',
         severity: 'HIGH',
-        status: 'DEPOSITION_ZONE',
-        description: 'Debris fan accumulation at confluence of Bhairabkunda Khola.',
+        status: 'DEMO_DEBRIS_ZONE',
+        description: 'Illustrative debris accumulation geometry placeholder.',
         isDemo: true,
         provenance: {
-          source: 'Prototype Slope Angle & NDVI Mask',
-          timestamp: '2026-08-27T04:48:00Z',
+          source: 'Prototype Debris Fan Model (DEMO / ILLUSTRATIVE)',
+          timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
-          confidence: 0.78,
+          confidence: 0.70,
         },
       },
       geometry: {
@@ -156,15 +156,15 @@ export const demoDamageZonesGeoJson: FeatureCollection<Geometry, GeoFeaturePrope
       type: 'Feature',
       properties: {
         id: 'DMG-ZONE-A',
-        name: 'Zone A: Tatopani Gorge Commercial Hub',
+        name: 'Sector A: Tatopani Gorge (DEMO / Illustrative)',
         type: 'DAMAGE_SECTOR',
         severity: 'CRITICAL',
-        status: 'HIGH_DAMAGE_CLUSTER',
-        description: 'Severe bank erosion and structural flooding across customs and commercial warehouses.',
+        status: 'DEMO_DAMAGE_CLUSTER',
+        description: 'Illustrative damage sector bounding box for layout verification.',
         isDemo: true,
         provenance: {
-          source: 'MCDA Damage Simulation Kernel',
-          timestamp: '2026-08-27T06:00:00Z',
+          source: 'Prototype Calibration Grid (DEMO / ILLUSTRATIVE)',
+          timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
         },
       },
@@ -185,15 +185,15 @@ export const demoDamageZonesGeoJson: FeatureCollection<Geometry, GeoFeaturePrope
       type: 'Feature',
       properties: {
         id: 'DMG-ZONE-B',
-        name: 'Zone B: Larcha / Mimming Access Corridor',
+        name: 'Sector B: Larcha Corridor (DEMO / Illustrative)',
         type: 'DAMAGE_SECTOR',
         severity: 'HIGH',
-        status: 'MODERATE_DAMAGE_CLUSTER',
-        description: 'Road embankment subsidence and severed bridge approaches.',
+        status: 'DEMO_DAMAGE_CLUSTER',
+        description: 'Illustrative damage sector bounding box for layout verification.',
         isDemo: true,
         provenance: {
-          source: 'MCDA Damage Simulation Kernel',
-          timestamp: '2026-08-27T06:00:00Z',
+          source: 'Prototype Calibration Grid (DEMO / ILLUSTRATIVE)',
+          timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
         },
       },
@@ -213,7 +213,7 @@ export const demoDamageZonesGeoJson: FeatureCollection<Geometry, GeoFeaturePrope
   ],
 };
 
-// 4. Roads & Lifeline Bridges (DEMO baseline)
+// 4. Roads & Lifeline Bridges (DEMO)
 export const demoRoadsGeoJson: FeatureCollection<Geometry, GeoFeatureProperties> = {
   type: 'FeatureCollection',
   features: [
@@ -221,16 +221,16 @@ export const demoRoadsGeoJson: FeatureCollection<Geometry, GeoFeatureProperties>
       type: 'Feature',
       properties: {
         id: 'RD-001',
-        name: 'Araniko Highway (NH03) - Passable Reach',
+        name: 'Araniko Corridor Alignment (DEMO - Open Section)',
         type: 'ROAD_OPEN',
         severity: 'LOW',
-        status: 'OPERATIONAL',
-        description: 'South sector connecting Barhabise southwards toward Kathmandu.',
+        status: 'DEMO_BASELINE',
+        description: 'Illustrative road linestring for navigation reference.',
         isDemo: true,
         provenance: {
-          source: 'OSM Nepal Highway Alignment Baseline',
+          source: 'Prototype Road Alignment (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
-          tier: 'VERIFIED',
+          tier: 'DEMO_VALUE',
         },
       },
       geometry: {
@@ -248,15 +248,15 @@ export const demoRoadsGeoJson: FeatureCollection<Geometry, GeoFeatureProperties>
       type: 'Feature',
       properties: {
         id: 'RD-002',
-        name: 'Araniko Highway (NH03) - SEVERED SECTOR',
+        name: 'Araniko Corridor Alignment (DEMO - Impacted Section)',
         type: 'ROAD_BLOCKED',
         severity: 'CRITICAL',
-        status: 'BLOCKED_BY_DEBRIS',
-        description: 'Road washed out between Km 108 and Km 114 (Larcha to Tatopani).',
+        status: 'DEMO_DISRUPTION_MODEL',
+        description: 'Illustrative blocked road segment for UI testing.',
         isDemo: true,
         provenance: {
-          source: 'Simulated Hazard Intersection',
-          timestamp: '2026-08-27T06:00:00Z',
+          source: 'Prototype Road Alignment (DEMO / ILLUSTRATIVE)',
+          timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
         },
       },
@@ -276,7 +276,7 @@ export const demoRoadsGeoJson: FeatureCollection<Geometry, GeoFeatureProperties>
   ],
 };
 
-// 5. Hospitals & Emergency Health Facilities (DEMO baseline)
+// 5. Hospitals & Emergency Health Facilities (DEMO)
 export const demoHospitalsGeoJson: FeatureCollection<Geometry, GeoFeatureProperties> = {
   type: 'FeatureCollection',
   features: [
@@ -284,16 +284,16 @@ export const demoHospitalsGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'HOSP-001',
-        name: 'Barhabise Primary Health Center',
+        name: 'Barhabise Health Point (DEMO)',
         type: 'HOSPITAL',
         severity: 'LOW',
-        status: 'OPERATIONAL_TRIAGE_READY',
-        description: 'Designated level-1 emergency receiving hub. 24 beds available.',
+        status: 'DEMO_FACILITY_MARKER',
+        description: 'Illustrative facility reference location for map testing.',
         isDemo: true,
         provenance: {
-          source: 'Nepal Ministry of Health Registry / HDX',
+          source: 'Prototype Facility Registry (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
-          tier: 'VERIFIED',
+          tier: 'DEMO_VALUE',
         },
       },
       geometry: {
@@ -305,16 +305,16 @@ export const demoHospitalsGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'HOSP-002',
-        name: 'Tatopani Sub-Health Post',
+        name: 'Tatopani Health Point (DEMO)',
         type: 'HOSPITAL',
         severity: 'CRITICAL',
-        status: 'ISOLATED_EMERGENCY_SUPPLIES_LOW',
-        description: 'Local health post within 100m of active flood scarp. Road access severed.',
+        status: 'DEMO_FACILITY_MARKER',
+        description: 'Illustrative facility reference location for map testing.',
         isDemo: true,
         provenance: {
-          source: 'Nepal Ministry of Health Registry / HDX',
+          source: 'Prototype Facility Registry (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
-          tier: 'VERIFIED',
+          tier: 'DEMO_VALUE',
         },
       },
       geometry: {
@@ -326,16 +326,16 @@ export const demoHospitalsGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'HOSP-003',
-        name: 'Mimming Health Clinic',
+        name: 'Mimming Health Point (DEMO)',
         type: 'HOSPITAL',
         severity: 'HIGH',
-        status: 'ACCESS_RESTRICTED',
-        description: 'Rural outpost on elevated ridge. Accessible only via aerial or trail.',
+        status: 'DEMO_FACILITY_MARKER',
+        description: 'Illustrative facility reference location for map testing.',
         isDemo: true,
         provenance: {
-          source: 'Nepal Ministry of Health Registry / HDX',
+          source: 'Prototype Facility Registry (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
-          tier: 'VERIFIED',
+          tier: 'DEMO_VALUE',
         },
       },
       geometry: {
@@ -346,7 +346,7 @@ export const demoHospitalsGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
   ],
 };
 
-// 6. Buildings & Settlement Clusters (DEMO baseline)
+// 6. Buildings & Settlement Clusters (DEMO)
 export const demoBuildingsGeoJson: FeatureCollection<Geometry, GeoFeatureProperties> = {
   type: 'FeatureCollection',
   features: [
@@ -354,16 +354,16 @@ export const demoBuildingsGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'BLD-TATOPANI-CLUSTER',
-        name: 'Tatopani Customs & Settlement Cluster',
+        name: 'Tatopani Settlement Cluster (DEMO)',
         type: 'BUILDING_CLUSTER',
         severity: 'CRITICAL',
-        status: 'HIGH_EXPOSURE',
-        description: 'Dense grouping of ~120 commercial and residential masonry buildings.',
+        status: 'DEMO_POLYGONS',
+        description: 'Illustrative cluster polygon for structure layer rendering.',
         isDemo: true,
         provenance: {
-          source: 'OSM Building Footprint Polygon Extraction',
+          source: 'Prototype Footprint Cluster (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
-          tier: 'VERIFIED',
+          tier: 'DEMO_VALUE',
         },
       },
       geometry: {
@@ -383,16 +383,16 @@ export const demoBuildingsGeoJson: FeatureCollection<Geometry, GeoFeaturePropert
       type: 'Feature',
       properties: {
         id: 'BLD-BARHABISE-CLUSTER',
-        name: 'Barhabise Town Center Footprints',
+        name: 'Barhabise Settlement Cluster (DEMO)',
         type: 'BUILDING_CLUSTER',
         severity: 'LOW',
-        status: 'MONITORING_SAFE_PERIMETER',
-        description: '~450 residential structures in municipal core.',
+        status: 'DEMO_POLYGONS',
+        description: 'Illustrative cluster polygon for structure layer rendering.',
         isDemo: true,
         provenance: {
-          source: 'OSM Building Footprint Polygon Extraction',
+          source: 'Prototype Footprint Cluster (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
-          tier: 'VERIFIED',
+          tier: 'DEMO_VALUE',
         },
       },
       geometry: {
@@ -419,14 +419,14 @@ export const demoPopulationGeoJson: FeatureCollection<Geometry, GeoFeatureProper
       type: 'Feature',
       properties: {
         id: 'POP-GRID-01',
-        name: 'Tatopani Corridor Population Density Cell',
+        name: 'Corridor Population Density Cell (DEMO)',
         type: 'POPULATION_DENSITY',
         severity: 'HIGH',
-        status: 'EST_POP_380_PERS_SQKM',
-        description: 'Estimated residential and transient transit population density: ~380 / km².',
+        status: 'DEMO_GRID_CELL',
+        description: 'Illustrative population density cell for demographic layer styling.',
         isDemo: true,
         provenance: {
-          source: 'HDX 100m High Resolution Population Density Grid',
+          source: 'Prototype Density Grid (DEMO / ILLUSTRATIVE)',
           timestamp: '2026-08-27T00:00:00Z',
           tier: 'DEMO_VALUE',
         },

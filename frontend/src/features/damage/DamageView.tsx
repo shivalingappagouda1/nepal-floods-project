@@ -24,43 +24,43 @@ export const DamageView: React.FC<DamageViewProps> = ({
   const damageCategories = [
     {
       id: 'ROADS',
-      title: 'Araniko Highway & Feeder Roads',
+      title: 'Araniko Highway Corridor (DEMO)',
       icon: Car,
-      baselineTotal: '48.2 km surveyed',
+      baselineTotal: 'Awaiting Step 4 data',
       impactedEstimated: '—',
-      severedSections: 'Awaiting spatial join',
-      status: 'AWAITING_PASS' as const,
-      source: 'OpenStreetMap Highway Vector (Nepal Central)',
+      severedSections: 'Awaiting Step 4 spatial join',
+      status: 'DEMO_VALUE' as const,
+      source: 'Prototype Road Layer (DEMO / ILLUSTRATIVE)',
     },
     {
       id: 'BRIDGES',
-      title: 'Transboundary Bridges & Culverts',
+      title: 'Transboundary Bridges (DEMO)',
       icon: GitCommit,
-      baselineTotal: '14 structures recorded',
+      baselineTotal: 'Awaiting Step 4 data',
       impactedEstimated: '—',
-      severedSections: 'Awaiting flood polygon overlay',
-      status: 'AWAITING_PASS' as const,
-      source: 'OSM Bridge Tags / Dept of Roads Nepal',
+      severedSections: 'Awaiting Step 4 flood overlay',
+      status: 'DEMO_VALUE' as const,
+      source: 'Prototype Bridge Layer (DEMO / ILLUSTRATIVE)',
     },
     {
       id: 'BUILDINGS',
-      title: 'Residential & Commercial Footprints',
+      title: 'Settlement Footprints (DEMO)',
       icon: Building2,
-      baselineTotal: '1,420 mapped buildings',
+      baselineTotal: 'Awaiting Step 4 data',
       impactedEstimated: '—',
       severedSections: 'Spatial intersection pending',
-      status: 'AWAITING_PASS' as const,
-      source: 'OSM Building Footprints / HDX',
+      status: 'DEMO_VALUE' as const,
+      source: 'Prototype Settlement Layer (DEMO / ILLUSTRATIVE)',
     },
     {
       id: 'HEALTHCARE',
-      title: 'Health Posts & Emergency Clinics',
+      title: 'Health Outposts (DEMO)',
       icon: Activity,
-      baselineTotal: '6 facilities in AOI',
+      baselineTotal: 'Awaiting Step 4 data',
       impactedEstimated: '—',
       severedSections: 'Buffer distance calculation pending',
-      status: 'AWAITING_PASS' as const,
-      source: 'Nepal Ministry of Health / HDX Health',
+      status: 'DEMO_VALUE' as const,
+      source: 'Prototype Health Post Layer (DEMO / ILLUSTRATIVE)',
     },
   ];
 
@@ -72,19 +72,19 @@ export const DamageView: React.FC<DamageViewProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <Building2 className="w-4 h-4 text-command-accent-glow" />
             <h2 className="text-sm font-bold text-command-text uppercase tracking-wider">
-              CRITICAL INFRASTRUCTURE DAMAGE & EXPOSURE ASSESSMENT
+              INFRASTRUCTURE DAMAGE ASSESSMENT INTERFACE (STEP 3 PROTOTYPE)
             </h2>
           </div>
           <p className="text-xs text-command-muted">
-            Cross-referencing flood and landslide change polygons with baseline OpenStreetMap & HDX infrastructure vectors.
+            Interactive map viewport and exposure matrix layout. Real baseline datasets connect in Step 4.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <DataSourceBadge
             provenance={{
-              tier: 'VERIFIED',
-              source: 'OpenStreetMap Contributors / HDX Nepal Baseline 2026',
+              tier: 'DEMO_VALUE',
+              source: 'Prototype Baseline Layout (Awaiting Step 4 Real Data)',
               timestamp: '2026-08-27T00:00:00Z',
             }}
             showDetails
@@ -139,11 +139,11 @@ export const DamageView: React.FC<DamageViewProps> = ({
             })}
           </div>
 
-          <div className="bg-sky-950/40 border border-sky-800/60 rounded-lg p-3 flex items-start gap-2.5">
-            <AlertTriangle className="w-4 h-4 text-command-accent-glow flex-shrink-0 mt-0.5" />
-            <div className="text-[11px] text-sky-200">
-              <strong className="block font-bold mb-0.5 text-command-accent-glow">PROVENANCE PROTOCOL</strong>
-              Calculations are computed via vector polygon intersection (`Shapely` / `GeoPandas`) on genuine baseline data.
+          <div className="bg-amber-950/30 border border-amber-800/60 rounded-lg p-3 flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-amber-300 flex-shrink-0 mt-0.5" />
+            <div className="text-[11px] text-amber-200">
+              <strong className="block font-bold mb-0.5 text-amber-300">DATA INTEGRITY NOTE</strong>
+              Values will be derived via geometric intersection (`Shapely` / `GeoPandas`) on genuine baseline data in Step 4.
             </div>
           </div>
         </div>
@@ -154,7 +154,7 @@ export const DamageView: React.FC<DamageViewProps> = ({
             layers={layers}
             onToggleLayer={onToggleLayer}
             onOpacityChange={onOpacityChange}
-            activeAoiName="Infrastructure Exposure Deck"
+            activeAoiName="Map initial viewport — DEMO / navigation reference"
             heightClass="h-[620px]"
           />
         </div>
