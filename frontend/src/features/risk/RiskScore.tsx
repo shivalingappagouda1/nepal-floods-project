@@ -88,14 +88,14 @@ export const RiskScore: React.FC<RiskScoreProps> = ({
         {dataCompletenessPercentage < 100 && (
           <span className="text-[9px] text-amber-300 font-bold bg-amber-950/80 border border-amber-700 px-1.5 py-0.5 rounded flex items-center gap-1">
             <HelpCircle className="w-2.5 h-2.5" />
-            <span>{dataCompletenessPercentage}% DATA COMPLETE</span>
+            <span>{dataCompletenessPercentage}% INPUT DATA COMPLETENESS</span>
           </span>
         )}
       </div>
 
       {showDetails && (
         <span className="text-[9px] text-command-dim italic">
-          * Dynamic score derived from configurable multi-criteria normalization.
+          * Prototype risk score calculated from configurable multi-criteria normalization (Not an official government hazard certification).
         </span>
       )}
     </div>

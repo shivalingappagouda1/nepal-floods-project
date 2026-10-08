@@ -63,7 +63,7 @@ export const RiskFactorCard: React.FC<RiskFactorCardProps> = ({
   };
 
   return (
-    <div className={`p-3 rounded-lg border font-mono space-y-2 transition-all ${
+    <div className={`p-3 rounded-lg border font-mono space-y-2.5 transition-all ${
       factor.isAvailable 
         ? 'bg-command-panel/80 border-command-border' 
         : 'bg-slate-950/70 border-amber-800/80'
@@ -77,15 +77,20 @@ export const RiskFactorCard: React.FC<RiskFactorCardProps> = ({
           </span>
         </div>
 
-        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border uppercase ${getLevelBadge(factor.level)}`}>
-          {factor.level.replace('_', ' ')}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-950/60 border border-amber-800/80 text-amber-300 font-bold uppercase">
+            {factor.processingStatus}
+          </span>
+          <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border uppercase ${getLevelBadge(factor.level)}`}>
+            {factor.level.replace('_', ' ')}
+          </span>
+        </div>
       </div>
 
       {/* Raw Value & Measurement */}
       <div>
         <div className="flex items-baseline justify-between">
-          <span className="text-[10px] text-command-dim font-bold uppercase">Observed Measurement:</span>
+          <span className="text-[10px] text-command-dim font-bold uppercase">Input Telemetry / Observation:</span>
           {factor.rawValue !== undefined && (
             <span className="text-xs font-bold text-command-accent-glow">
               {factor.rawValue} {factor.unit || ''}
@@ -99,12 +104,12 @@ export const RiskFactorCard: React.FC<RiskFactorCardProps> = ({
 
       {/* Score Progress Bar & Contribution */}
       {factor.isAvailable && factor.normalizedScore !== undefined ? (
-        <div className="space-y-1 pt-1">
+        <div className="space-y-1 pt-0.5">
           <div className="flex items-center justify-between text-[10px] text-command-dim">
-            <span>Factor Score: {(factor.normalizedScore * 100).toFixed(0)}%</span>
+            <span>Normalized Score: {(factor.normalizedScore * 100).toFixed(0)}%</span>
             {contribution && (
               <span className="text-command-accent font-semibold">
-                Weight: {(contribution.weight * 100).toFixed(0)}% ({contribution.percentageOfTotal}% of total)
+                Weight: {(contribution.weight * 100).toFixed(0)}% ({contribution.percentageOfTotal}% of composite score)
               </span>
             )}
           </div>
@@ -131,15 +136,20 @@ export const RiskFactorCard: React.FC<RiskFactorCardProps> = ({
         {factor.explainabilityNote}
       </div>
 
-      {/* Data Source Provenance */}
-      <div className="flex items-center justify-between text-[9px] text-command-dim pt-1 border-t border-command-border/30">
-        <span className="flex items-center gap-1">
-          <HelpCircle className="w-2.5 h-2.5 text-command-dim" />
-          <span>Source:</span>
-        </span>
-        <span className="truncate max-w-[200px] text-right" title={factor.dataSource}>
-          {factor.dataSource}
-        </span>
+      {/* Provenance & Source Target */}
+      <div className="flex flex-col gap-0.5 pt-1 border-t border-command-border/30 text-[9px] text-command-dim">
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-1 font-semibold">
+            <HelpCircle className="w-2.5 h-2.5 text-command-dim" />
+            <span>Target Catalog:</span>
+          </span>
+          <span className="truncate max-w-[220px] text-right" title={factor.dataSource}>
+            {factor.dataSource}
+          </span>
+        </div>
+        <div className="text-[8.5px] text-amber-300/70 italic text-right">
+          Provenance: DEMO / ILLUSTRATIVE
+        </div>
       </div>
     </div>
   );

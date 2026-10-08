@@ -39,8 +39,8 @@ export const RiskMapLayer: React.FC<RiskMapLayerProps> = ({
             EVALUATED RISK ZONES ({zones.length})
           </h4>
         </div>
-        <span className="text-[10px] text-command-dim">
-          DYNAMIC MCDA
+        <span className="text-[9px] font-bold text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800">
+          PROTOTYPE MODEL
         </span>
       </div>
 
@@ -110,7 +110,7 @@ export const RiskMapLayer: React.FC<RiskMapLayerProps> = ({
 
       {/* Symbology Legend */}
       <div className="pt-2 border-t border-command-border/60 space-y-1 text-[9px] text-command-dim">
-        <span className="font-bold uppercase block text-command-text">Risk Tier Classification:</span>
+        <span className="font-bold uppercase block text-command-text">Prototype Risk Tier Classification (Not official government hazard zones):</span>
         <div className="grid grid-cols-2 gap-1 text-[9px]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-purple-500" />

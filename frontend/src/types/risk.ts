@@ -31,6 +31,9 @@ export interface RiskFactorMeasurement {
   normalizedScore?: number; // 0.0 to 1.0 (undefined if data missing)
   level: FactorScoreLevel;
   dataSource: string;
+  sourceTargetNote?: string;
+  provenanceTier: 'DEMO_VALUE' | 'AI_COMPUTED' | 'VERIFIED';
+  processingStatus: 'Prototype input' | 'Precomputed analysis' | 'Source target / not currently connected';
   isAvailable: boolean;
   missingDataReason?: string;
   explainabilityNote: string;
@@ -65,7 +68,7 @@ export interface FactorContribution {
 }
 
 export interface RiskZone {
-  id: string; // e.g. 'ZONE-A-TATOPANI'
+  id: string; // e.g. 'ZONE-A'
   name: string;
   sector: string;
   coordinates: [number, number]; // [lng, lat]

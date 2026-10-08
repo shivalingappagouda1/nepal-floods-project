@@ -145,7 +145,7 @@ export const RiskBreakdown: React.FC<RiskBreakdownProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[10px] text-command-dim pt-1">
           <span className="flex items-center gap-1">
             <HelpCircle className="w-3 h-3 text-command-accent-glow" />
-            <span>Data Completeness: <strong>{zone.dataCompletenessPercentage}%</strong> ({6 - zone.missingFactorsCount}/6 factors active)</span>
+            <span>Input Data Completeness: <strong>{zone.dataCompletenessPercentage}%</strong> ({6 - zone.missingFactorsCount}/6 factors active)</span>
           </span>
           <span className="text-command-dim italic">
             * Missing factor weights are dynamically renormalized without artificial zero-assumption.
@@ -173,15 +173,20 @@ export const RiskBreakdown: React.FC<RiskBreakdownProps> = ({
         {/* Decision-Support Recommendation */}
         <div className="p-3 rounded bg-command-panel border border-command-border space-y-1.5">
           <span className="text-[10px] text-amber-300 font-bold uppercase block">
-            Decision-Support Operational Action:
+            Decision-Support Operational Recommendation:
           </span>
           <p className="text-[11px] text-command-text leading-relaxed">
             {zone.recommendedDecisionAction}
           </p>
           <div className="pt-2 border-t border-command-border/40 text-[9px] text-command-dim italic">
-            * Advisory directive for Incident Commander & Emergency Operations Center review.
+            * Advisory directive for Incident Commander & Emergency Operations Center review (Does not issue autonomous evacuation orders).
           </div>
         </div>
+      </div>
+
+      {/* Scientific Safety Notice */}
+      <div className="p-2.5 rounded bg-amber-950/20 border border-amber-800/40 text-[10px] text-amber-300/80 flex items-center justify-between">
+        <span><strong>LEGAL & SCIENTIFIC NOTICE:</strong> Prototype risk scores do not predict exact event timing or represent validated hazard probabilities.</span>
       </div>
 
       {/* Center Map Footer */}

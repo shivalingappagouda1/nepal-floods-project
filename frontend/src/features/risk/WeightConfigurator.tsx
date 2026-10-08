@@ -48,7 +48,7 @@ export const WeightConfigurator: React.FC<WeightConfiguratorProps> = ({
       <div className="space-y-1.5">
         <span className="text-[10px] text-command-dim font-bold uppercase flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-amber-400" />
-          <span>SCENARIO WEIGHT PRESETS:</span>
+          <span>PROTOTYPE SCENARIO CONFIGURATIONS (CONFIGURABLE PARAMETERS):</span>
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
           {WEIGHT_PRESETS.map((preset) => (
