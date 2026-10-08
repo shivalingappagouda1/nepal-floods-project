@@ -9,6 +9,7 @@ interface MapPanelProps {
   activeAoiName: string;
   coordinates: [number, number];
   heightClass?: string;
+  focusedWaypoint?: [number, number] | null;
 }
 
 export const MapPanel: React.FC<MapPanelProps> = ({
@@ -18,6 +19,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({
   activeAoiName,
   coordinates,
   heightClass = "h-full min-h-[560px]",
+  focusedWaypoint,
 }) => {
   return (
     <InteractiveMap
@@ -27,6 +29,7 @@ export const MapPanel: React.FC<MapPanelProps> = ({
       activeAoiName={activeAoiName}
       coordinates={coordinates}
       heightClass={heightClass}
+      focusedWaypoint={focusedWaypoint}
     />
   );
 };

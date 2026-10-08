@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { 
   KPICardData, 
   MapLayerConfig, 
@@ -11,6 +11,7 @@ import { KPIGrid } from '../../components/tactical/KPIGrid';
 import { MapPanel } from '../../components/tactical/MapPanel';
 import { RiskIndicator } from '../../components/tactical/RiskIndicator';
 import { PriorityList } from '../../components/tactical/PriorityList';
+import { EventSummaryPanel } from '../../components/tactical/EventSummaryPanel';
 import { DataSourceBadge } from '../../components/common/DataSourceBadge';
 import { Activity } from 'lucide-react';
 
@@ -37,8 +38,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onOpacityChange,
   onApproveAction,
 }) => {
+  const [focusedWaypoint, setFocusedWaypoint] = useState<[number, number] | null>(null);
+
   return (
     <div className="space-y-4">
+      {/* Real-World Case Study Deep Dive Panel */}
+      <EventSummaryPanel onFocusWaypoint={(coords) => setFocusedWaypoint(coords)} />
       {/* Top Incident Summary Banner */}
       <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -80,6 +85,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             onOpacityChange={onOpacityChange}
             activeAoiName={incident.region}
             coordinates={incident.centerCoordinates}
+            focusedWaypoint={focusedWaypoint}
           />
         </div>
 

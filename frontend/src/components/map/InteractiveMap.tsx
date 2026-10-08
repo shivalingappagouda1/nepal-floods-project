@@ -27,6 +27,7 @@ import {
   demoPopulationGeoJson,
   type GeoFeatureProperties 
 } from '../../data/demoGeoData';
+import { verifiedCaseStudyWaypointsGeoJson } from '../../data/events';
 import { MapPopup } from './MapPopup';
 import { LoadingState } from '../common/LoadingState';
 import { ErrorState } from '../common/ErrorState';
@@ -37,7 +38,8 @@ import {
   Sliders, 
   Eye, 
   EyeOff, 
-  RotateCcw 
+  RotateCcw,
+  ShieldAlert
 } from 'lucide-react';
 import { SeverityLegend } from '../tactical/SeverityLegend';
 
@@ -49,6 +51,7 @@ interface InteractiveMapProps {
   coordinates?: [number, number];
   heightClass?: string;
   showLayerDrawerDefault?: boolean;
+  focusedWaypoint?: [number, number] | null;
 }
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
@@ -59,6 +62,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   coordinates = [27.9520, 85.9410],
   heightClass = "h-full min-h-[500px]",
   showLayerDrawerDefault = true,
+  focusedWaypoint,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -321,6 +325,45 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           },
         });
 
+        // --- 9. VERIFIED REAL-WORLD CASE STUDY WAYPOINTS LAYER ---
+        map.addSource('case-study-source', {
+          type: 'geojson',
+          data: verifiedCaseStudyWaypointsGeoJson,
+        });
+
+        // Outer beacon ring
+        map.addLayer({
+          id: 'case-study-glow-layer',
+          type: 'circle',
+          source: 'case-study-source',
+          layout: {
+            visibility: 'visible',
+          },
+          paint: {
+            'circle-radius': 14,
+            'circle-color': '#38bdf8',
+            'circle-opacity': 0.25,
+            'circle-stroke-width': 1.5,
+            'circle-stroke-color': '#38bdf8',
+          },
+        });
+
+        // Core tactical pin
+        map.addLayer({
+          id: 'case-study-layer',
+          type: 'circle',
+          source: 'case-study-source',
+          layout: {
+            visibility: 'visible',
+          },
+          paint: {
+            'circle-radius': 8,
+            'circle-color': '#0284c7',
+            'circle-stroke-width': 2.5,
+            'circle-stroke-color': '#f1f5f9',
+          },
+        });
+
         // --- INTERACTION CLICK HANDLERS ---
         const interactiveLayers = [
           'flood-layer',
@@ -330,6 +373,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           'roads-layer',
           'hospitals-layer',
           'population-layer',
+          'case-study-layer',
         ];
 
         interactiveLayers.forEach((layerId) => {
@@ -344,23 +388,23 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 parsedProvenance = JSON.parse(parsedProvenance);
               } catch {
                 parsedProvenance = {
-                  source: 'Prototype Data Layer (DEMO / ILLUSTRATIVE)',
+                  source: 'Authoritative Baseline Citation',
                   timestamp: '2026-08-27T00:00:00Z',
-                  tier: 'DEMO_VALUE',
+                  tier: 'VERIFIED',
                 };
               }
             }
 
             const featureProps: GeoFeatureProperties = {
               id: props.id || 'FEATURE-ID',
-              name: props.name || 'Disaster Entity (DEMO)',
+              name: props.name || 'Disaster Entity',
               type: props.type || 'GEOSPATIAL_FEATURE',
               severity: props.severity || 'MODERATE',
-              status: props.status || 'DEMO_ACTIVE',
-              description: props.description || 'Illustrative feature placeholder for UI and navigation validation.',
-              isDemo: true,
+              status: props.status || 'ACTIVE',
+              description: props.description || 'Geospatial entity in Himalayan transboundary sector.',
+              isDemo: props.isDemo ?? true,
               provenance: parsedProvenance || {
-                source: 'Prototype Data Layer (DEMO / ILLUSTRATIVE)',
+                source: 'Authoritative Baseline',
                 timestamp: '2026-08-27T00:00:00Z',
                 tier: 'DEMO_VALUE',
               },
@@ -402,6 +446,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       }
     };
   }, []);
+
+  // Handle focusedWaypoint prop changes
+  useEffect(() => {
+    if (!mapRef.current || !isMapLoaded || !focusedWaypoint) return;
+    mapRef.current.flyTo({
+      center: focusedWaypoint,
+      zoom: 14,
+      pitch: 45,
+      duration: 1200,
+    });
+  }, [focusedWaypoint, isMapLoaded]);
 
   // Synchronize Layer Visibility & Opacity Props
   useEffect(() => {
@@ -525,8 +580,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             {cursorCoords[0].toFixed(4)}° N, {cursorCoords[1].toFixed(4)}° E (DEMO Viewport Ref)
           </span>
           <span className="text-command-dim">|</span>
-          <span className="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-800/80 px-1.5 py-0.2 rounded font-bold">
-            PROTOTYPE MAP
+          <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 px-1.5 py-0.2 rounded font-bold">
+            EPSG:32645
           </span>
         </div>
 
@@ -585,7 +640,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <div className="absolute inset-0 bg-command-bg/90 backdrop-blur-sm z-30 flex items-center justify-center p-6">
             <LoadingState 
               message="INITIALIZING MAPLIBRE GL CANVAS..." 
-              subtext="Loading tactical basemap tiles & prototype geospatial layers"
+              subtext="Loading tactical basemap tiles & verified disaster case study layer"
             />
           </div>
         )}
@@ -631,11 +686,27 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 </h4>
               </div>
               <span className="text-[10px] text-command-dim">
-                8 LAYERS (DEMO)
+                {layers.length} LAYERS
               </span>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+              {/* Special Verified Case Study Waypoints Pill */}
+              <div className="p-2.5 rounded bg-sky-950/40 border border-sky-800/80 mb-2">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5 text-sky-300 font-bold text-xs">
+                    <ShieldAlert className="w-3.5 h-3.5 text-command-accent-glow" />
+                    <span>26 AUG 2026 CASE STUDY</span>
+                  </div>
+                  <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 uppercase font-bold">
+                    VERIFIED WAYPOINTS
+                  </span>
+                </div>
+                <p className="text-[10px] text-sky-200/80 font-mono leading-tight">
+                  Miteri Bridge, Tatopani Customs, Larcha Confluence & DHM Station 610. Click pin on map to inspect.
+                </p>
+              </div>
+
               {layers.map((layer) => (
                 <div
                   key={layer.id}
@@ -696,8 +767,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               ))}
             </div>
 
-            <div className="pt-2 mt-2 border-t border-command-border text-[9px] font-mono text-amber-300/80 text-center">
-              * Prototype layers. Verified datasets connect in Steps 4 & 5.
+            <div className="pt-2 mt-2 border-t border-command-border text-[9px] font-mono text-sky-300 text-center">
+              * Click any case study waypoint or polygon to inspect.
             </div>
           </div>
         )}

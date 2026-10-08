@@ -19,11 +19,11 @@ export interface GeoFeatureProperties {
   category?: string;
   status: string;
   description: string;
-  isDemo: true;
+  isDemo?: boolean;
   provenance: {
     source: string;
     timestamp: string;
-    tier: 'DEMO_VALUE';
+    tier: 'VERIFIED' | 'AI_COMPUTED' | 'DEMO_VALUE';
     confidence?: number;
   };
 }
