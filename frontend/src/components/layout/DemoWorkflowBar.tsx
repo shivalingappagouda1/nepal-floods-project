@@ -37,8 +37,8 @@ export const DemoWorkflowBar: React.FC<DemoWorkflowBarProps> = ({
     {
       tab: 'satellite',
       number: '02',
-      title: 'Satellite Ingestion',
-      subtitle: 'Sentinel-1/2 & Landsat',
+      title: 'Satellite Analysis',
+      subtitle: 'Prototype Imagery (Precomputed)',
       icon: Satellite,
     },
     {
@@ -52,14 +52,14 @@ export const DemoWorkflowBar: React.FC<DemoWorkflowBarProps> = ({
       tab: 'risk',
       number: '04',
       title: 'Geospatial Risk Engine',
-      subtitle: '6 Explainable Factors',
+      subtitle: '6 Transparent Factors',
       icon: Flame,
     },
     {
       tab: 'response',
       number: '05',
       title: 'Response Priority',
-      subtitle: 'Human Decision Support',
+      subtitle: 'Decision Support (HITL)',
       icon: ShieldAlert,
     },
   ];
