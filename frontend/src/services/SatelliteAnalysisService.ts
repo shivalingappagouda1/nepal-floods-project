@@ -5,9 +5,11 @@
  * multi-temporal optical/SAR comparisons, differential MNDWI/SAR change detection,
  * and affected geographic area calculations.
  * 
- * FACTUAL PROVENANCE NOTICE:
- * Precomputed baseline products are tied to Sentinel-2 MSI (Tile T45RWQ) and Sentinel-1 SAR GRD specifications.
- * Prototype calculations are explicitly marked as "Precomputed analysis" or "AI inference".
+ * FACTUAL INTEGRITY & PROVENANCE NOTICE:
+ * 1. Current visualization assets are vector-based "Prototype imagery" reflecting real 
+ *    Sentinel-1/2 and Landsat sensor specifications, awaiting raw GeoTIFF raster download in Step 5.
+ * 2. All analytical metrics are explicitly designated as "Precomputed analysis" or "DEMO / ILLUSTRATIVE".
+ * 3. Arbitrary/invented confidence percentages are omitted.
  */
 
 import type { 
@@ -25,8 +27,7 @@ export interface ISatelliteAnalysisService {
   detectChange(
     scenePair: ScenePair, 
     threshold: number, 
-    method: AnalysisMethod,
-    runInference?: boolean
+    method: AnalysisMethod
   ): Promise<ChangeDetectionResult>;
   calculateAffectedArea(
     scenePairId: string, 
@@ -45,22 +46,23 @@ export const MOCK_SCENE_PAIRS: ScenePair[] = [
     description: 'Active microwave C-band SAR (5.405 GHz). Penetrates monsoon cloud deck to detect specular water reflection and surface scouring.',
     preScene: {
       id: 'SCENE-S1A-PRE',
-      name: 'Sentinel-1A IW GRDH Baseline (Pre-Disaster)',
+      name: 'Sentinel-1A IW GRDH Baseline (Pre-Disaster Reference)',
       sensor: 'SENTINEL_1_SAR',
       platform: 'Sentinel-1A (ESA)',
-      acquisitionDate: '2026-08-20T12:40:15Z',
+      acquisitionDate: '2026-08-20 (Catalog Orbit Reference)',
       resolutionMeters: 10,
       polarization: 'VV + VH Dual-Pol',
       orbitDirection: 'ASCENDING',
       orbitNumber: 121,
-      tileId: 'IW_GRDH_1SDV_20260820T124015',
+      tileId: 'IW_GRDH_1SDV_20260820_REF',
       previewUrl: 'sar-pre-preview',
       bandPresets: ['SAR_VV_VH', 'SAR_COHERENCE'],
       selectedBand: 'SAR_VV_VH',
+      imageryType: 'Prototype imagery',
+      sourceProvider: 'ESA Copernicus Open Access Hub (Radar Catalog Specification)',
       provenance: {
-        tier: 'VERIFIED',
-        source: 'ESA Copernicus Open Access Hub / Sentinel-1A GRD',
-        timestamp: '2026-08-20T12:40:15Z',
+        tier: 'DEMO_VALUE',
+        source: 'ESA Copernicus Sentinel-1A SAR Catalog Baseline (Prototype vector preview)',
         sensor: 'C-Band Synthetic Aperture Radar (SAR)',
       },
     },
@@ -69,19 +71,20 @@ export const MOCK_SCENE_PAIRS: ScenePair[] = [
       name: 'Sentinel-1A IW GRDH Emergency Pass (Post-Disaster)',
       sensor: 'SENTINEL_1_SAR',
       platform: 'Sentinel-1A (ESA)',
-      acquisitionDate: '2026-08-27T00:35:22Z',
+      acquisitionDate: '2026-08-27 (Catalog Orbit Reference)',
       resolutionMeters: 10,
       polarization: 'VV + VH Dual-Pol',
       orbitDirection: 'DESCENDING',
       orbitNumber: 48,
-      tileId: 'IW_GRDH_1SDV_20260827T003522',
+      tileId: 'IW_GRDH_1SDV_20260827_REF',
       previewUrl: 'sar-post-preview',
       bandPresets: ['SAR_VV_VH', 'SAR_COHERENCE'],
       selectedBand: 'SAR_VV_VH',
+      imageryType: 'Prototype imagery',
+      sourceProvider: 'ESA Copernicus Open Access Hub (Radar Catalog Specification)',
       provenance: {
-        tier: 'VERIFIED',
-        source: 'ESA Copernicus Open Access Hub / Sentinel-1A GRD',
-        timestamp: '2026-08-27T00:35:22Z',
+        tier: 'DEMO_VALUE',
+        source: 'ESA Copernicus Sentinel-1A SAR Catalog Baseline (Prototype vector preview)',
         sensor: 'C-Band Synthetic Aperture Radar (SAR)',
       },
     },
@@ -97,17 +100,18 @@ export const MOCK_SCENE_PAIRS: ScenePair[] = [
       name: 'Sentinel-2B MSI L2A (Pre-Event Baseline)',
       sensor: 'SENTINEL_2_OPTICAL',
       platform: 'Sentinel-2B (ESA)',
-      acquisitionDate: '2026-08-15T05:14:09Z',
+      acquisitionDate: '2026-08-15 (Catalog Reference)',
       resolutionMeters: 10,
       cloudCoverPercent: 4.2,
-      tileId: 'T45RWQ_20260815T051409',
+      tileId: 'T45RWQ_20260815_REF',
       previewUrl: 'opt-pre-preview',
       bandPresets: ['NATURAL_RGB', 'FALSE_COLOR_IR', 'MNDWI_WATER', 'NDVI_VEG'],
       selectedBand: 'NATURAL_RGB',
+      imageryType: 'Prototype imagery',
+      sourceProvider: 'Copernicus Data Space Ecosystem (Tile T45RWQ Catalog)',
       provenance: {
-        tier: 'VERIFIED',
-        source: 'Copernicus Data Space Ecosystem (Tile T45RWQ)',
-        timestamp: '2026-08-15T05:14:09Z',
+        tier: 'DEMO_VALUE',
+        source: 'Copernicus Data Space Ecosystem Tile T45RWQ (Prototype vector preview)',
         sensor: 'Sentinel-2 MSI (Optical)',
       },
     },
@@ -116,17 +120,18 @@ export const MOCK_SCENE_PAIRS: ScenePair[] = [
       name: 'Sentinel-2A MSI L2A (Post-Event Observation)',
       sensor: 'SENTINEL_2_OPTICAL',
       platform: 'Sentinel-2A (ESA)',
-      acquisitionDate: '2026-08-28T05:14:01Z',
+      acquisitionDate: '2026-08-28 (Catalog Reference)',
       resolutionMeters: 10,
       cloudCoverPercent: 19.8,
-      tileId: 'T45RWQ_20260828T051401',
+      tileId: 'T45RWQ_20260828_REF',
       previewUrl: 'opt-post-preview',
       bandPresets: ['NATURAL_RGB', 'FALSE_COLOR_IR', 'MNDWI_WATER', 'NDVI_VEG'],
       selectedBand: 'MNDWI_WATER',
+      imageryType: 'Prototype imagery',
+      sourceProvider: 'Copernicus Data Space Ecosystem (Tile T45RWQ Catalog)',
       provenance: {
-        tier: 'VERIFIED',
-        source: 'Copernicus Data Space Ecosystem (Tile T45RWQ)',
-        timestamp: '2026-08-28T05:14:01Z',
+        tier: 'DEMO_VALUE',
+        source: 'Copernicus Data Space Ecosystem Tile T45RWQ (Prototype vector preview)',
         sensor: 'Sentinel-2 MSI (Optical)',
       },
     },
@@ -142,17 +147,18 @@ export const MOCK_SCENE_PAIRS: ScenePair[] = [
       name: 'Landsat-9 OLI-2 Collection 2 Level-2 (Pre-Event)',
       sensor: 'LANDSAT_9',
       platform: 'Landsat-9 (USGS/NASA)',
-      acquisitionDate: '2026-08-10T04:45:00Z',
+      acquisitionDate: '2026-08-10 (Catalog Reference)',
       resolutionMeters: 30,
       cloudCoverPercent: 8.5,
-      tileId: 'LC09_L2SP_141040_20260810',
+      tileId: 'LC09_L2SP_141040_20260810_REF',
       previewUrl: 'landsat-pre-preview',
       bandPresets: ['NATURAL_RGB', 'FALSE_COLOR_IR', 'MNDWI_WATER'],
       selectedBand: 'NATURAL_RGB',
+      imageryType: 'Prototype imagery',
+      sourceProvider: 'USGS EarthExplorer (WRS-2 Path 141, Row 040 Catalog)',
       provenance: {
-        tier: 'VERIFIED',
-        source: 'USGS EarthExplorer (WRS-2 Path 141, Row 040)',
-        timestamp: '2026-08-10T04:45:00Z',
+        tier: 'DEMO_VALUE',
+        source: 'USGS EarthExplorer Landsat-9 Baseline (Prototype vector preview)',
         sensor: 'Landsat-9 OLI-2 / TIRS-2',
       },
     },
@@ -161,17 +167,18 @@ export const MOCK_SCENE_PAIRS: ScenePair[] = [
       name: 'Landsat-9 OLI-2 Collection 2 Level-2 (Post-Event)',
       sensor: 'LANDSAT_9',
       platform: 'Landsat-9 (USGS/NASA)',
-      acquisitionDate: '2026-08-26T04:45:00Z',
+      acquisitionDate: '2026-08-26 (Catalog Reference)',
       resolutionMeters: 30,
       cloudCoverPercent: 24.1,
-      tileId: 'LC09_L2SP_141040_20260826',
+      tileId: 'LC09_L2SP_141040_20260826_REF',
       previewUrl: 'landsat-post-preview',
       bandPresets: ['NATURAL_RGB', 'FALSE_COLOR_IR', 'MNDWI_WATER'],
       selectedBand: 'MNDWI_WATER',
+      imageryType: 'Prototype imagery',
+      sourceProvider: 'USGS EarthExplorer (WRS-2 Path 141, Row 040 Catalog)',
       provenance: {
-        tier: 'VERIFIED',
-        source: 'USGS EarthExplorer (WRS-2 Path 141, Row 040)',
-        timestamp: '2026-08-26T04:45:00Z',
+        tier: 'DEMO_VALUE',
+        source: 'USGS EarthExplorer Landsat-9 Baseline (Prototype vector preview)',
         sensor: 'Landsat-9 OLI-2 / TIRS-2',
       },
     },
@@ -202,7 +209,7 @@ export class SatelliteAnalysisService implements ISatelliteAnalysisService {
       (p) => p.preScene.id === beforeId && p.postScene.id === afterId
     ) || this.scenePairs[0];
 
-    return this.detectChange(pair, 0.35, method, false);
+    return this.detectChange(pair, 0.35, method);
   }
 
   async calculateAffectedArea(
@@ -238,51 +245,38 @@ export class SatelliteAnalysisService implements ISatelliteAnalysisService {
       riverCorridorLengthKm: 24.6,
       affectedStructuresEst: Math.round(baseStructures * sensitivityFactor),
       anomalyScore: Math.min(96, Math.max(45, Math.round(78 * sensitivityFactor))),
+      metricProvenance: 'Precomputed analysis',
     };
   }
 
   async detectChange(
     scenePair: ScenePair, 
     threshold: number, 
-    method: AnalysisMethod,
-    runInference = false
+    method: AnalysisMethod
   ): Promise<ChangeDetectionResult> {
     const metrics = await this.calculateAffectedArea(scenePair.id, method, threshold);
-    
-    // Confidence is calculated from sensor resolution and cloud cover impact
-    let baseConfidence = 0.88;
-    if (scenePair.preScene.sensor === 'SENTINEL_2_OPTICAL') {
-      const cloudImpact = (scenePair.postScene.cloudCoverPercent || 0) * 0.005;
-      baseConfidence = Math.max(0.65, 0.90 - cloudImpact);
-    } else if (scenePair.preScene.sensor === 'SENTINEL_1_SAR') {
-      // SAR is unaffected by clouds
-      baseConfidence = 0.92;
-    }
 
-    const processingMode: 'Precomputed analysis' | 'AI inference' = runInference 
-      ? 'AI inference' 
-      : 'Precomputed analysis';
-
-    let summary = `Detected ${metrics.floodExtentKm2} km² of candidate surge inundation and ${metrics.scarpDebrisExtentKm2} km² of riparian scarp modification along the ${scenePair.aoiRegion}.`;
+    let summary = `Precomputed analysis indicates ~${metrics.floodExtentKm2} km² of candidate surge inundation and ~${metrics.scarpDebrisExtentKm2} km² of riparian scarp modification along the ${scenePair.aoiRegion}.`;
     if (method === 'SAR_BACKSCATTER_RATIO') {
-      summary = `C-Band SAR backscatter drop (Δσ₀ < -${(threshold * 10).toFixed(1)} dB) isolates standing flood waters through cloud cover along ${metrics.riverCorridorLengthKm} km of the riverbed.`;
+      summary = `C-Band SAR backscatter drop model (Δσ₀ < -${(threshold * 10).toFixed(1)} dB) isolates standing flood waters through cloud cover along ${metrics.riverCorridorLengthKm} km of the riverbed.`;
     }
 
     const caveats = [
       scenePair.preScene.sensor === 'SENTINEL_2_OPTICAL'
-        ? 'Optical Multispectral Caution: Optical imagery cannot penetrate monsoon clouds or heavy rain; cloudy pixels require SAR radar cross-validation.'
-        : 'SAR Radar Physics: Specular microwave scattering accurately detects smooth standing water, but steep gorge layover/shadow effects require geometric masking.',
+        ? 'Optical Multispectral Limitation: Optical sensors (Sentinel-2, Landsat) cannot penetrate monsoon cloud cover; cloudy pixels require SAR radar cross-validation.'
+        : 'SAR Radar Physics: Specular microwave scattering detects smooth standing water, but steep gorge layover/shadow effects require geometric masking.',
       'Decision-Support Notice: Satellite imagery detects surface changes and water extent only; it does NOT prove subsurface stability or structural building safety.',
+      'Provenance Notice: Results are precomputed from baseline disaster catalog parameters. Live raster ingestion will connect in Step 5.',
     ];
 
     return {
       id: `DETECTION-${scenePair.id}-${Date.now()}`,
       scenePairId: scenePair.id,
       method,
-      processingMode,
+      processingMode: 'Precomputed analysis',
       timestamp: new Date().toISOString(),
       threshold,
-      confidence: +baseConfidence.toFixed(2),
+      // Confidence is deliberately omitted because numerical certainty lacks empirical calibration in prototype phase
       metrics,
       detectedPolygonsCount: Math.round(metrics.floodExtentKm2 * 6.5),
       sensorProvenance: scenePair.postScene.provenance,

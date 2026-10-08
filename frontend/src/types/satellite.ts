@@ -18,7 +18,7 @@ export type AnalysisMethod =
   | 'DIFF_MNDWI' 
   | 'SAR_BACKSCATTER_RATIO' 
   | 'DIFF_NDVI' 
-  | 'HYBRID_AI_CHANGE';
+  | 'HYBRID_CHANGE_DETECTION';
 
 export type ComparisonMode = 
   | 'SIDE_BY_SIDE' 
@@ -31,7 +31,7 @@ export interface SatelliteScene {
   name: string;
   sensor: SatelliteSensorType;
   platform: string; // e.g., 'Sentinel-2B', 'Sentinel-1A', 'Landsat-9'
-  acquisitionDate: string; // ISO 8601
+  acquisitionDate: string; // ISO 8601 or catalog date
   resolutionMeters: number;
   cloudCoverPercent?: number;
   polarization?: string; // 'VV+VH' for SAR
@@ -41,6 +41,8 @@ export interface SatelliteScene {
   previewUrl: string;
   bandPresets: BandCombination[];
   selectedBand: BandCombination;
+  imageryType: 'Prototype imagery' | 'Real raster GeoTIFF';
+  sourceProvider: string;
   provenance: ProvenanceMeta;
 }
 
@@ -62,16 +64,17 @@ export interface AreaMetrics {
   riverCorridorLengthKm: number;
   affectedStructuresEst: number;
   anomalyScore: number; // 0-100
+  metricProvenance: 'Precomputed analysis' | 'DEMO / ILLUSTRATIVE';
 }
 
 export interface ChangeDetectionResult {
   id: string;
   scenePairId: string;
   method: AnalysisMethod;
-  processingMode: 'Precomputed analysis' | 'AI inference';
+  processingMode: 'Precomputed analysis' | 'DEMO / ILLUSTRATIVE' | 'AI inference';
   timestamp: string;
   threshold: number;
-  confidence: number; // 0.0 - 1.0
+  confidence?: number; // Omitted if no defensible empirical ground-truth basis
   metrics: AreaMetrics;
   detectedPolygonsCount: number;
   sensorProvenance: ProvenanceMeta;

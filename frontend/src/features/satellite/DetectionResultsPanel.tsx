@@ -27,13 +27,7 @@ export const DetectionResultsPanel: React.FC<DetectionResultsPanelProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-command-border/70">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span
-              className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase ${
-                result.processingMode === 'AI inference'
-                  ? 'bg-sky-950/80 border-sky-700 text-sky-300'
-                  : 'bg-amber-950/80 border-amber-700 text-amber-300'
-              }`}
-            >
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold border uppercase bg-amber-950/80 border-amber-700 text-amber-300">
               {result.processingMode}
             </span>
             <span className="text-[10px] text-command-dim">
@@ -50,7 +44,13 @@ export const DetectionResultsPanel: React.FC<DetectionResultsPanelProps> = ({
             <span className="text-[9px] text-command-dim block">SPECTRAL THRESHOLD (θ)</span>
             <span className="text-xs font-bold text-command-accent-glow">{result.threshold.toFixed(2)}</span>
           </div>
-          <ConfidenceBadge confidence={result.confidence} method={result.method} size="md" />
+          {result.confidence !== undefined ? (
+            <ConfidenceBadge confidence={result.confidence} method={result.method} size="md" />
+          ) : (
+            <span className="inline-flex items-center text-[10px] font-mono text-command-dim border border-command-border px-2 py-1 rounded bg-command-panel" title="Numerical confidence omitted until empirical ground-truth validation is connected">
+              CONFIDENCE: Not available
+            </span>
+          )}
         </div>
       </div>
 

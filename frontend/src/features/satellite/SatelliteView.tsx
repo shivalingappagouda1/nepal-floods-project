@@ -53,8 +53,7 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
         const result = await satelliteAnalysisService.detectChange(
           selectedPair,
           threshold,
-          analysisMethod,
-          false
+          analysisMethod
         );
         if (isMounted) {
           setDetectionResult(result);
@@ -79,18 +78,16 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
     setAnalysisMethod(targetPair.defaultMethod);
   };
 
-  // Run change detection calculation (AI Inference / Precomputed Analysis trigger)
-  const handleRunAnalysis = async (runInference = true) => {
+  // Run change detection calculation (Precomputed Analysis trigger)
+  const handleRunAnalysis = async () => {
     setIsAnalyzing(true);
     setErrorMessage(null);
     try {
-      // Simulate pipeline evaluation delay for realistic tactical feedback
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 400));
       const result = await satelliteAnalysisService.detectChange(
         selectedPair,
         threshold,
-        analysisMethod,
-        runInference
+        analysisMethod
       );
       setDetectionResult(result);
       setShowChangeOverlay(true);
@@ -233,7 +230,7 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
             {/* Action Button: ANALYZE CHANGE */}
             <div className="pt-3">
               <button
-                onClick={() => handleRunAnalysis(true)}
+                onClick={() => handleRunAnalysis()}
                 disabled={isAnalyzing}
                 className="w-full py-2.5 px-4 rounded-lg bg-command-accent hover:bg-sky-500 text-white font-bold text-xs shadow-tactical-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
@@ -281,7 +278,7 @@ export const SatelliteView: React.FC<SatelliteViewProps> = () => {
             <ErrorState
               title="SATELLITE PROCESSING ERROR"
               error={errorMessage}
-              onRetry={() => handleRunAnalysis(false)}
+              onRetry={() => handleRunAnalysis()}
             />
           )}
         </div>

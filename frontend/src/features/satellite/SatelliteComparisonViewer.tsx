@@ -496,25 +496,25 @@ export const SatelliteComparisonViewer: React.FC<SatelliteComparisonViewerProps>
         <div className="absolute bottom-3 left-3 z-20 pointer-events-none bg-command-panel/90 backdrop-blur-md border border-command-border px-3 py-1.5 rounded text-[10px] text-command-muted flex items-center gap-3">
           <div className="flex items-center gap-1.5 text-command-accent-glow font-bold">
             <Crosshair className="w-3 h-3 animate-pulse" />
-            <span>27.9575° N, 85.9461° E</span>
+            <span>27.9575° N, 85.9461° E (DEMO / NAVIGATION REFERENCE)</span>
           </div>
           <span className="text-command-dim">|</span>
           <span>AOI: {scenePair.aoiRegion}</span>
           <span className="text-command-dim">|</span>
-          <span className="text-emerald-400 font-bold">GSD: 10m/px</span>
+          <span className="text-amber-400 font-bold">PROTOTYPE IMAGERY PREVIEW</span>
         </div>
 
         {/* Pre vs Post Date Banner Badges */}
         <div className="absolute top-3 left-3 right-3 z-20 pointer-events-none flex items-center justify-between">
           <div className="pointer-events-auto bg-command-panel/90 backdrop-blur-md border border-command-border px-3 py-1 rounded text-[10px]">
             <span className="text-command-dim">PRE-PASS: </span>
-            <strong className="text-command-text">{scenePair.preScene.acquisitionDate.replace('T', ' ').replace('Z', ' UTC')}</strong>
+            <strong className="text-command-text">{scenePair.preScene.acquisitionDate}</strong>
             <span className="ml-1 text-[9px] text-emerald-400">({scenePair.preScene.platform})</span>
           </div>
 
           <div className="pointer-events-auto bg-command-panel/90 backdrop-blur-md border border-command-border px-3 py-1 rounded text-[10px]">
             <span className="text-command-dim">POST-PASS: </span>
-            <strong className="text-rose-400">{scenePair.postScene.acquisitionDate.replace('T', ' ').replace('Z', ' UTC')}</strong>
+            <strong className="text-rose-400">{scenePair.postScene.acquisitionDate}</strong>
             <span className="ml-1 text-[9px] text-rose-300">({scenePair.postScene.platform})</span>
           </div>
         </div>
