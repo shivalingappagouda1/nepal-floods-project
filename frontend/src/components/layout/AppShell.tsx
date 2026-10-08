@@ -115,7 +115,7 @@ export const AppShell: React.FC = () => {
       label: 'Sentinel-2 RGB / False Color',
       category: 'IMAGERY',
       enabled: true,
-      opacity: 1.0,
+      opacity: 0.85,
       badge: 'VERIFIED',
       description: 'Copernicus Sentinel-2 MSI 10m true & false color optical imagery.',
       availableInMvp: true,
@@ -368,15 +368,36 @@ export const AppShell: React.FC = () => {
               />
             )}
 
-            {currentTab === 'satellite' && <SatelliteView />}
+            {currentTab === 'satellite' && (
+              <SatelliteView
+                layers={layers}
+                onToggleLayer={handleToggleLayer}
+                onOpacityChange={handleOpacityChange}
+              />
+            )}
 
-            {currentTab === 'damage' && <DamageView />}
+            {currentTab === 'damage' && (
+              <DamageView
+                layers={layers}
+                onToggleLayer={handleToggleLayer}
+                onOpacityChange={handleOpacityChange}
+              />
+            )}
 
-            {currentTab === 'risk' && <RiskView />}
+            {currentTab === 'risk' && (
+              <RiskView
+                layers={layers}
+                onToggleLayer={handleToggleLayer}
+                onOpacityChange={handleOpacityChange}
+              />
+            )}
 
             {currentTab === 'response' && (
               <ResponseView
                 priorityItems={priorityItems}
+                layers={layers}
+                onToggleLayer={handleToggleLayer}
+                onOpacityChange={handleOpacityChange}
                 onApproveAction={handleApproveAction}
               />
             )}
@@ -389,7 +410,7 @@ export const AppShell: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 text-emerald-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>GEO-ENGINE: READY</span>
+            <span>GEO-ENGINE: MAPLIBRE GL ACTIVE</span>
           </div>
           <span>|</span>
           <span>CRS: <strong className="text-command-text">WGS 84 / UTM Zone 45N (EPSG:32645)</strong></span>

@@ -1,11 +1,23 @@
 import React from 'react';
+import type { MapLayerConfig } from '../../types';
 import { DataSourceBadge } from '../../components/common/DataSourceBadge';
+import { InteractiveMap } from '../../components/map/InteractiveMap';
 import { 
   Flame, 
-  Info
+  Info 
 } from 'lucide-react';
 
-export const RiskView: React.FC = () => {
+interface RiskViewProps {
+  layers: MapLayerConfig[];
+  onToggleLayer: (id: string) => void;
+  onOpacityChange: (id: string, opacity: number) => void;
+}
+
+export const RiskView: React.FC<RiskViewProps> = ({
+  layers,
+  onToggleLayer,
+  onOpacityChange,
+}) => {
   const riskZones = [
     {
       id: 'ZONE-A',
@@ -14,7 +26,6 @@ export const RiskView: React.FC = () => {
       debrisRisk: 'HIGH (Steep canyon slope > 42°)',
       floodRisk: 'CRITICAL (Riverbank overflow)',
       isolationRisk: 'EXTREME (Araniko Hwy severed)',
-      populationExp: 'Demo estimate pending pass',
       status: 'DEMO_VALUE' as const,
     },
     {
@@ -24,7 +35,6 @@ export const RiskView: React.FC = () => {
       debrisRisk: 'HIGH (Tributary debris fan)',
       floodRisk: 'HIGH (Backwater surge)',
       isolationRisk: 'HIGH (Bhairabkunda Bridge severed)',
-      populationExp: 'Demo estimate pending pass',
       status: 'DEMO_VALUE' as const,
     },
     {
@@ -34,7 +44,6 @@ export const RiskView: React.FC = () => {
       debrisRisk: 'MODERATE (Bank scouring)',
       floodRisk: 'HIGH (Floodplain inundation)',
       isolationRisk: 'MODERATE (Secondary bypass open)',
-      populationExp: 'Demo estimate pending pass',
       status: 'DEMO_VALUE' as const,
     },
   ];
@@ -69,71 +78,74 @@ export const RiskView: React.FC = () => {
         </div>
       </div>
 
-      {/* Mathematical Model Formula Card */}
-      <div className="bg-command-panel border border-command-border rounded-lg p-4">
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-command-border/60">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-command-accent-glow" />
-            <span className="text-xs font-bold text-command-text">RISK FORMULATION METHODOLOGY</span>
+      {/* Main Grid: Risk Formulations + Interactive Map */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left: Formula & Zone Breakdown */}
+        <div className="lg:col-span-5 space-y-3">
+          {/* Mathematical Model Formula Card */}
+          <div className="bg-command-panel border border-command-border rounded-lg p-3">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-command-border/60">
+              <div className="flex items-center gap-2">
+                <Info className="w-4 h-4 text-command-accent-glow" />
+                <span className="text-xs font-bold text-command-text">RISK FORMULATION METHODOLOGY</span>
+              </div>
+              <span className="text-[10px] text-command-dim">DECISION SUPPORT</span>
+            </div>
+            <div className="text-[11px] text-command-muted space-y-1">
+              <div className="p-2 bg-command-card rounded border border-command-border text-command-accent-glow font-bold text-xs">
+                Risk Index = 0.35 × (Inundation Hazard) + 0.30 × (Debris Velocity) + 0.20 × (Lifeline Cutoff) + 0.15 × (Population Density)
+              </div>
+              <p className="text-[10px] text-command-dim pt-1">
+                * Note: System produces vulnerability rankings. It does not predict future unpredictable glacier collapse timings.
+              </p>
+            </div>
           </div>
-          <span className="text-[10px] text-command-dim">SCIENTIFIC DECISION SUPPORT</span>
-        </div>
-        <div className="text-xs text-command-muted space-y-1">
-          <div className="p-2.5 bg-command-card rounded border border-command-border text-command-accent-glow font-bold">
-            Risk Index = 0.35 × (Inundation Hazard) + 0.30 × (Debris Velocity) + 0.20 × (Lifeline Cutoff) + 0.15 × (Population Density)
+
+          {/* Priority Risk Zones Table */}
+          <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2">
+            <h3 className="text-xs font-bold text-command-text uppercase tracking-wider mb-2">
+              High-Risk Sector Rankings
+            </h3>
+
+            <div className="space-y-2">
+              {riskZones.map((zone) => (
+                <div key={zone.id} className="p-2.5 rounded bg-command-panel border border-command-border text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-command-text">{zone.name}</span>
+                    <span className={`font-mono font-bold text-xs ${zone.score >= 90 ? 'text-tactical-critical' : 'text-tactical-high'}`}>
+                      {zone.score}/100
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1 text-[10px] text-command-muted mb-1.5">
+                    <div>Debris: <span className="text-command-text">{zone.debrisRisk}</span></div>
+                    <div>Flood: <span className="text-command-text">{zone.floodRisk}</span></div>
+                  </div>
+                  <div className="pt-1.5 border-t border-command-border/40 flex items-center justify-between text-[9px]">
+                    <span className="text-rose-300">{zone.isolationRisk}</span>
+                    <DataSourceBadge
+                      provenance={{
+                        tier: zone.status,
+                        source: 'MCDA Prototype Matrix',
+                        timestamp: '2026-08-27T06:00:00Z',
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="text-[11px] text-command-dim pt-1">
-            * Note: System produces decision-support vulnerability rankings. It does not predict future unpredictable glacier collapse timings.
-          </p>
         </div>
-      </div>
 
-      {/* Priority Risk Zones Table */}
-      <div className="bg-command-card border border-command-border rounded-lg p-4 overflow-x-auto">
-        <h3 className="text-xs font-bold text-command-text uppercase tracking-wider mb-3">
-          Transboundary Corridor High-Risk Priority Sectors
-        </h3>
-
-        <table className="w-full text-left text-xs">
-          <thead>
-            <tr className="border-b border-command-border text-command-dim text-[10px]">
-              <th className="pb-2">SECTOR / ZONE</th>
-              <th className="pb-2">RISK SCORE</th>
-              <th className="pb-2">DEBRIS FLOW</th>
-              <th className="pb-2">INUNDATION</th>
-              <th className="pb-2">ISOLATION</th>
-              <th className="pb-2">DATA PROVENANCE</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-command-border/60">
-            {riskZones.map((zone) => (
-              <tr key={zone.id} className="hover:bg-command-surface/30 transition-colors">
-                <td className="py-3 font-semibold text-command-text">
-                  <div>{zone.name}</div>
-                  <span className="text-[10px] text-command-dim">{zone.id}</span>
-                </td>
-                <td className="py-3 font-bold text-sm">
-                  <span className={zone.score >= 90 ? 'text-tactical-critical' : 'text-tactical-high'}>
-                    {zone.score}/100
-                  </span>
-                </td>
-                <td className="py-3 text-command-muted">{zone.debrisRisk}</td>
-                <td className="py-3 text-command-muted">{zone.floodRisk}</td>
-                <td className="py-3 text-command-muted">{zone.isolationRisk}</td>
-                <td className="py-3">
-                  <DataSourceBadge
-                    provenance={{
-                      tier: zone.status,
-                      source: 'Illustrative MCDA Calibration Matrix',
-                      timestamp: '2026-08-27T06:00:00Z',
-                      confidence: 0.82,
-                    }}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Right: Interactive Map */}
+        <div className="lg:col-span-7 h-[600px]">
+          <InteractiveMap
+            layers={layers}
+            onToggleLayer={onToggleLayer}
+            onOpacityChange={onOpacityChange}
+            activeAoiName="Disaster Risk Heatmap"
+            heightClass="h-[600px]"
+          />
+        </div>
       </div>
     </div>
   );

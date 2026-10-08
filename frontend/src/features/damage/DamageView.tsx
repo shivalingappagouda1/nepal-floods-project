@@ -1,5 +1,7 @@
 import React from 'react';
+import type { MapLayerConfig } from '../../types';
 import { DataSourceBadge } from '../../components/common/DataSourceBadge';
+import { InteractiveMap } from '../../components/map/InteractiveMap';
 import { 
   Building2, 
   Car, 
@@ -8,7 +10,17 @@ import {
   AlertTriangle 
 } from 'lucide-react';
 
-export const DamageView: React.FC = () => {
+interface DamageViewProps {
+  layers: MapLayerConfig[];
+  onToggleLayer: (id: string) => void;
+  onOpacityChange: (id: string, opacity: number) => void;
+}
+
+export const DamageView: React.FC<DamageViewProps> = ({
+  layers,
+  onToggleLayer,
+  onOpacityChange,
+}) => {
   const damageCategories = [
     {
       id: 'ROADS',
@@ -80,62 +92,71 @@ export const DamageView: React.FC = () => {
         </div>
       </div>
 
-      {/* Exposure Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {damageCategories.map((cat) => {
-          const Icon = cat.icon;
-          return (
-            <div key={cat.id} className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-command-border/60">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded bg-command-surface border border-command-border flex items-center justify-center text-command-accent-glow">
-                      <Icon className="w-4 h-4" />
+      {/* Main Grid: Damage Summary Cards + Map */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left Column: Exposure Matrix Cards */}
+        <div className="lg:col-span-5 space-y-3">
+          <div className="grid grid-cols-1 gap-3">
+            {damageCategories.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <div key={cat.id} className="bg-command-card border border-command-border rounded-lg p-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-command-border/60">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded bg-command-surface border border-command-border flex items-center justify-center text-command-accent-glow">
+                        <Icon className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-command-text">{cat.title}</span>
                     </div>
-                    <span className="text-xs font-bold text-command-text">{cat.title}</span>
+                    <span className="text-[9px] text-command-dim uppercase">
+                      {cat.id}
+                    </span>
                   </div>
-                  <span className="text-[10px] text-command-dim uppercase">
-                    ID: {cat.id}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
-                  <div className="bg-command-panel p-2.5 rounded border border-command-border">
-                    <span className="text-[10px] text-command-dim block mb-0.5">BASELINE SURVEY</span>
-                    <span className="font-bold text-command-text">{cat.baselineTotal}</span>
+                  <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+                    <div className="bg-command-panel p-2 rounded border border-command-border">
+                      <span className="text-[9px] text-command-dim block">BASELINE</span>
+                      <span className="font-bold text-command-text text-[11px]">{cat.baselineTotal}</span>
+                    </div>
+                    <div className="bg-command-panel p-2 rounded border border-command-border">
+                      <span className="text-[9px] text-command-dim block">IMPACT</span>
+                      <span className="font-bold text-command-dim italic text-[11px]">{cat.impactedEstimated}</span>
+                    </div>
                   </div>
-                  <div className="bg-command-panel p-2.5 rounded border border-command-border">
-                    <span className="text-[10px] text-command-dim block mb-0.5">ESTIMATED IMPACT</span>
-                    <span className="font-bold text-command-dim italic">{cat.impactedEstimated}</span>
+
+                  <div className="text-[10px] text-command-muted bg-command-panel/60 px-2 py-1 rounded border border-command-border/40 flex items-center justify-between">
+                    <span>Status: <strong className="text-amber-400">{cat.severedSections}</strong></span>
+                    <DataSourceBadge
+                      provenance={{
+                        tier: cat.status,
+                        source: cat.source,
+                        timestamp: '2026-08-27T00:00:00Z',
+                      }}
+                    />
                   </div>
                 </div>
+              );
+            })}
+          </div>
 
-                <div className="text-[11px] text-command-muted bg-command-panel/60 p-2 rounded border border-command-border/40 mb-3">
-                  Analysis Status: <span className="text-amber-400 font-semibold">{cat.severedSections}</span>
-                </div>
-              </div>
-
-              <div className="pt-2 border-t border-command-border/60 flex items-center justify-between text-xs">
-                <DataSourceBadge
-                  provenance={{
-                    tier: cat.status,
-                    source: cat.source,
-                    timestamp: '2026-08-27T00:00:00Z',
-                  }}
-                />
-                <span className="text-[10px] text-command-dim">EPSG:32645</span>
-              </div>
+          <div className="bg-sky-950/40 border border-sky-800/60 rounded-lg p-3 flex items-start gap-2.5">
+            <AlertTriangle className="w-4 h-4 text-command-accent-glow flex-shrink-0 mt-0.5" />
+            <div className="text-[11px] text-sky-200">
+              <strong className="block font-bold mb-0.5 text-command-accent-glow">PROVENANCE PROTOCOL</strong>
+              Calculations are computed via vector polygon intersection (`Shapely` / `GeoPandas`) on genuine baseline data.
             </div>
-          );
-        })}
-      </div>
+          </div>
+        </div>
 
-      {/* Scientific Integrity Callout */}
-      <div className="bg-sky-950/40 border border-sky-800/60 rounded-lg p-4 flex items-start gap-3">
-        <AlertTriangle className="w-4 h-4 text-command-accent-glow flex-shrink-0 mt-0.5" />
-        <div className="text-xs text-sky-200">
-          <strong className="block font-bold mb-0.5 text-command-accent-glow">FACTUAL INTEGRITY & PROVENANCE PROTOCOL</strong>
-          Spatial damage calculations are computed via direct geometric intersection (`Shapely` / `GeoPandas`) between verified OSM infrastructure lines and satellite-derived flood masks. Figures are not synthesized or estimated without an active satellite inference run.
+        {/* Right Column: Interactive Map */}
+        <div className="lg:col-span-7 h-[620px]">
+          <InteractiveMap
+            layers={layers}
+            onToggleLayer={onToggleLayer}
+            onOpacityChange={onOpacityChange}
+            activeAoiName="Infrastructure Exposure Deck"
+            heightClass="h-[620px]"
+          />
         </div>
       </div>
     </div>
