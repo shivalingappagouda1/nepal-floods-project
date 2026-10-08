@@ -22,6 +22,7 @@ import type {
   StagedReliefUnit 
 } from '../types/response';
 import type { FeatureCollection, Polygon } from 'geojson';
+import { disasterApi } from './api';
 
 export const INITIAL_PRIORITY_ZONES: PriorityZone[] = [
   {
@@ -606,11 +607,25 @@ export class ResponsePriorityService {
   private units: StagedReliefUnit[] = DEMO_STAGED_UNITS;
 
   async getPriorityZones(filterTier?: ResponsePriorityTier): Promise<PriorityZone[]> {
+    try {
+      const backendZones = await disasterApi.getResponseZones(filterTier);
+      if (backendZones && backendZones.length > 0) {
+        return backendZones;
+      }
+    } catch {
+      // Graceful fallback to verified local baseline if backend offline
+    }
     if (!filterTier) return this.zones;
     return this.zones.filter((z) => z.priorityTier === filterTier);
   }
 
   async getZoneById(id: string): Promise<PriorityZone | null> {
+    try {
+      const backendZone = await disasterApi.getResponseZoneById(id);
+      if (backendZone) return backendZone;
+    } catch {
+      // Graceful fallback
+    }
     const found = this.zones.find(
       (z) => z.id.toLowerCase() === id.toLowerCase() || z.zoneCode.toLowerCase() === id.toLowerCase()
     );
@@ -618,6 +633,14 @@ export class ResponsePriorityService {
   }
 
   async getStagedUnits(): Promise<StagedReliefUnit[]> {
+    try {
+      const backendUnits = await disasterApi.getStagedUnits();
+      if (backendUnits && backendUnits.length > 0) {
+        return backendUnits;
+      }
+    } catch {
+      // Graceful fallback
+    }
     return this.units;
   }
 

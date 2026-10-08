@@ -19,6 +19,7 @@ import type {
   DamageSummaryStats 
 } from '../types/damage';
 import type { FeatureCollection, Geometry } from 'geojson';
+import { disasterApi } from './api';
 
 export interface IDamageAssessmentService {
   getDamageFeatures(categoryFilter?: DamageCategory): Promise<DamageFeature[]>;
@@ -194,6 +195,15 @@ export class DamageAssessmentService implements IDamageAssessmentService {
   }
 
   async getDamageSummary(): Promise<DamageSummaryStats> {
+    try {
+      const backendSummary = await disasterApi.getDamageSummary();
+      if (backendSummary && backendSummary.totalFeaturesEvaluated > 0) {
+        return backendSummary;
+      }
+    } catch {
+      // Fallback
+    }
+
     const byCategory: Record<DamageCategory, number> = {
       NO_SIGNIFICANT_CHANGE: 0,
       POSSIBLE_DAMAGE: 0,
