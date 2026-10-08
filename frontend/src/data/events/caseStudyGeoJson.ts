@@ -18,7 +18,6 @@ export const verifiedCaseStudyWaypointsGeoJson: FeatureCollection<Point, GeoFeat
       provenance: {
         source: wp.authoritySource,
         tier: 'VERIFIED',
-        confidence: 1.0,
       },
     },
     geometry: {

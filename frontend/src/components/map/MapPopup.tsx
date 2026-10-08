@@ -84,7 +84,9 @@ export const MapPopup: React.FC<MapPopupProps> = ({
       {/* Provenance & Confidence */}
       <div className="pt-2 border-t border-command-border/60 flex items-center justify-between gap-2 mb-3">
         <DataSourceBadge provenance={properties.provenance} />
-        <ConfidenceBadge confidence={properties.provenance.confidence} size="sm" />
+        {properties.provenance.confidence !== undefined && (
+          <ConfidenceBadge confidence={properties.provenance.confidence} size="sm" />
+        )}
       </div>
 
       {/* Quick Action Footer */}
