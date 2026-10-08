@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { MapLayerConfig } from '../../types';
+import type { 
+  ComparisonMode, 
+  BandCombination, 
+  AnalysisMethod, 
+  ChangeDetectionResult 
+} from '../../types/satellite';
+import { 
+  satelliteAnalysisService, 
+  MOCK_SCENE_PAIRS 
+} from '../../services/SatelliteAnalysisService';
+import { SatelliteComparisonViewer } from './SatelliteComparisonViewer';
+import { DetectionResultsPanel } from './DetectionResultsPanel';
+import { SensorModalitiesExplainer } from './SensorModalitiesExplainer';
+import { ErrorState } from '../../components/common/ErrorState';
 import { DataSourceBadge } from '../../components/common/DataSourceBadge';
-import { InteractiveMap } from '../../components/map/InteractiveMap';
 import { 
   Satellite, 
-  Layers
+  Sliders, 
+  Play, 
+  Radar, 
+  Sun, 
+  Layers 
 } from 'lucide-react';
 
 interface SatelliteViewProps {
@@ -13,115 +30,188 @@ interface SatelliteViewProps {
   onOpacityChange: (id: string, opacity: number) => void;
 }
 
-export const SatelliteView: React.FC<SatelliteViewProps> = ({
-  layers,
-  onToggleLayer,
-  onOpacityChange,
-}) => {
-  const [selectedProduct, setSelectedProduct] = useState<'RGB' | 'MNDWI' | 'NDVI' | 'DIFF_MASK'>('MNDWI');
-  const [threshold, setThreshold] = useState(0.35);
+export const SatelliteView: React.FC<SatelliteViewProps> = () => {
+  const scenePairs = MOCK_SCENE_PAIRS;
+  const [selectedPairId, setSelectedPairId] = useState<string>(MOCK_SCENE_PAIRS[0].id);
+  const [comparisonMode, setComparisonMode] = useState<ComparisonMode>('SWIPE_SPLIT');
+  const [selectedBand, setSelectedBand] = useState<BandCombination>('SAR_VV_VH');
+  const [analysisMethod, setAnalysisMethod] = useState<AnalysisMethod>('SAR_BACKSCATTER_RATIO');
+  const [threshold, setThreshold] = useState<number>(0.35);
+  const [opacity, setOpacity] = useState<number>(0.85);
+  const [showChangeOverlay, setShowChangeOverlay] = useState<boolean>(true);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [detectionResult, setDetectionResult] = useState<ChangeDetectionResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const spectralIndices = [
-    {
-      id: 'RGB',
-      name: 'True Color (B4-B3-B2) [DEMO / Prototype]',
-      description: 'Standard optical natural color visualization format (Step 5 Ingestion).',
-      formula: 'Red / Green / Blue',
-      status: 'DEMO_VALUE' as const,
-    },
-    {
-      id: 'MNDWI',
-      name: 'Modified Normalized Difference Water Index (MNDWI)',
-      description: 'Algorithm configured for Step 5 differential water body extraction.',
-      formula: '(Green - SWIR) / (Green + SWIR)',
-      status: 'DEMO_VALUE' as const,
-    },
-    {
-      id: 'NDVI',
-      name: 'Normalized Difference Vegetation Index (NDVI)',
-      description: 'Algorithm configured for Step 5 scarp & vegetation loss detection.',
-      formula: '(NIR - Red) / (NIR + Red)',
-      status: 'DEMO_VALUE' as const,
-    },
-    {
-      id: 'DIFF_MASK',
-      name: 'Differential Change Detection Mask (Pipeline Preset)',
-      description: 'Computes delta indices between pre- and post-disaster passes in Step 5.',
-      formula: 'ΔMNDWI > θ_flood AND ΔNDVI < θ_scarp',
-      status: 'DEMO_VALUE' as const,
-    },
-  ];
+  const selectedPair = scenePairs.find((p) => p.id === selectedPairId) || scenePairs[0];
+
+  // Initial load of detection result
+  useEffect(() => {
+    let isMounted = true;
+    const loadInitialResult = async () => {
+      try {
+        const result = await satelliteAnalysisService.detectChange(
+          selectedPair,
+          threshold,
+          analysisMethod,
+          false
+        );
+        if (isMounted) {
+          setDetectionResult(result);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setErrorMessage(err.message || 'Failed to initialize satellite scene.');
+        }
+      }
+    };
+    loadInitialResult();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedPairId, selectedPair, threshold, analysisMethod]);
+
+  // Update selected band when scene pair changes
+  const handleSelectPair = (pairId: string) => {
+    setSelectedPairId(pairId);
+    const targetPair = scenePairs.find((p) => p.id === pairId) || scenePairs[0];
+    setSelectedBand(targetPair.preScene.bandPresets[0]);
+    setAnalysisMethod(targetPair.defaultMethod);
+  };
+
+  // Run change detection calculation (AI Inference / Precomputed Analysis trigger)
+  const handleRunAnalysis = async (runInference = true) => {
+    setIsAnalyzing(true);
+    setErrorMessage(null);
+    try {
+      // Simulate pipeline evaluation delay for realistic tactical feedback
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const result = await satelliteAnalysisService.detectChange(
+        selectedPair,
+        threshold,
+        analysisMethod,
+        runInference
+      );
+      setDetectionResult(result);
+      setShowChangeOverlay(true);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Error processing satellite change detection pipeline.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="space-y-4 font-mono">
-      {/* Top Header Card */}
-      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Top Incident & Satellite Header */}
+      <div className="bg-command-card border border-command-border rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Satellite className="w-4 h-4 text-command-accent-glow" />
-            <h2 className="text-sm font-bold text-command-text uppercase tracking-wider">
-              SATELLITE CHANGE DETECTION INTERFACE (STEP 3 FOUNDATION)
+            <span className="px-2 py-0.5 rounded bg-sky-950/80 border border-sky-700 text-sky-300 font-mono text-[10px] font-bold flex items-center gap-1">
+              <Satellite className="w-3.5 h-3.5" />
+              SATELLITE INTELLIGENCE
+            </span>
+            <h2 className="text-sm font-bold text-command-text font-mono">
+              EARTH OBSERVATION & MULTI-TEMPORAL CHANGE DETECTION
             </h2>
           </div>
-          <p className="text-xs text-command-muted">
-            Map viewport and spectral controls prepared. Live multi-spectral Sentinel-2 ingestion will connect in Step 5.
+          <p className="text-xs text-command-muted font-mono max-w-2xl">
+            Multi-sensor before/after analysis for the 26 August 2026 transboundary surge corridor. Supports Sentinel-1 SAR, Sentinel-2 Optical MSI, and Landsat.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <DataSourceBadge 
-            provenance={{
-              tier: 'DEMO_VALUE',
-              source: 'Visual Basemap Prototype (Awaiting Step 5 Real Data)',
-              timestamp: '2026-08-27T00:00:00Z',
-              sensor: 'Prototype Tile Layer'
-            }}
-            showDetails
-          />
+        <div className="flex items-center gap-3">
+          <DataSourceBadge provenance={selectedPair.postScene.provenance} showDetails />
         </div>
       </div>
 
-      {/* Main Grid: Controls + Interactive Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Left: Spectral Indices Selector */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="bg-command-card border border-command-border rounded-lg p-4">
-            <h3 className="text-xs font-bold text-command-text uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5 text-command-accent-glow" />
-              Spectral Index Controls (Step 5 Preset)
-            </h3>
+      {/* Sensor Modal Explanation Panel (Sentinel-1 vs Sentinel-2 Physics) */}
+      <SensorModalitiesExplainer />
 
-            <div className="space-y-2">
-              {spectralIndices.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setSelectedProduct(item.id as any)}
-                  className={`w-full p-3 rounded-lg border text-left transition-all ${
-                    selectedProduct === item.id
-                      ? 'bg-command-accent/20 border-command-accent text-command-text shadow-tactical-glow'
-                      : 'bg-command-panel/60 border-command-border text-command-muted hover:border-command-border-light'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-bold text-xs">{item.name}</span>
-                    <span className="text-[9px] px-1.5 py-0.2 rounded bg-command-surface border border-command-border text-command-accent-glow">
-                      {item.id}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-command-dim mb-1.5 leading-snug">
-                    {item.description}
-                  </p>
-                  <div className="text-[9px] text-command-muted bg-command-surface/80 px-2 py-0.5 rounded border border-command-border/40 inline-block">
-                    {item.formula}
-                  </div>
-                </button>
-              ))}
+      {/* Main Analysis Workflow: Controls (Left 4 cols) + Imagery Viewport & Results (Right 8 cols) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left Column: Scene Selector & Pipeline Configuration */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* 1. Scene Catalog Selector */}
+          <div className="bg-command-card border border-command-border rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-command-border">
+              <h3 className="text-xs font-bold text-command-text uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-command-accent-glow" />
+                <span>1. SATELLITE SCENE PAIR</span>
+              </h3>
+              <span className="text-[10px] text-command-dim">
+                {scenePairs.length} DATASETS
+              </span>
             </div>
 
-            {/* Threshold Slider for Change Detection */}
-            <div className="mt-4 pt-3 border-t border-command-border">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-command-muted">Index Threshold (θ):</span>
+            <div className="space-y-2">
+              {scenePairs.map((pair) => {
+                const isSar = pair.preScene.sensor === 'SENTINEL_1_SAR';
+                const isSelected = selectedPairId === pair.id;
+
+                return (
+                  <button
+                    key={pair.id}
+                    onClick={() => handleSelectPair(pair.id)}
+                    className={`w-full p-3 rounded-lg border text-left transition-all ${
+                      isSelected
+                        ? 'bg-command-surface border-command-accent text-command-text shadow-tactical-glow'
+                        : 'bg-command-panel/60 border-command-border text-command-muted hover:border-command-border-light hover:text-command-text'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1 mb-1">
+                      <div className="flex items-center gap-1.5 font-bold text-xs">
+                        {isSar ? (
+                          <Radar className="w-3.5 h-3.5 text-sky-400" />
+                        ) : (
+                          <Sun className="w-3.5 h-3.5 text-amber-400" />
+                        )}
+                        <span>{pair.name}</span>
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-command-dim mb-2 leading-relaxed">
+                      {pair.description}
+                    </p>
+
+                    <div className="flex items-center justify-between text-[9px] text-command-muted pt-1.5 border-t border-command-border/40">
+                      <span>Pre: {pair.preScene.acquisitionDate.split('T')[0]}</span>
+                      <span className="text-command-accent-glow">Post: {pair.postScene.acquisitionDate.split('T')[0]}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Analysis Algorithm & Threshold Controls */}
+          <div className="bg-command-card border border-command-border rounded-lg p-4 space-y-3">
+            <h3 className="text-xs font-bold text-command-text uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-command-border">
+              <Sliders className="w-3.5 h-3.5 text-command-accent-glow" />
+              <span>2. ALGORITHM & SENSITIVITY</span>
+            </h3>
+
+            {/* Analysis Method Picker */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-command-dim block uppercase font-bold">
+                Change Detection Method:
+              </label>
+              <select
+                value={analysisMethod}
+                onChange={(e) => setAnalysisMethod(e.target.value as AnalysisMethod)}
+                className="w-full bg-command-panel border border-command-border rounded p-2 text-xs text-command-text focus:outline-none focus:border-command-accent"
+              >
+                <option value="SAR_BACKSCATTER_RATIO">SAR Radar Amplitude Ratio (Δσ₀ &lt; -4 dB)</option>
+                <option value="DIFF_MNDWI">Differential MNDWI (Water Extraction)</option>
+                <option value="DIFF_NDVI">Differential NDVI (Scarp & Vegetation Loss)</option>
+                <option value="HYBRID_AI_CHANGE">Hybrid Multi-Spectral + Radar Fusion</option>
+              </select>
+            </div>
+
+            {/* Threshold Slider */}
+            <div className="pt-2 space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-command-muted text-[11px]">Detection Threshold (θ):</span>
                 <span className="text-command-accent-glow font-bold">{threshold.toFixed(2)}</span>
               </div>
               <input
@@ -133,31 +223,67 @@ export const SatelliteView: React.FC<SatelliteViewProps> = ({
                 onChange={(e) => setThreshold(parseFloat(e.target.value))}
                 className="w-full h-1.5 bg-command-surface rounded-lg appearance-none cursor-pointer accent-command-accent"
               />
-              <span className="text-[9px] text-command-dim block mt-1">
-                Threshold parameter ready for Step 5 spectral calculations.
-              </span>
+              <div className="flex justify-between text-[9px] text-command-dim">
+                <span>Conservative (0.10)</span>
+                <span>Balanced (0.35)</span>
+                <span>Aggressive (0.80)</span>
+              </div>
             </div>
-          </div>
 
-          {/* Pass Information */}
-          <div className="bg-command-card border border-command-border rounded-lg p-3 space-y-2">
-            <div className="text-xs font-bold text-command-text">SATELLITE INGEST STATUS</div>
-            <div className="text-[11px] text-command-muted space-y-1">
-              <div>Status: <strong className="text-amber-300">Awaiting Step 5 Real Data</strong></div>
-              <div>Current Map: <strong className="text-command-text">MapLibre GL Basemap (DEMO)</strong></div>
+            {/* Action Button: ANALYZE CHANGE */}
+            <div className="pt-3">
+              <button
+                onClick={() => handleRunAnalysis(true)}
+                disabled={isAnalyzing}
+                className="w-full py-2.5 px-4 rounded-lg bg-command-accent hover:bg-sky-500 text-white font-bold text-xs shadow-tactical-glow transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>EVALUATING PIPELINE...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>ANALYZE CHANGE</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Right: Full Interactive Map */}
-        <div className="lg:col-span-8 h-[600px]">
-          <InteractiveMap
-            layers={layers}
-            onToggleLayer={onToggleLayer}
-            onOpacityChange={onOpacityChange}
-            activeAoiName="Map initial viewport — DEMO / navigation reference"
-            heightClass="h-[600px]"
+        {/* Right Column: Comparative Viewer & Detection Results */}
+        <div className="lg:col-span-8 space-y-4">
+          {/* Comparative Satellite Viewer */}
+          <SatelliteComparisonViewer
+            scenePair={selectedPair}
+            comparisonMode={comparisonMode}
+            onChangeMode={setComparisonMode}
+            showChangeOverlay={showChangeOverlay}
+            onToggleChangeOverlay={() => setShowChangeOverlay(!showChangeOverlay)}
+            opacity={opacity}
+            onChangeOpacity={setOpacity}
+            selectedBand={selectedBand}
+            onChangeBand={setSelectedBand}
           />
+
+          {/* Detection Results Metrics Panel */}
+          {detectionResult && (
+            <DetectionResultsPanel
+              result={detectionResult}
+              isAnalyzing={isAnalyzing}
+            />
+          )}
+
+          {/* Error Display */}
+          {errorMessage && (
+            <ErrorState
+              title="SATELLITE PROCESSING ERROR"
+              error={errorMessage}
+              onRetry={() => handleRunAnalysis(false)}
+            />
+          )}
         </div>
       </div>
     </div>
