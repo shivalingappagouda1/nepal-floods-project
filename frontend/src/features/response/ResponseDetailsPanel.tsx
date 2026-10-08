@@ -104,90 +104,7 @@ export const ResponseDetailsPanel: React.FC<ResponseDetailsPanelProps> = ({
         </div>
       </div>
 
-      {/* Multi-Factor Telemetry Matrix */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
-        {/* Population Exposure */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1">
-          <div className="flex items-center justify-between text-[9px]">
-            <span className="text-command-dim font-bold uppercase flex items-center gap-1">
-              <Users className="w-3 h-3 text-command-accent-glow" />
-              <span>Population Exposure</span>
-            </span>
-            <span className="text-amber-300 font-bold bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800">
-              DEMO
-            </span>
-          </div>
-          <p className="text-[11px] text-command-text font-semibold">
-            {zone.populationExposure}
-          </p>
-        </div>
-
-        {/* Infrastructure Impact */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1">
-          <div className="flex items-center justify-between text-[9px]">
-            <span className="text-command-dim font-bold uppercase flex items-center gap-1">
-              <Building2 className="w-3 h-3 text-rose-400" />
-              <span>Infrastructure Impact</span>
-            </span>
-            <span className="text-amber-300 font-bold bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800">
-              DEMO
-            </span>
-          </div>
-          <p className="text-[11px] text-command-text font-semibold">
-            {zone.infrastructureImpact}
-          </p>
-        </div>
-
-        {/* Accessibility Status */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1">
-          <div className="flex items-center justify-between text-[9px]">
-            <span className="text-command-dim font-bold uppercase flex items-center gap-1">
-              <Radio className="w-3 h-3 text-amber-400" />
-              <span>Accessibility Condition</span>
-            </span>
-            <span className="text-amber-300 font-bold bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800">
-              DEMO
-            </span>
-          </div>
-          <p className="text-[11px] text-command-text font-semibold">
-            {zone.accessibility}
-          </p>
-        </div>
-
-        {/* Secondary Hazard */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1">
-          <div className="flex items-center justify-between text-[9px]">
-            <span className="text-command-dim font-bold uppercase flex items-center gap-1">
-              <AlertTriangle className="w-3 h-3 text-tactical-amber" />
-              <span>Secondary Hazard Risk</span>
-            </span>
-            <span className="text-amber-300 font-bold bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800">
-              DEMO
-            </span>
-          </div>
-          <p className="text-[11px] text-command-text font-semibold">
-            {zone.secondaryHazardRisk}
-          </p>
-        </div>
-
-        {/* Medical Urgency */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1 sm:col-span-2">
-          <div className="flex items-center justify-between text-[9px]">
-            <span className="text-command-dim font-bold uppercase flex items-center gap-1">
-              <HeartPulse className="w-3 h-3 text-rose-400" />
-              <span>Medical Urgency</span>
-            </span>
-            <span className="text-amber-300 font-bold bg-amber-950/60 px-1 py-0.2 rounded border border-amber-800">
-              DEMO
-            </span>
-          </div>
-          <p className="text-[11px] text-command-text font-semibold">
-            {zone.medicalUrgency}
-          </p>
-        </div>
-      </div>
-
-      {/* Factor Explainability Breakdown Deck */}
+      {/* Unified 6-Factor Telemetry & Explainability Matrix */}
       <div className="p-3 rounded-lg bg-command-panel/90 border border-command-border space-y-2.5">
         <div className="flex items-center justify-between pb-1.5 border-b border-command-border/50 text-xs font-bold text-command-text">
           <div className="flex items-center gap-1.5">
@@ -197,33 +114,81 @@ export const ResponseDetailsPanel: React.FC<ResponseDetailsPanelProps> = ({
           <span className="text-[10px] text-command-dim">6 INPUT FACTORS</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-          {Object.values(zone.factors).map((factor) => (
-            <div key={factor.key} className="p-2 rounded bg-command-surface/70 border border-command-border space-y-1 text-[10px]">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-command-text truncate">{factor.label}</span>
-                <span className={`px-1 py-0.2 rounded border font-bold uppercase text-[9px] ${
-                  factor.level === 'CRITICAL' || factor.level === 'HIGH'
-                    ? 'text-rose-400 bg-rose-950/60 border-rose-800'
-                    : factor.level === 'MEDIUM'
-                    ? 'text-amber-400 bg-amber-950/60 border-amber-800'
-                    : factor.level === 'DATA_UNAVAILABLE'
-                    ? 'text-slate-400 bg-slate-900 border-slate-700'
-                    : 'text-emerald-400 bg-emerald-950/60 border-emerald-800'
-                }`}>
-                  {factor.level.replace('_', ' ')}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {Object.values(zone.factors).map((factor) => {
+            const getFactorIcon = (key: string) => {
+              switch (key) {
+                case 'populationExposure':
+                  return <Users className="w-3.5 h-3.5 text-command-accent-glow" />;
+                case 'damageSeverity':
+                  return <Layers className="w-3.5 h-3.5 text-rose-400" />;
+                case 'criticalInfrastructure':
+                  return <Building2 className="w-3.5 h-3.5 text-sky-400" />;
+                case 'accessibility':
+                  return <Radio className="w-3.5 h-3.5 text-amber-400" />;
+                case 'secondaryHazard':
+                  return <AlertTriangle className="w-3.5 h-3.5 text-tactical-amber" />;
+                case 'medicalUrgency':
+                default:
+                  return <HeartPulse className="w-3.5 h-3.5 text-rose-400" />;
+              }
+            };
+
+            const getStatusBadge = (status: string) => {
+              if (status.includes('PRECOMPUTED')) {
+                return (
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded border bg-sky-950/60 text-sky-300 border-sky-800">
+                    PRECOMPUTED
+                  </span>
+                );
+              }
+              if (status.includes('DEMO')) {
+                return (
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded border bg-amber-950/60 text-amber-300 border-amber-800">
+                    DEMO
+                  </span>
+                );
+              }
+              return (
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded border bg-slate-900 text-slate-400 border-slate-700">
+                  OFFLINE
                 </span>
-              </div>
+              );
+            };
 
-              <div className="text-[9px] text-amber-300 font-mono">
-                Status: {factor.statusDisplay}
-              </div>
+            return (
+              <div key={factor.key} className="p-2.5 rounded bg-command-surface/80 border border-command-border space-y-1.5 text-xs">
+                <div className="flex items-center justify-between text-[11px] gap-1">
+                  <span className="font-bold text-command-text flex items-center gap-1.5 truncate">
+                    {getFactorIcon(factor.key)}
+                    <span className="truncate">{factor.label}</span>
+                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {getStatusBadge(factor.statusDisplay)}
+                    <span className={`px-1 py-0.2 rounded border font-bold uppercase text-[9px] ${
+                      factor.level === 'CRITICAL' || factor.level === 'HIGH'
+                        ? 'text-rose-400 bg-rose-950/60 border-rose-800'
+                        : factor.level === 'MEDIUM'
+                        ? 'text-amber-400 bg-amber-950/60 border-amber-800'
+                        : factor.level === 'DATA_UNAVAILABLE'
+                        ? 'text-slate-400 bg-slate-900 border-slate-700'
+                        : 'text-emerald-400 bg-emerald-950/60 border-emerald-800'
+                    }`}>
+                      {factor.level.replace('_', ' ')}
+                    </span>
+                  </div>
+                </div>
 
-              <p className="text-[9.5px] text-command-dim line-clamp-2">
-                {factor.description}
-              </p>
-            </div>
-          ))}
+                <div className="text-[10px] text-amber-300/90 font-mono">
+                  Status: {factor.statusDisplay}
+                </div>
+
+                <p className="text-[10px] text-command-dim leading-snug line-clamp-2">
+                  {factor.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </div>
 
