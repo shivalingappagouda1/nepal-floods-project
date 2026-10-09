@@ -1,13 +1,10 @@
 import React from 'react';
 import type { PriorityZone } from '../../types/response';
 import { 
-  ShieldAlert, 
   AlertTriangle, 
   MapPin, 
-  UserCheck, 
   AlertOctagon,
-  ChevronRight,
-  Route
+  ShieldAlert
 } from 'lucide-react';
 
 interface PriorityZoneCardProps {
@@ -25,28 +22,22 @@ export const PriorityZoneCard: React.FC<PriorityZoneCardProps> = ({
     switch (tier) {
       case 'PRIORITY_1':
         return {
-          border: 'border-rose-600',
-          badge: 'bg-rose-950/90 text-rose-300 border-rose-600',
-          glow: 'shadow-[0_0_12px_rgba(244,63,94,0.25)]',
-          label: 'PRIORITY 1 — CRITICAL',
-          icon: <AlertOctagon className="w-3.5 h-3.5 text-rose-400" />,
+          badge: 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700',
+          label: 'Priority 1: Critical',
+          icon: <AlertOctagon className="w-3.5 h-3.5 text-rose-600" />,
         };
       case 'PRIORITY_2':
         return {
-          border: 'border-orange-600',
-          badge: 'bg-orange-950/90 text-orange-300 border-orange-600',
-          glow: 'shadow-[0_0_10px_rgba(249,115,22,0.2)]',
-          label: 'PRIORITY 2 — HIGH',
-          icon: <AlertTriangle className="w-3.5 h-3.5 text-orange-400" />,
+          badge: 'bg-orange-50 text-orange-800 border-orange-300 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-700',
+          label: 'Priority 2: High',
+          icon: <AlertTriangle className="w-3.5 h-3.5 text-orange-600" />,
         };
       case 'PRIORITY_3':
       default:
         return {
-          border: 'border-amber-600',
-          badge: 'bg-amber-950/90 text-amber-300 border-amber-600',
-          glow: '',
-          label: 'PRIORITY 3 — MODERATE',
-          icon: <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />,
+          badge: 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700',
+          label: 'Priority 3: Moderate',
+          icon: <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />,
         };
     }
   };
@@ -56,90 +47,67 @@ export const PriorityZoneCard: React.FC<PriorityZoneCardProps> = ({
   return (
     <div
       onClick={() => onSelectZone(zone)}
-      className={`p-3.5 rounded-lg border font-mono cursor-pointer transition-all space-y-2.5 ${
+      className={`p-4 rounded-2xl border font-sans cursor-pointer transition-all space-y-2.5 ${
         isSelected
-          ? `bg-command-surface border-command-accent ${theme.glow}`
-          : 'bg-command-panel/80 border-command-border hover:border-command-border-light'
+          ? 'bg-blue-50/70 border-blue-500 shadow-xs dark:bg-blue-950/40 dark:border-blue-500'
+          : 'bg-white hover:bg-slate-50 border-slate-200 dark:bg-command-panel dark:border-command-border'
       }`}
     >
       {/* Top Priority Header */}
-      <div className="flex items-start justify-between gap-2 pb-2 border-b border-command-border/60">
+      <div className="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 dark:border-command-border/60">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase flex items-center gap-1 ${theme.badge}`}>
+          <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border flex items-center gap-1 ${theme.badge}`}>
             {theme.icon}
             <span>{theme.label}</span>
           </span>
-          <span className="text-xs font-bold text-command-accent-glow">
+          <span className="text-xs font-bold text-slate-500 dark:text-command-dim">
             {zone.id}
           </span>
         </div>
 
-        <div className="flex items-center gap-1 text-right">
-          <span className="text-xs font-bold text-command-text font-mono">
+        <div className="text-right">
+          <span className="text-sm font-extrabold text-blue-700 dark:text-sky-400">
             {zone.score}/100
           </span>
-          <span className="text-[9px] text-command-dim" title="Prototype response priority score">
-            SCORE
+          <span className="text-[10px] text-slate-400 block font-medium">
+            Priority Score
           </span>
         </div>
       </div>
 
       {/* Zone Title & Sector */}
       <div>
-        <h4 className="text-xs font-bold text-command-text leading-tight">
+        <h4 className="text-sm font-bold text-slate-900 dark:text-command-text leading-tight">
           {zone.name}
         </h4>
-        <div className="text-[10px] text-command-dim flex items-center gap-1 mt-0.5 truncate">
-          <MapPin className="w-3 h-3 text-command-dim shrink-0" />
+        <div className="text-xs text-slate-500 dark:text-command-dim flex items-center gap-1 mt-0.5">
+          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <span className="truncate">{zone.sector}</span>
         </div>
       </div>
 
-      {/* Why? Bullet List (Prompt Example) */}
-      <div className="p-2.5 rounded bg-command-surface/80 border border-command-border/50 text-[10px] space-y-1">
-        <span className="font-bold text-command-text block uppercase">
-          Why this zone is prioritized:
+      {/* Why in priority list? (Plain Language) */}
+      <div className="p-3 rounded-xl bg-slate-50 dark:bg-command-surface border border-slate-200/80 dark:border-command-border/50 text-xs space-y-1">
+        <span className="font-semibold text-slate-700 dark:text-command-text block">
+          Why is this location prioritized?
         </span>
-        <ul className="space-y-0.5 text-command-muted">
-          {zone.whyFactors.map((reason, idx) => (
-            <li key={idx} className="flex items-start gap-1.5">
-              <span className="text-command-accent-glow font-bold">•</span>
-              <span className="capitalize">{reason}</span>
-            </li>
-          ))}
+        <ul className="space-y-1 text-slate-600 dark:text-command-muted text-[11px]">
+          {zone.whyFactors?.length ? (
+            zone.whyFactors.slice(0, 3).map((factor, idx) => (
+              <li key={idx} className="line-clamp-1">• {factor}</li>
+            ))
+          ) : (
+            <>
+              <li>• Access: {zone.factors.accessibility?.description || 'Scenario assessment'}</li>
+              <li>• Population: {zone.factors.populationExposure?.description || 'Scenario estimate'}</li>
+            </>
+          )}
         </ul>
       </div>
 
-      {/* Recommended Action Box */}
-      <div className="p-2.5 rounded bg-amber-950/30 border border-amber-800/60 text-[10px] space-y-0.5">
-        <span className="font-bold text-amber-400 uppercase block">
-          Recommendation:
-        </span>
-        <p className="text-amber-100/90 leading-snug">
-          "{zone.recommendedAction.replace('Recommended: ', '')}"
-        </p>
-      </div>
-
-      {/* Route & Verification Status Footer */}
-      <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-command-border/40 text-[9px]">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-sky-300 font-bold flex items-center gap-1">
-            <UserCheck className="w-3 h-3" />
-            <span>Human verification required</span>
-          </span>
-
-          {!zone.routeStatus.isAvailable && (
-            <span className="text-rose-300 bg-rose-950/60 border border-rose-800 px-1.5 py-0.2 rounded flex items-center gap-1" title="Road severed">
-              <Route className="w-2.5 h-2.5" />
-              <span>Route unavailable</span>
-            </span>
-          )}
-        </div>
-
-        <span className="text-command-accent-glow font-bold flex items-center gap-0.5">
-          <span>INSPECT</span>
-          <ChevronRight className="w-3 h-3" />
-        </span>
+      <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-100 dark:border-command-border/40 flex items-center justify-between">
+        <span>Synthetic scenario input</span>
+        <span className="text-blue-600 font-semibold">{isSelected ? '✓ Selected' : 'View details →'}</span>
       </div>
     </div>
   );

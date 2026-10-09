@@ -299,3 +299,142 @@ export async function searchNepalPlaces(query: string): Promise<SearchableLocati
 
   return localMatches.slice(0, 8);
 }
+
+export interface SatellitePipelineResult {
+  status: string;
+  executionId: string;
+  runtimeMs: number;
+  totalCandidateClusters: number;
+  totalDetectedChangeSqKm: number;
+  corridorDetectedChangeSqKm?: number;
+  preEventScene: {
+    id: string;
+    granule_id?: string;
+    platform: string;
+    sensor: string;
+    acquisition_date: string;
+    cloud_cover_percent?: number;
+    source: string;
+  };
+  postEventScene: {
+    id: string;
+    granule_id?: string;
+    platform: string;
+    sensor: string;
+    acquisition_date: string;
+    cloud_cover_percent?: number;
+    source: string;
+  };
+  manifest: any;
+  geojson: any;
+  rasterEndpoints: {
+    pre_event: string;
+    post_event: string;
+    change_mask: string;
+  };
+  provenance: any;
+}
+
+export interface SatelliteAssetExposureResult {
+  status: string;
+  corridor: string;
+  data_source: string;
+  summary: {
+    total_count: number;
+    intersecting_count: number;
+    near_count: number;
+    unaffected_count: number;
+  };
+  disclaimer: string;
+  assessed_assets: Array<{
+    osm_id: number | string;
+    name: string;
+    nepali_name?: string;
+    asset_type: string;
+    importance: string;
+    source: string;
+    exposure_status: 'INTERSECTS' | 'NEAR' | 'UNAFFECTED';
+    advisory_priority: string;
+    evidence_details: string;
+    coordinates: any;
+    geometry_type: string;
+    verification_notice: string;
+  }>;
+}
+
+/**
+ * Check if genuine satellite data is loaded and get pipeline status
+ */
+export async function fetchSatellitePipelineStatus(): Promise<{
+  realDataLoaded: boolean;
+  preEventAvailable: boolean;
+  postEventAvailable: boolean;
+  lastExecutionTimestamp?: string;
+  latestManifest?: any;
+}> {
+  try {
+    const res = await fetch(`${API_BASE}/satellite/pipeline/status`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.data;
+    }
+  } catch (err) {
+    console.warn('Satellite pipeline status check failed:', err);
+  }
+  return {
+    realDataLoaded: false,
+    preEventAvailable: false,
+    postEventAvailable: false,
+  };
+}
+
+/**
+ * Execute real change detection pipeline on Copernicus Sentinel-2 imagery
+ */
+export async function runSatellitePipeline(sensitivityK: number = 1.75): Promise<SatellitePipelineResult | null> {
+  try {
+    const res = await fetch(`${API_BASE}/satellite/pipeline/run?sensitivity_k=${sensitivityK}`, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.data;
+    }
+  } catch (err) {
+    console.error('Failed to execute satellite pipeline:', err);
+  }
+  return null;
+}
+
+/**
+ * Get latest genuine satellite pipeline execution result
+ */
+export async function fetchLatestSatellitePipelineRun(): Promise<SatellitePipelineResult | null> {
+  try {
+    const res = await fetch(`${API_BASE}/satellite/pipeline/latest`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.data;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch latest satellite pipeline run:', err);
+  }
+  return null;
+}
+
+/**
+ * Get OpenStreetMap infrastructure exposure against candidate change clusters
+ */
+export async function fetchSatelliteAssetExposure(): Promise<SatelliteAssetExposureResult | null> {
+  try {
+    const res = await fetch(`${API_BASE}/exposure/satellite-assets`);
+    if (res.ok) {
+      const data = await res.json();
+      return data.data;
+    }
+  } catch (err) {
+    console.warn('Failed to fetch satellite asset exposure:', err);
+  }
+  return null;
+}

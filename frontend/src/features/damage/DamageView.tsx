@@ -43,37 +43,39 @@ export const DamageView: React.FC<DamageViewProps> = ({
   };
 
   return (
-    <div className="space-y-3 font-mono">
+    <div className="space-y-4 font-sans">
       {/* Top Header Strip */}
-      <div className="bg-command-card/90 border border-command-border rounded-lg px-4 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-orange-950/80 border border-orange-700 text-orange-300 text-[10px] font-bold flex items-center gap-1">
-              <Building2 className="w-3.5 h-3.5" />
-              GIS EVIDENCE
-            </span>
-            <h2 className="text-xs sm:text-sm font-bold text-command-text">
-              INFRASTRUCTURE DAMAGE & ACCESSIBILITY ASSESSMENT
-            </h2>
+      <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-command-text">
+              Damage Check
+            </h1>
           </div>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-command-muted">
+            See places that may need inspection, including bridges, blocked roads, and riverside buildings.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-bold">
-            PRECOMPUTED ANALYSIS
+        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+          <span className="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs font-semibold">
+            Prototype inspection queue
           </span>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-command-surface border border-command-border text-command-dim">
-            CONFIDENCE: Not available
+          <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-command-surface border border-slate-200 dark:border-command-border text-slate-600 dark:text-command-dim text-xs">
+            Field check recommended
           </span>
         </div>
       </div>
 
-      {/* Main Workspace: Dominant Map (65-70%) + Right Inspection / Catalog Deck (30-35%) */}
-      <div className={`grid gap-3 transition-all ${
+      {/* Main Workspace: Dominant Map + Right Inspection Deck */}
+      <div className={`grid gap-4 transition-all ${
         isMapFocused ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12'
       }`}>
-        {/* Left/Center Map Viewport */}
-        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-8'} flex flex-col h-[640px]`}>
+        {/* Left/Center Map Viewport (MapLibre completely preserved) */}
+        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-8'} flex flex-col h-[650px] rounded-2xl overflow-hidden shadow-xs border border-slate-200 dark:border-command-border`}>
           <MapPanel
             layers={layers}
             onToggleLayer={onToggleLayer}
@@ -86,38 +88,38 @@ export const DamageView: React.FC<DamageViewProps> = ({
 
         {/* Right Inspection & Legend Deck */}
         {!isMapFocused && (
-          <div className="lg:col-span-4 flex flex-col h-[640px] space-y-2">
+          <div className="lg:col-span-4 flex flex-col h-[650px] space-y-3">
             {/* Side Tabs Selector */}
-            <div className="flex items-center gap-1 bg-command-card border border-command-border rounded-lg p-1 text-xs shrink-0">
+            <div className="flex items-center gap-1 bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-xl p-1 text-xs shrink-0 shadow-xs">
               <button
                 onClick={() => setSideTab('FEATURE')}
-                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   sideTab === 'FEATURE'
-                    ? 'bg-command-accent text-white shadow-sm'
-                    : 'text-command-muted hover:text-command-text'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
                 }`}
               >
-                ASSET INSPECTION
+                Inspection
               </button>
               <button
                 onClick={() => setSideTab('CATALOG')}
-                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   sideTab === 'CATALOG'
-                    ? 'bg-command-accent text-white shadow-sm'
-                    : 'text-command-muted hover:text-command-text'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
                 }`}
               >
-                CATALOG ({features.length})
+                Places ({features.length})
               </button>
               <button
                 onClick={() => setSideTab('LEGEND')}
-                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   sideTab === 'LEGEND'
-                    ? 'bg-command-accent text-white shadow-sm'
-                    : 'text-command-muted hover:text-command-text'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
                 }`}
               >
-                LEGEND
+                Legend
               </button>
             </div>
 
@@ -130,8 +132,8 @@ export const DamageView: React.FC<DamageViewProps> = ({
                     onFocusFeature={handleFocusFeature}
                   />
                 ) : (
-                  <div className="bg-command-card border border-command-border rounded-lg p-6 text-center text-xs text-command-dim">
-                    Select a feature from the map or catalog to inspect GIS evidence.
+                  <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-6 text-center text-xs text-slate-500 shadow-xs">
+                    Select a location from the map or list to inspect details.
                   </div>
                 )}
               </div>

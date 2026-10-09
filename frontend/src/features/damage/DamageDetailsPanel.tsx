@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { DamageFeature } from '../../types/damage';
 import { DAMAGE_CATEGORY_CONFIGS } from '../../data/damageConfigs';
 import { EvidencePanel } from './EvidencePanel';
-import { ConfidenceIndicator } from './ConfidenceIndicator';
 import { 
   Compass, 
-  Send 
+  Send,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface DamageDetailsPanelProps {
@@ -20,129 +22,111 @@ export const DamageDetailsPanel: React.FC<DamageDetailsPanelProps> = ({
   onAssignFieldInspection,
 }) => {
   const categoryConfig = DAMAGE_CATEGORY_CONFIGS[feature.category];
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
 
   return (
-    <div className="bg-command-card border border-command-border rounded-lg p-4 font-mono shadow-2xl space-y-4">
+    <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 sm:p-5 font-sans shadow-xs space-y-4">
       {/* Top Header Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-command-border/70">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-3 border-b border-slate-200 dark:border-command-border/70">
         <div>
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="text-xs font-bold px-2 py-0.5 rounded bg-command-surface border border-command-border text-command-accent-glow">
+          <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-command-surface border border-slate-200 dark:border-command-border text-slate-700 dark:text-command-accent-glow">
               {feature.id}
             </span>
 
-            <span className={`text-xs font-bold px-2.5 py-0.5 rounded border ${categoryConfig.badgeClass}`}>
+            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${categoryConfig.badgeClass}`}>
               {feature.categoryLabel}
             </span>
 
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-950/80 border border-amber-800 text-amber-300 font-bold uppercase">
-              {feature.processingStatus}
+            <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-50 border border-amber-300 text-amber-900 dark:bg-amber-950/80 dark:border-amber-800 dark:text-amber-300 font-medium">
+              Prototype estimate
             </span>
           </div>
 
-          <h3 className="text-sm font-bold text-command-text leading-snug">
+          <h3 className="text-base font-bold text-slate-900 dark:text-command-text leading-snug">
             {feature.name}
           </h3>
         </div>
 
-        {/* Confidence & Action */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <ConfidenceIndicator
-            confidence={feature.confidence}
-            method={feature.confidenceMethod}
-            size="md"
-          />
-        </div>
+        {/* Action Button */}
+        <button
+          onClick={() => onFocusFeature(feature.coordinates)}
+          className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-xs font-semibold text-blue-700 flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
+        >
+          <Compass className="w-3.5 h-3.5 text-blue-600" />
+          <span>Show on Map</span>
+        </button>
       </div>
 
-      {/* Primary Telemetry & Verification Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
-        {/* Verification Status */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-0.5">
-          <span className="text-[9px] text-command-dim block font-bold uppercase">VERIFICATION STATUS</span>
-          <span className={`font-bold text-[11px] block ${
-            feature.verificationStatus === 'Ground verification recommended'
-              ? 'text-amber-300'
-              : feature.verificationStatus === 'Verified by rapid field survey'
-              ? 'text-emerald-400'
-              : 'text-sky-300'
-          }`}>
-            {feature.verificationStatus}
-          </span>
-        </div>
-
-        {/* Coordinates */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-0.5">
-          <span className="text-[9px] text-command-dim block font-bold uppercase">COORDINATES</span>
-          <span className="font-bold text-command-text text-[11px] block">
-            {feature.coordinates[1].toFixed(4)}° N, {feature.coordinates[0].toFixed(4)}° E
-          </span>
-          <span className="text-[9px] text-command-dim italic block truncate" title={feature.coordinateProvenance}>
-            Source: {feature.coordinateProvenance}
-          </span>
-        </div>
-
-        {/* Source / Satellite Sensor */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-0.5">
-          <span className="text-[9px] text-command-dim block font-bold uppercase">EVIDENCE SENSOR</span>
-          <span className="font-bold text-command-accent-glow text-[10px] truncate block" title={feature.source}>
-            {feature.source}
-          </span>
-        </div>
-
-        {/* Evaluation Timestamp */}
-        <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-0.5">
-          <span className="text-[9px] text-command-dim block font-bold uppercase">OBSERVATION REFERENCE</span>
-          <span className="font-bold text-command-muted text-[10px] block">
-            {feature.timestamp}
-          </span>
-        </div>
-      </div>
-
-      {/* Affected Dimension & Directives */}
-      <div className="p-3 rounded bg-command-panel/80 border border-command-border space-y-2 text-xs">
+      {/* Summary Box */}
+      <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border space-y-2 text-xs">
         <div>
-          <span className="text-[10px] text-command-dim font-bold uppercase block">
-            Observed Physical Modification (Image Evidence):
+          <span className="text-[11px] text-slate-500 font-semibold uppercase block">
+            Observed Changes from Satellite / GIS:
           </span>
-          <p className="text-command-text text-[11px] font-semibold">
+          <p className="text-slate-800 dark:text-command-text text-xs font-medium leading-relaxed mt-0.5">
             {feature.affectedDimension}
           </p>
         </div>
 
-        <div className="pt-2 border-t border-command-border/40">
-          <span className="text-[10px] text-command-dim font-bold uppercase block">
-            Decision-Support Recommendation:
+        <div className="pt-2 border-t border-slate-200/80 dark:border-command-border/40">
+          <span className="text-[11px] text-slate-500 font-semibold uppercase block">
+            Recommended Next Step:
           </span>
-          <p className="text-amber-300 text-[11px]">
+          <p className="text-amber-800 dark:text-amber-300 text-xs font-medium leading-relaxed mt-0.5">
             {feature.recommendedResponse}
           </p>
         </div>
       </div>
 
-      {/* Deep Evidence Panel */}
-      <EvidencePanel feature={feature} />
+      {/* Verification Notice */}
+      <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200 text-amber-900 text-xs flex items-start gap-2 leading-relaxed">
+        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <div>
+          <strong>Ground check recommended:</strong> This is a satellite-detected surface anomaly. Physical safety or structural damage can only be confirmed by on-site teams.
+        </div>
+      </div>
 
-      {/* Action Footer */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+      {/* Progressive Disclosure: Technical Details Toggle */}
+      <div className="border-t border-slate-200 dark:border-command-border/60 pt-2">
         <button
-          onClick={() => onFocusFeature(feature.coordinates)}
-          className="w-full sm:w-auto px-4 py-2 rounded-lg bg-command-surface hover:bg-command-border border border-command-border text-xs font-bold text-command-accent-glow flex items-center justify-center gap-2 transition-colors"
+          onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
+          className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-slate-900 py-1 cursor-pointer"
         >
-          <Compass className="w-3.5 h-3.5" />
-          <span>CENTER MAP ON TARGET</span>
+          <span>Advanced Evidence & Technical Data</span>
+          {showTechnicalDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
 
-        {onAssignFieldInspection && (
-          <button
-            onClick={() => onAssignFieldInspection(feature.id)}
-            className="w-full sm:w-auto px-4 py-2 rounded-lg bg-command-accent hover:bg-sky-500 text-white text-xs font-bold shadow-tactical-glow flex items-center justify-center gap-2 transition-colors"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span>RECOMMEND FOR FIELD INSPECTION QUEUE</span>
-          </button>
+        {showTechnicalDetails && (
+          <div className="mt-3 space-y-3 animate-in slide-in-from-top-1">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-semibold">GPS COORDINATES</span>
+                <span className="font-semibold text-slate-800">{feature.coordinates[1].toFixed(4)}° N, {feature.coordinates[0].toFixed(4)}° E</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200">
+                <span className="text-[10px] text-slate-500 block font-semibold">DATA SOURCE</span>
+                <span className="font-semibold text-blue-700">{feature.source}</span>
+              </div>
+            </div>
+
+            <EvidencePanel feature={feature} />
+          </div>
         )}
       </div>
+
+      {/* Inspection CTA */}
+      {onAssignFieldInspection && (
+        <div className="pt-2">
+          <button
+            onClick={() => onAssignFieldInspection(feature.id)}
+            className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Mark for Field Inspection Queue</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

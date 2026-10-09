@@ -2,34 +2,39 @@ import React, { useState } from 'react';
 import { 
   Radar, 
   Sun, 
-  AlertTriangle, 
   Info, 
   ChevronDown, 
-  ChevronUp 
+  ChevronUp,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 
 export const SensorModalitiesExplainer: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="bg-command-card border border-command-border rounded-lg p-4 font-mono shadow-xl relative">
+    <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 font-sans shadow-sm relative">
       {/* Header Toggle */}
       <div 
         className="flex items-center justify-between cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="flex items-center gap-2">
-          <Info className="w-4 h-4 text-command-accent-glow" />
-          <h3 className="text-xs font-bold text-command-text uppercase tracking-wider">
-            Satellite Sensor Physics & Operational Limitations
-          </h3>
-          <span className="text-[9px] px-1.5 py-0.2 rounded bg-command-surface border border-command-border text-command-muted">
-            SCIENTIFIC STANDARD
-          </span>
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-sky-950 text-blue-600 dark:text-sky-400 border border-blue-200 dark:border-sky-700">
+            <Info className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-command-text">
+              How do these satellites see disasters? (Radar vs Optical)
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-command-dim">
+              Click to understand how satellite images work through monsoon clouds
+            </p>
+          </div>
         </div>
 
         <button 
-          className="text-command-dim hover:text-command-text p-1"
+          className="text-slate-500 hover:text-slate-800 dark:text-command-dim dark:hover:text-command-text p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-command-surface"
           aria-label="Toggle sensor explanation"
         >
           {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -37,73 +42,62 @@ export const SensorModalitiesExplainer: React.FC = () => {
       </div>
 
       {isOpen && (
-        <div className="mt-3 pt-3 border-t border-command-border/70 space-y-3 text-xs">
+        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-command-border/70 space-y-3 text-xs animate-in slide-in-from-top-1">
           {/* 2-Column Sensor Comparison */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Sentinel-1 SAR Radar */}
-            <div className="p-3 rounded bg-sky-950/20 border border-sky-800/60 space-y-2">
+            <div className="p-3.5 rounded-xl bg-blue-50/60 dark:bg-sky-950/20 border border-blue-200 dark:border-sky-800/60 space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-sky-300 font-bold">
-                  <Radar className="w-4 h-4 text-sky-400" />
-                  <span>Sentinel-1 SAR (C-Band Active Radar)</span>
+                <div className="flex items-center gap-2 text-blue-900 dark:text-sky-300 font-bold">
+                  <Radar className="w-4 h-4 text-blue-600 dark:text-sky-400" />
+                  <span>Sentinel-1 SAR Radar (Sees Through Clouds)</span>
                 </div>
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold">
-                  ALL-WEATHER
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 font-semibold">
+                  All-Weather
                 </span>
               </div>
-              <ul className="space-y-1 text-[10px] text-sky-100/80 leading-relaxed">
+              <ul className="space-y-1.5 text-xs text-slate-700 dark:text-sky-100/80 leading-relaxed">
                 <li className="flex items-start gap-1.5">
-                  <span className="text-sky-400 font-bold">✓</span>
-                  <span><strong>Cloud Penetration:</strong> 5.405 GHz microwave signals pass directly through monsoon cloud decks, fog, smoke, and nighttime darkness.</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                  <span><strong>Penetrates heavy clouds:</strong> Radar beams pass straight through clouds, rain, fog, and nighttime darkness.</span>
                 </li>
                 <li className="flex items-start gap-1.5">
-                  <span className="text-sky-400 font-bold">✓</span>
-                  <span><strong>Water Signature:</strong> Standing flood waters act as specular reflectors, scattering radar pulses away and appearing as distinct dark/low-backscatter regions (Δσ₀ &lt; -4 dB).</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                  <span><strong>Detects standing water:</strong> Calm flood waters bounce radar away like a mirror, creating dark patches on the image.</span>
                 </li>
                 <li className="flex items-start gap-1.5">
-                  <span className="text-amber-400 font-bold">!</span>
-                  <span><strong>Terrain Layover:</strong> Extreme Himalayan gorge topography can cause radar shadow and geometric distortion in narrow canyon slopes.</span>
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                  <span><strong>Mountain shadows:</strong> Very steep Himalayan cliffs can cast radar shadows in narrow gorges.</span>
                 </li>
               </ul>
             </div>
 
             {/* Sentinel-2 / Landsat Optical */}
-            <div className="p-3 rounded bg-amber-950/20 border border-amber-800/60 space-y-2">
+            <div className="p-3.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/60 space-y-2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-amber-300 font-bold">
-                  <Sun className="w-4 h-4 text-amber-400" />
-                  <span>Sentinel-2 MSI (Multi-Spectral Optical)</span>
+                <div className="flex items-center gap-2 text-amber-900 dark:text-amber-300 font-bold">
+                  <Sun className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span>Sentinel-2 Optical (Natural Color Camera)</span>
                 </div>
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">
-                  DAYLIGHT / CLEAR SKY
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold">
+                  Clear Skies Only
                 </span>
               </div>
-              <ul className="space-y-1 text-[10px] text-amber-100/80 leading-relaxed">
+              <ul className="space-y-1.5 text-xs text-slate-700 dark:text-amber-100/80 leading-relaxed">
                 <li className="flex items-start gap-1.5">
-                  <span className="text-rose-400 font-bold">✕</span>
-                  <span><strong>Cloud Limitation:</strong> <strong className="text-rose-300">DO NOT claim that optical imagery works through clouds.</strong> Monsoon cloud cover obstructs optical sensors; clear-sky passes are required.</span>
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                  <span><strong>Blocked by clouds:</strong> Optical satellite cameras cannot see through dense monsoon clouds or night.</span>
                 </li>
                 <li className="flex items-start gap-1.5">
-                  <span className="text-emerald-400 font-bold">✓</span>
-                  <span><strong>Spectral Indexing:</strong> High spatial resolution (10m) multi-spectral bands enable precise MNDWI (Water) and NDVI (Vegetation scarp) differentiation.</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                  <span><strong>High-detail colors:</strong> When skies are clear, provides crisp 10-meter views of mud, rivers, and trees.</span>
                 </li>
                 <li className="flex items-start gap-1.5">
-                  <span className="text-amber-400 font-bold">!</span>
-                  <span><strong>Sediment Sensitivity:</strong> High sediment-laden flood waters alter spectral reflectance, requiring SWIR band indexing (B11/B12).</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
+                  <span><strong>Water and vegetation index:</strong> Uses infrared light to separate sediment water from healthy hillside trees.</span>
                 </li>
               </ul>
             </div>
-          </div>
-
-          {/* Critical Operational Disclaimers */}
-          <div className="p-2.5 rounded bg-command-panel border border-command-border/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[10px] text-command-muted">
-            <div className="flex items-center gap-2 text-amber-400 font-bold">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-              <span>STRUCTURAL INTEGRITY NOTICE:</span>
-            </div>
-            <p className="flex-1 leading-snug">
-              Satellite imagery provides macro surface change & inundation boundaries. It does <strong>NOT</strong> prove building structural safety, foundation stability, or underground cavern integrity. On-site structural engineering verification is mandatory.
-            </p>
           </div>
         </div>
       )}

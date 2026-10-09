@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RiskLevel } from '../../types/risk';
-import { ShieldAlert, AlertTriangle, AlertCircle, CheckCircle2, Flame, HelpCircle } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface RiskScoreProps {
   score: number; // 0 to 100
@@ -14,7 +14,7 @@ interface RiskScoreProps {
 export const RiskScore: React.FC<RiskScoreProps> = ({
   score,
   riskLevel,
-  prototypeLabel = 'Prototype risk score',
+  prototypeLabel = 'Prototype estimate',
   dataCompletenessPercentage = 100,
   size = 'md',
   showDetails = true,
@@ -23,44 +23,39 @@ export const RiskScore: React.FC<RiskScoreProps> = ({
     switch (level) {
       case 'EXTREME':
         return {
-          color: 'text-purple-400',
-          bg: 'bg-purple-950/80',
-          border: 'border-purple-600',
-          glow: 'shadow-[0_0_12px_rgba(168,85,247,0.35)]',
-          icon: <Flame className="w-4 h-4 text-purple-400" />,
+          color: 'text-purple-700 dark:text-purple-400',
+          bg: 'bg-purple-50 dark:bg-purple-950/80',
+          border: 'border-purple-300 dark:border-purple-600',
+          icon: <ShieldAlert className="w-4 h-4 text-purple-600" />,
         };
       case 'VERY HIGH':
         return {
-          color: 'text-rose-400',
-          bg: 'bg-rose-950/80',
-          border: 'border-rose-600',
-          glow: 'shadow-[0_0_12px_rgba(244,63,94,0.35)]',
-          icon: <ShieldAlert className="w-4 h-4 text-rose-400" />,
+          color: 'text-rose-700 dark:text-rose-400',
+          bg: 'bg-rose-50 dark:bg-rose-950/80',
+          border: 'border-rose-300 dark:border-rose-600',
+          icon: <ShieldAlert className="w-4 h-4 text-rose-600" />,
         };
       case 'HIGH':
         return {
-          color: 'text-orange-400',
-          bg: 'bg-orange-950/80',
-          border: 'border-orange-600',
-          glow: 'shadow-[0_0_10px_rgba(249,115,22,0.3)]',
-          icon: <AlertTriangle className="w-4 h-4 text-orange-400" />,
+          color: 'text-orange-700 dark:text-orange-400',
+          bg: 'bg-orange-50 dark:bg-orange-950/80',
+          border: 'border-orange-300 dark:border-orange-600',
+          icon: <AlertTriangle className="w-4 h-4 text-orange-600" />,
         };
       case 'MODERATE':
         return {
-          color: 'text-amber-400',
-          bg: 'bg-amber-950/80',
-          border: 'border-amber-600',
-          glow: '',
-          icon: <AlertCircle className="w-4 h-4 text-amber-400" />,
+          color: 'text-amber-800 dark:text-amber-400',
+          bg: 'bg-amber-50 dark:bg-amber-950/80',
+          border: 'border-amber-300 dark:border-amber-600',
+          icon: <AlertCircle className="w-4 h-4 text-amber-600" />,
         };
       case 'LOW':
       default:
         return {
-          color: 'text-emerald-400',
-          bg: 'bg-emerald-950/80',
-          border: 'border-emerald-600',
-          glow: '',
-          icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
+          color: 'text-emerald-700 dark:text-emerald-400',
+          bg: 'bg-emerald-50 dark:bg-emerald-950/80',
+          border: 'border-emerald-300 dark:border-emerald-600',
+          icon: <CheckCircle2 className="w-4 h-4 text-emerald-600" />,
         };
     }
   };
@@ -68,34 +63,27 @@ export const RiskScore: React.FC<RiskScoreProps> = ({
   const theme = getLevelTheme(riskLevel);
 
   return (
-    <div className={`font-mono inline-flex flex-col gap-1 ${theme.glow}`}>
+    <div className="font-sans inline-flex flex-col gap-1">
       <div className="flex items-center gap-2 flex-wrap">
-        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded border ${theme.bg} ${theme.border}`}>
+        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border ${theme.bg} ${theme.border}`}>
           {theme.icon}
           <span className={`font-bold ${theme.color} ${size === 'lg' ? 'text-sm' : 'text-xs'}`}>
-            {riskLevel} RISK
+            {riskLevel} CONCERN
           </span>
-          <span className="text-command-dim text-xs font-bold">|</span>
-          <span className={`font-bold text-command-text ${size === 'lg' ? 'text-base' : 'text-xs'}`}>
+          <span className="text-slate-300 dark:text-command-dim text-xs">|</span>
+          <span className={`font-extrabold text-slate-900 dark:text-command-text ${size === 'lg' ? 'text-base' : 'text-xs'}`}>
             {score}/100
           </span>
         </div>
 
-        <span className="text-[10px] text-command-dim font-bold border border-command-border px-1.5 py-0.5 rounded bg-command-surface" title="Configurable Multi-Criteria Weighted Model">
+        <span className="text-[11px] text-slate-500 dark:text-command-dim font-medium border border-slate-200 dark:border-command-border px-2 py-0.5 rounded-lg bg-slate-50 dark:bg-command-surface" title="Multi-Criteria Weighted Model">
           {prototypeLabel}
         </span>
-
-        {dataCompletenessPercentage < 100 && (
-          <span className="text-[9px] text-amber-300 font-bold bg-amber-950/80 border border-amber-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-            <HelpCircle className="w-2.5 h-2.5" />
-            <span>{dataCompletenessPercentage}% INPUT DATA COMPLETENESS</span>
-          </span>
-        )}
       </div>
 
       {showDetails && (
-        <span className="text-[9px] text-command-dim italic">
-          * Prototype risk score calculated from configurable multi-criteria normalization (Not an official government hazard certification).
+        <span className="text-[11px] text-slate-400 dark:text-command-dim">
+          * Prototype estimate ({dataCompletenessPercentage}% data completeness) from terrain, weather & history.
         </span>
       )}
     </div>

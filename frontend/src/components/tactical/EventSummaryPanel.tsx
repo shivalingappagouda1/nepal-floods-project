@@ -24,64 +24,61 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'SOURCES' | 'WAYPOINTS'>('OVERVIEW');
 
   return (
-    <div className="bg-command-card border border-command-border rounded-lg p-4 font-mono shadow-xl relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-command-accent/5 filter blur-3xl pointer-events-none -mr-16 -mt-16" />
-
+    <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 sm:p-5 font-sans shadow-xs relative overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-command-border/70">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200 dark:border-command-border/70">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2 py-0.5 rounded bg-rose-950/80 border border-rose-800 text-rose-300 text-[10px] font-bold">
-              REAL-WORLD CASE STUDY
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="px-2.5 py-0.5 rounded-full bg-rose-50 dark:bg-rose-950/80 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs font-semibold">
+              Disaster Scenario Study
             </span>
-            <span className="text-[10px] text-command-dim">
-              CODE: {caseStudy.code}
+            <span className="text-xs text-slate-500 dark:text-command-dim">
+              Ref: {caseStudy.code}
             </span>
           </div>
-          <h3 className="text-xs sm:text-sm font-bold text-command-text">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-command-text">
             {caseStudy.name}
           </h3>
         </div>
 
         {/* Status Indicator */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-950/70 border border-amber-800 text-amber-300 text-[10px] font-bold self-start sm:self-auto">
-          <Clock className="w-3.5 h-3.5 animate-pulse" />
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs font-semibold self-start sm:self-auto">
+          <Clock className="w-3.5 h-3.5" />
           <span>{caseStudy.mechanismStatus}</span>
         </div>
       </div>
 
       {/* Sub Navigation Bar */}
-      <div className="flex items-center gap-2 pt-3 pb-2 border-b border-command-border/40 text-xs">
+      <div className="flex items-center gap-1.5 pt-3 pb-2 border-b border-slate-200/60 dark:border-command-border/40 text-xs">
         <button
           onClick={() => setActiveTab('OVERVIEW')}
-          className={`px-2.5 py-1 rounded text-[11px] font-bold transition-colors ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
             activeTab === 'OVERVIEW'
-              ? 'bg-command-surface text-command-accent-glow border border-command-border'
-              : 'text-command-muted hover:text-command-text'
+              ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-command-surface dark:text-command-accent-glow'
+              : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
           }`}
         >
-          EVENT OVERVIEW
+          Event Overview
         </button>
         <button
           onClick={() => setActiveTab('WAYPOINTS')}
-          className={`px-2.5 py-1 rounded text-[11px] font-bold transition-colors ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
             activeTab === 'WAYPOINTS'
-              ? 'bg-command-surface text-command-accent-glow border border-command-border'
-              : 'text-command-muted hover:text-command-text'
+              ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-command-surface dark:text-command-accent-glow'
+              : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
           }`}
         >
-          VERIFIED WAYPOINTS ({caseStudy.verifiedWaypoints.length})
+          Key Locations ({caseStudy.verifiedWaypoints.length})
         </button>
         <button
           onClick={() => setActiveTab('SOURCES')}
-          className={`px-2.5 py-1 rounded text-[11px] font-bold transition-colors ${
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
             activeTab === 'SOURCES'
-              ? 'bg-command-surface text-command-accent-glow border border-command-border'
-              : 'text-command-muted hover:text-command-text'
+              ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-command-surface dark:text-command-accent-glow'
+              : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
           }`}
         >
-          AUTHORITATIVE SOURCES ({caseStudy.authoritativeSources.length})
+          Official Sources ({caseStudy.authoritativeSources.length})
         </button>
       </div>
 
@@ -90,37 +87,37 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
         {activeTab === 'OVERVIEW' && (
           <div className="space-y-3 text-xs">
             {/* Context Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-              <div className="p-2 rounded bg-command-panel border border-command-border">
-                <span className="text-[10px] text-command-dim block">TRANSBOUNDARY BASIN:</span>
-                <span className="font-bold text-command-text">{caseStudy.basin}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border">
+                <span className="text-[11px] text-slate-500 block">River Basin:</span>
+                <span className="font-semibold text-slate-900 dark:text-command-text">{caseStudy.basin}</span>
               </div>
-              <div className="p-2 rounded bg-command-panel border border-command-border">
-                <span className="text-[10px] text-command-dim block">GEOGRAPHIC REGION:</span>
-                <span className="font-bold text-command-text">{caseStudy.region}</span>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border">
+                <span className="text-[11px] text-slate-500 block">Region:</span>
+                <span className="font-semibold text-slate-900 dark:text-command-text">{caseStudy.region}</span>
               </div>
             </div>
 
-            {/* Scientific Investigation Callout */}
-            <div className="p-3 rounded bg-amber-950/20 border border-amber-800/50 text-[11px] leading-relaxed">
-              <div className="flex items-center gap-1.5 font-bold text-amber-300 mb-1">
-                <AlertCircle className="w-3.5 h-3.5" />
-                <span>SCIENTIFIC MECHANISM: {caseStudy.mechanismStatus.toUpperCase()}</span>
+            {/* Scientific Mechanism */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 leading-relaxed text-xs">
+              <div className="flex items-center gap-1.5 font-bold text-amber-900 dark:text-amber-300 mb-1">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <span>Hazard Mechanism: {caseStudy.mechanismStatus}</span>
               </div>
-              <p className="text-amber-100/90 text-[10px]">
+              <p className="text-amber-950 dark:text-amber-100/90 text-xs">
                 {caseStudy.mechanismNotes}
               </p>
             </div>
 
-            {/* Decision-Support Recommendations */}
-            <div className="p-2.5 rounded bg-command-panel border border-command-border space-y-1.5">
-              <span className="text-[10px] font-bold text-command-dim uppercase tracking-wider block">
-                Decision-Support Recommendations (Human Verification Required):
+            {/* Recommendations */}
+            <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border space-y-2">
+              <span className="text-xs font-bold text-slate-700 dark:text-command-dim uppercase tracking-wider block">
+                Safety Guidance & Preparedness Priorities:
               </span>
-              <ul className="space-y-1 text-[10px] text-command-muted">
+              <ul className="space-y-1.5 text-xs text-slate-700 dark:text-command-muted">
                 {caseStudy.decisionSupportRecommendations.map((rec, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-command-accent-glow font-bold">›</span>
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-blue-600 font-bold">•</span>
                     <span>{rec}</span>
                   </li>
                 ))}
@@ -130,21 +127,21 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
         )}
 
         {activeTab === 'WAYPOINTS' && (
-          <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
             {caseStudy.verifiedWaypoints.map((wp: VerifiedGeographicWaypoint) => (
               <div
                 key={wp.id}
-                className="p-2.5 rounded bg-command-panel border border-command-border hover:border-command-accent/50 transition-colors flex items-center justify-between gap-2"
+                className="p-3 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border hover:border-blue-300 transition-colors flex items-center justify-between gap-2"
               >
                 <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                    <span className="font-bold text-command-text text-[11px]">{wp.name}</span>
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-rose-600 shrink-0" />
+                    <span className="font-semibold text-slate-900 dark:text-command-text text-xs">{wp.name}</span>
                   </div>
-                  <p className="text-[10px] text-command-dim">
-                    {wp.coordinates[1].toFixed(4)}° N, {wp.coordinates[0].toFixed(4)}° E {wp.elevationMeters ? `| Elev: ${wp.elevationMeters}m` : ''}
+                  <p className="text-[11px] text-slate-500">
+                    {wp.coordinates[1].toFixed(4)}° N, {wp.coordinates[0].toFixed(4)}° E {wp.elevationMeters ? `• Elev: ${wp.elevationMeters}m` : ''}
                   </p>
-                  <p className="text-[10px] text-command-muted italic">
+                  <p className="text-[11px] text-slate-500 italic">
                     Source: {wp.authoritySource}
                   </p>
                 </div>
@@ -152,11 +149,11 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
                 {onFocusWaypoint && (
                   <button
                     onClick={() => onFocusWaypoint(wp.coordinates)}
-                    className="px-2 py-1 rounded bg-command-surface hover:bg-command-border border border-command-border text-[10px] font-bold text-command-accent-glow flex items-center gap-1 flex-shrink-0"
-                    title="Center map on this verified waypoint"
+                    className="px-3 py-1 rounded-lg bg-white dark:bg-command-surface hover:bg-blue-50 border border-slate-200 dark:border-command-border text-xs font-semibold text-blue-700 dark:text-command-accent-glow flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
+                    title="Center map on this location"
                   >
-                    <Compass className="w-3 h-3" />
-                    <span>FOCUS</span>
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>View</span>
                   </button>
                 )}
               </div>
@@ -165,34 +162,27 @@ export const EventSummaryPanel: React.FC<EventSummaryPanelProps> = ({
         )}
 
         {activeTab === 'SOURCES' && (
-          <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
             {caseStudy.authoritativeSources.map((source) => (
               <div
                 key={source.id}
-                className="p-2.5 rounded bg-command-panel border border-command-border text-[11px] space-y-1"
+                className="p-3 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border text-xs space-y-1"
               >
                 <div className="flex items-center justify-between gap-1">
-                  <span className="font-bold text-command-text">{source.name}</span>
+                  <span className="font-bold text-slate-900 dark:text-command-text">{source.name}</span>
                   <a
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-command-accent-glow hover:underline inline-flex items-center gap-1 text-[10px]"
+                    className="text-blue-600 hover:underline inline-flex items-center gap-1 text-[11px]"
                   >
-                    <span>{source.id}</span>
+                    <span>Visit source</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
-                <div className="text-[10px] text-command-dim">
-                  Authority: <span className="text-command-text">{source.authority}</span>
-                </div>
-                <div className="text-[10px] text-command-muted">
-                  Evidence Scope: {source.evidenceScope}
-                </div>
-                <div className="pt-1 flex items-center justify-between text-[9px] text-command-dim">
-                  <span>Accessed: {source.accessDate}</span>
-                  <span className="text-emerald-400 font-semibold">{source.status}</span>
-                </div>
+                <p className="text-slate-600 dark:text-command-muted text-[11px]">
+                  {source.authority} • {source.evidenceScope}
+                </p>
               </div>
             ))}
           </div>

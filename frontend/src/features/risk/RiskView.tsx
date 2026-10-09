@@ -9,7 +9,7 @@ import { RiskBreakdown } from './RiskBreakdown';
 import { WeightConfigurator } from './WeightConfigurator';
 import { MapPanel } from '../../components/tactical/MapPanel';
 import { 
-  Flame, 
+  AlertTriangle, 
 } from 'lucide-react';
 
 interface RiskViewProps {
@@ -28,7 +28,7 @@ export const RiskView: React.FC<RiskViewProps> = ({
   const [weights, setWeights] = useState<RiskWeights>(DEFAULT_RISK_WEIGHTS);
   const [selectedZoneId, setSelectedZoneId] = useState<string>('ZONE-A');
   const [focusedWaypoint, setFocusedWaypoint] = useState<[number, number] | null>(null);
-  const [sideTab, setSideTab] = useState<'ZONE' | 'WEIGHTS' | 'ZONES_LIST'>('ZONE');
+  const [sideTab, setSideTab] = useState<'ZONE' | 'ZONES_LIST' | 'WEIGHTS'>('ZONE');
 
   const zones: RiskZone[] = useMemo(() => {
     return riskAnalysisService.getRiskZones(weights);
@@ -59,37 +59,39 @@ export const RiskView: React.FC<RiskViewProps> = ({
   };
 
   return (
-    <div className="space-y-3 font-mono">
+    <div className="space-y-4 font-sans">
       {/* Top Header Strip */}
-      <div className="bg-command-card/90 border border-command-border rounded-lg px-4 py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-md">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded bg-amber-950/80 border border-amber-700 text-amber-300 text-[10px] font-bold flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5 text-tactical-amber" />
-              MCDA RISK ENGINE
-            </span>
-            <h2 className="text-xs sm:text-sm font-bold text-command-text">
-              EXPLAINABLE GEOSPATIAL MULTI-FACTOR RISK ASSESSMENT
-            </h2>
+      <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-command-text">
+              Risk Map
+            </h1>
           </div>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-command-muted">
+            Understand where hazards like floods and landslides may be a concern based on slope, rainfall, and river distance.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-bold">
-            PRECOMPUTED ANALYSIS
+        <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+          <span className="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs font-semibold">
+            Prototype estimate
           </span>
-          <span className="text-[10px] px-2 py-0.5 rounded bg-command-surface border border-command-border text-command-dim">
-            CONFIDENCE: Not available
+          <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-command-surface border border-slate-200 dark:border-command-border text-slate-600 dark:text-command-dim text-xs">
+            Explainable multi-factor model
           </span>
         </div>
       </div>
 
-      {/* Main Workspace: Dominant Map (65-70%) + Right Zone Deck (30-35%) */}
-      <div className={`grid gap-3 transition-all ${
+      {/* Main Workspace: Dominant Map + Right Zone Deck */}
+      <div className={`grid gap-4 transition-all ${
         isMapFocused ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-12'
       }`}>
-        {/* Left/Center Map Viewport */}
-        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-8'} flex flex-col h-[640px]`}>
+        {/* Left/Center Map Viewport (Preserved MapLibre Map) */}
+        <div className={`${isMapFocused ? 'col-span-1' : 'lg:col-span-8'} flex flex-col h-[650px] rounded-2xl overflow-hidden shadow-xs border border-slate-200 dark:border-command-border`}>
           <MapPanel
             layers={layers}
             onToggleLayer={onToggleLayer}
@@ -102,38 +104,38 @@ export const RiskView: React.FC<RiskViewProps> = ({
 
         {/* Right Zone Summary & Configuration Deck */}
         {!isMapFocused && (
-          <div className="lg:col-span-4 flex flex-col h-[640px] space-y-2">
+          <div className="lg:col-span-4 flex flex-col h-[650px] space-y-3">
             {/* Side Tabs Selector */}
-            <div className="flex items-center gap-1 bg-command-card border border-command-border rounded-lg p-1 text-xs shrink-0">
+            <div className="flex items-center gap-1 bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-xl p-1 text-xs shrink-0 shadow-xs">
               <button
                 onClick={() => setSideTab('ZONE')}
-                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   sideTab === 'ZONE'
-                    ? 'bg-command-accent text-white shadow-sm'
-                    : 'text-command-muted hover:text-command-text'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
                 }`}
               >
-                SELECTED ZONE
+                Selected Zone
               </button>
               <button
                 onClick={() => setSideTab('ZONES_LIST')}
-                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   sideTab === 'ZONES_LIST'
-                    ? 'bg-command-accent text-white shadow-sm'
-                    : 'text-command-muted hover:text-command-text'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
                 }`}
               >
-                ALL ZONES ({zones.length})
+                All Zones ({zones.length})
               </button>
               <button
                 onClick={() => setSideTab('WEIGHTS')}
-                className={`flex-1 py-1.5 rounded text-[11px] font-bold transition-all ${
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   sideTab === 'WEIGHTS'
-                    ? 'bg-command-accent text-white shadow-sm'
-                    : 'text-command-muted hover:text-command-text'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-600 dark:text-command-muted hover:text-slate-900'
                 }`}
               >
-                WEIGHTS
+                Advanced Model
               </button>
             </div>
 
@@ -150,42 +152,36 @@ export const RiskView: React.FC<RiskViewProps> = ({
             {/* Tab 2: All Zones List */}
             {sideTab === 'ZONES_LIST' && (
               <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-                {zones.map((z) => {
-                  const isSelected = selectedZoneId === z.id;
-                  let levelColor = 'text-rose-400 border-rose-800 bg-rose-950/60';
-                  if (z.riskLevel === 'HIGH') levelColor = 'text-orange-400 border-orange-800 bg-orange-950/60';
-                  if (z.riskLevel === 'MODERATE') levelColor = 'text-amber-400 border-amber-800 bg-amber-950/60';
-                  if (z.riskLevel === 'LOW') levelColor = 'text-emerald-400 border-emerald-800 bg-emerald-950/60';
-
+                {zones.map((zone) => {
+                  const isSelected = zone.id === selectedZone.id;
                   return (
-                    <div
-                      key={z.id}
-                      onClick={() => handleSelectZone(z)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                    <button
+                      key={zone.id}
+                      onClick={() => handleSelectZone(zone)}
+                      className={`w-full p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-command-surface border-command-accent shadow-tactical-glow'
-                          : 'bg-command-panel/70 border-command-border hover:border-command-border-light'
+                          ? 'bg-blue-50/70 border-blue-500 shadow-xs dark:bg-blue-950/40'
+                          : 'bg-white hover:bg-slate-50 border-slate-200 dark:bg-command-panel dark:border-command-border'
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-command-text">{z.id}</span>
-                          <span className="text-xs text-command-muted">{z.name}</span>
-                        </div>
-                        <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded border ${levelColor}`}>
-                          {z.scaledScore}/100 • {z.riskLevel}
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-xs text-slate-900 dark:text-command-text">
+                          {zone.name}
+                        </span>
+                        <span className="text-xs font-extrabold text-blue-700 dark:text-sky-400">
+                          {zone.scaledScore}/100
                         </span>
                       </div>
-                      <p className="text-[10px] text-command-dim line-clamp-1">
-                        {z.recommendedDecisionAction}
-                      </p>
-                    </div>
+                      <div className="text-[11px] text-slate-500 truncate">
+                        {zone.sector} • {zone.riskLevel} Concern
+                      </div>
+                    </button>
                   );
                 })}
               </div>
             )}
 
-            {/* Tab 3: Weights Configurator */}
+            {/* Tab 3: Model Weights Configurator */}
             {sideTab === 'WEIGHTS' && (
               <div className="flex-1 overflow-y-auto">
                 <WeightConfigurator

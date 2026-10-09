@@ -23,6 +23,9 @@ interface MapPanelProps {
   language?: LanguageMode;
   liveEarthquakes?: LiveEarthquakeEvent[];
   liveWeatherStations?: LiveWeatherStation[];
+  isMapFocused?: boolean;
+  onToggleFocusMap?: () => void;
+  onBasemapStatusChange?: (status: 'OPERATIONAL' | 'DEGRADED' | 'DISCONNECTED', provider: string) => void;
 }
 
 export const MapPanel: React.FC<MapPanelProps> = ({
@@ -39,6 +42,9 @@ export const MapPanel: React.FC<MapPanelProps> = ({
   language = 'en',
   liveEarthquakes = [],
   liveWeatherStations = [],
+  isMapFocused = false,
+  onToggleFocusMap,
+  onBasemapStatusChange,
 }) => {
   return (
     <InteractiveMap
@@ -55,6 +61,9 @@ export const MapPanel: React.FC<MapPanelProps> = ({
       language={language}
       liveEarthquakes={liveEarthquakes}
       liveWeatherStations={liveWeatherStations}
+      isMapFocused={isMapFocused}
+      onToggleFocusMap={onToggleFocusMap}
+      onBasemapStatusChange={onBasemapStatusChange}
     />
   );
 };

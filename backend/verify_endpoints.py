@@ -29,6 +29,11 @@ def test_all_endpoints():
         ("GET", "/api/response/zones/Zone%20A", None, 200),
         ("GET", "/api/response/units", None, 200),
         ("POST", "/api/response/directives/submit", {"zoneId": "Zone A", "actionDirective": "Verify ropeway access"}, 200),
+        ("GET", "/api/satellite/pipeline/status", None, 200),
+        ("POST", "/api/satellite/pipeline/run", None, 200),
+        ("GET", "/api/satellite/pipeline/latest", None, 200),
+        ("GET", "/api/satellite/pipeline/raster/change_mask", None, 200),
+        ("GET", "/api/exposure/satellite-assets", None, 200),
     ]
 
     passed = 0

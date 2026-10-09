@@ -1,13 +1,11 @@
 import React from 'react';
 import type { PriorityActionItem } from '../../types';
 import { DataSourceBadge } from '../common/DataSourceBadge';
-import { ConfidenceBadge } from '../common/ConfidenceBadge';
 import { 
   AlertCircle, 
   CheckCircle2, 
   Clock, 
   UserCheck, 
-  MapPin, 
   Radio
 } from 'lucide-react';
 
@@ -23,15 +21,15 @@ export const PriorityList: React.FC<PriorityListProps> = ({
   const getCategoryColor = (category: PriorityActionItem['category']) => {
     switch (category) {
       case 'EVACUATION':
-        return 'bg-rose-950/80 text-rose-300 border-rose-800';
+        return 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800';
       case 'SEARCH_RESCUE':
-        return 'bg-orange-950/80 text-orange-300 border-orange-800';
+        return 'bg-orange-50 text-orange-800 border-orange-200 dark:bg-orange-950/80 dark:text-orange-300 dark:border-orange-800';
       case 'ROUTE_CLEARANCE':
-        return 'bg-amber-950/80 text-amber-300 border-amber-800';
+        return 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800';
       case 'MEDICAL_AIRLIFT':
-        return 'bg-purple-950/80 text-purple-300 border-purple-800';
+        return 'bg-purple-50 text-purple-800 border-purple-200 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-800';
       case 'STRUCTURAL_SURVEY':
-        return 'bg-sky-950/80 text-sky-300 border-sky-800';
+        return 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-sky-950/80 dark:text-sky-300 dark:border-sky-800';
     }
   };
 
@@ -39,48 +37,53 @@ export const PriorityList: React.FC<PriorityListProps> = ({
     switch (status) {
       case 'PENDING_HUMAN_REVIEW':
         return {
-          label: 'PENDING HUMAN REVIEW',
-          class: 'bg-amber-950/50 text-amber-400 border-amber-800/80',
+          label: 'Requires Human Officer Review',
+          class: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/50 dark:text-amber-400 dark:border-amber-800/80',
           icon: Clock,
         };
       case 'APPROVED_FOR_DISPATCH':
         return {
-          label: 'HUMAN REVIEW COMPLETE',
-          class: 'bg-emerald-950/50 text-emerald-400 border-emerald-800/80',
+          label: 'Human Review Completed',
+          class: 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/80',
           icon: UserCheck,
         };
       case 'DEPLOYED':
         return {
-          label: 'FIELD UNITS ACTIVE',
-          class: 'bg-sky-950/50 text-sky-400 border-sky-800/80',
+          label: 'Field Units Active',
+          class: 'bg-blue-50 text-blue-800 border-blue-300 dark:bg-sky-950/50 dark:text-sky-400 dark:border-sky-800/80',
           icon: Radio,
         };
       case 'RESOLVED':
         return {
-          label: 'RESOLVED',
-          class: 'bg-slate-900/50 text-slate-400 border-slate-700/80',
+          label: 'Resolved',
+          class: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-900/50 dark:text-slate-400 dark:border-slate-700/80',
           icon: CheckCircle2,
         };
     }
   };
 
   return (
-    <div className="bg-command-card border border-command-border rounded-lg p-3.5 flex flex-col h-full font-mono">
+    <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 flex flex-col h-full font-sans shadow-xs">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-command-border/60">
+      <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-command-border/60">
         <div className="flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-tactical-amber" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-command-text">
-            DECISION-SUPPORT QUEUE (HUMAN-IN-THE-LOOP)
-          </h3>
+          <AlertCircle className="w-5 h-5 text-amber-600" />
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-command-text">
+              Emergency Action Priorities (Human Review Required)
+            </h3>
+            <span className="text-xs text-slate-500 dark:text-command-dim">
+              System proposes advisory directives; no resources dispatched automatically
+            </span>
+          </div>
         </div>
-        <span className="text-[10px] text-command-dim">
-          {items.length} DIRECTIVES
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-command-surface text-slate-700 dark:text-command-dim">
+          {items.length} items
         </span>
       </div>
 
       {/* Item List */}
-      <div className="space-y-2.5 overflow-y-auto pr-1">
+      <div className="space-y-3 overflow-y-auto pr-1">
         {items.map((item) => {
           const statusInfo = getStatusBadge(item.status);
           const StatusIcon = statusInfo.icon;
@@ -89,55 +92,44 @@ export const PriorityList: React.FC<PriorityListProps> = ({
           return (
             <div
               key={item.id}
-              className={`p-3 rounded-lg border transition-all ${
+              className={`p-3.5 rounded-xl border transition-all ${
                 item.severity === 'CRITICAL'
-                  ? 'bg-command-panel/80 border-rose-900/50'
-                  : 'bg-command-panel/50 border-command-border'
+                  ? 'bg-rose-50/40 border-rose-200 dark:bg-command-panel/80 dark:border-rose-900/50'
+                  : 'bg-slate-50 dark:bg-command-panel/50 border-slate-200 dark:border-command-border'
               }`}
             >
-              {/* Top metadata line */}
-              <div className="flex items-center justify-between gap-2 mb-1.5">
+              {/* Metadata row */}
+              <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded bg-command-surface text-command-accent-glow border border-command-border">
-                    P{item.rank}
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${getCategoryColor(item.category)}`}>
+                    {item.category.replace(/_/g, ' ')}
                   </span>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${getCategoryColor(item.category)}`}>
-                    {item.category.replace('_', ' ')}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-[11px] text-command-dim">
-                    <MapPin className="w-3 h-3 text-command-muted" />
+                  <span className="text-xs font-bold text-slate-800 dark:text-command-accent-glow">
                     {item.zone}
                   </span>
                 </div>
 
-                <div className={`inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded border ${statusInfo.class}`}>
+                <div className={`flex items-center gap-1 px-2 py-0.5 rounded-md border text-[11px] font-medium ${statusInfo.class}`}>
                   <StatusIcon className="w-3 h-3" />
                   <span>{statusInfo.label}</span>
                 </div>
               </div>
 
-              {/* Title & description */}
-              <h4 className="text-xs font-semibold text-command-text mb-1">
+              {/* Action Description */}
+              <p className="text-xs sm:text-sm text-slate-800 dark:text-command-text mb-2.5 leading-relaxed">
                 {item.title}
-              </h4>
-              <p className="text-[11px] text-command-muted mb-2">
-                Est. Exposed: <span className="text-command-text font-bold">{item.affectedPopulationEstimate}</span> | Unit Target: <span className="text-command-text">{item.assignedUnit || 'Unassigned'}</span>
               </p>
 
-              {/* Provenance & Action Row */}
-              <div className="pt-2 border-t border-command-border/40 flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <DataSourceBadge provenance={item.provenance} />
-                  <ConfidenceBadge confidence={item.confidence} size="sm" />
-                </div>
+              {/* Justification & Human Review CTA */}
+              <div className="pt-2 border-t border-slate-200/80 dark:border-command-border/60 flex items-center justify-between gap-2 flex-wrap text-xs">
+                <DataSourceBadge provenance={item.provenance} />
 
                 {isPending && onApproveAction && (
                   <button
                     onClick={() => onApproveAction(item.id)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold text-emerald-300 bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/80 rounded transition-colors"
+                    className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs shadow-xs transition-colors cursor-pointer"
                   >
-                    <UserCheck className="w-3 h-3" />
-                    REVIEW DIRECTIVE
+                    Confirm Review
                   </button>
                 )}
               </div>

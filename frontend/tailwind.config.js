@@ -9,25 +9,25 @@ export default {
     extend: {
       colors: {
         command: {
-          bg: '#080c14',
-          panel: '#0d131f',
-          card: '#121a2a',
-          surface: '#182238',
-          border: '#1f2d47',
-          'border-light': '#2c3e60',
-          accent: '#0284c7',
-          'accent-glow': '#38bdf8',
-          text: '#f1f5f9',
-          muted: '#94a3b8',
+          bg: '#f8fafc',
+          panel: '#ffffff',
+          card: '#ffffff',
+          surface: '#f1f5f9',
+          border: '#e2e8f0',
+          'border-light': '#cbd5e1',
+          accent: '#2563eb',
+          'accent-glow': '#1d4ed8',
+          text: '#0f172a',
+          muted: '#475569',
           dim: '#64748b',
         },
         tactical: {
-          critical: '#ef4444',
-          high: '#f97316',
-          moderate: '#eab308',
-          low: '#10b981',
-          cyan: '#06b6d4',
-          amber: '#f59e0b',
+          critical: '#dc2626',
+          high: '#ea580c',
+          moderate: '#d97706',
+          low: '#16a34a',
+          cyan: '#0284c7',
+          amber: '#d97706',
         }
       },
       fontFamily: {
@@ -35,8 +35,8 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
-        'tactical-glow': '0 0 15px -3px rgba(56, 189, 248, 0.15)',
-        'tactical-critical': '0 0 15px -3px rgba(239, 68, 68, 0.25)',
+        'tactical-glow': '0 2px 10px -2px rgba(37, 99, 235, 0.15)',
+        'tactical-critical': '0 2px 10px -2px rgba(220, 38, 38, 0.15)',
       }
     },
   },

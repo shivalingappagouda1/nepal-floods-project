@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { SeverityLevel, ProvenanceMeta } from '../../types';
 import { DataSourceBadge } from '../common/DataSourceBadge';
-import { ConfidenceBadge } from '../common/ConfidenceBadge';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface RiskIndicatorProps {
   score: number; // 0 to 100
@@ -10,11 +9,12 @@ interface RiskIndicatorProps {
   severity: SeverityLevel;
   provenance: ProvenanceMeta;
   breakdown?: {
-    floodFactor: number; // 0 - 100
+    floodFactor: number;
     debrisFactor: number;
     lifelineFactor: number;
     isolationFactor: number;
   };
+  isPrototype?: boolean;
 }
 
 export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
@@ -27,49 +27,47 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
     debrisFactor: 90,
     lifelineFactor: 75,
     isolationFactor: 80,
-  }
+  },
+  isPrototype = true,
 }) => {
+  const [showDetails, setShowDetails] = useState(false);
+
   const getSeverityTheme = (level: SeverityLevel) => {
     switch (level) {
       case 'CRITICAL':
         return {
-          textColor: 'text-tactical-critical',
-          borderColor: 'border-tactical-critical/50',
-          bgGlow: 'bg-tactical-critical/10',
-          badge: 'CRITICAL HAZARD',
-          badgeClass: 'bg-rose-950/80 text-rose-400 border-rose-800',
+          textColor: 'text-rose-600 dark:text-rose-400',
+          badge: isPrototype ? 'Prototype Estimate: Elevated Concern' : 'Critical Exposure',
+          badgeClass: 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700',
+          fillColor: 'bg-rose-600',
         };
       case 'HIGH':
         return {
-          textColor: 'text-tactical-high',
-          borderColor: 'border-tactical-high/50',
-          bgGlow: 'bg-tactical-high/10',
-          badge: 'HIGH HAZARD',
-          badgeClass: 'bg-orange-950/80 text-orange-400 border-orange-800',
+          textColor: 'text-orange-600 dark:text-orange-400',
+          badge: isPrototype ? 'Prototype Estimate: High Concern' : 'High Exposure',
+          badgeClass: 'bg-orange-50 text-orange-800 border-orange-300 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-700',
+          fillColor: 'bg-orange-500',
         };
       case 'MODERATE':
         return {
-          textColor: 'text-tactical-moderate',
-          borderColor: 'border-tactical-moderate/50',
-          bgGlow: 'bg-tactical-moderate/10',
-          badge: 'MODERATE HAZARD',
-          badgeClass: 'bg-amber-950/80 text-amber-400 border-amber-800',
+          textColor: 'text-amber-600 dark:text-amber-400',
+          badge: isPrototype ? 'Prototype Estimate: Moderate Concern' : 'Moderate Exposure',
+          badgeClass: 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700',
+          fillColor: 'bg-amber-500',
         };
       case 'LOW':
         return {
-          textColor: 'text-tactical-low',
-          borderColor: 'border-tactical-low/50',
-          bgGlow: 'bg-tactical-low/10',
-          badge: 'LOW HAZARD',
-          badgeClass: 'bg-emerald-950/80 text-emerald-400 border-emerald-800',
+          textColor: 'text-emerald-600 dark:text-emerald-400',
+          badge: 'Low Concern',
+          badgeClass: 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700',
+          fillColor: 'bg-emerald-500',
         };
       default:
         return {
-          textColor: 'text-tactical-cyan',
-          borderColor: 'border-tactical-cyan/50',
-          bgGlow: 'bg-tactical-cyan/10',
-          badge: 'MONITORING',
-          badgeClass: 'bg-sky-950/80 text-sky-400 border-sky-800',
+          textColor: 'text-blue-600 dark:text-blue-400',
+          badge: 'Advisory Monitoring',
+          badgeClass: 'bg-blue-50 text-blue-800 border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700',
+          fillColor: 'bg-blue-500',
         };
     }
   };
@@ -77,83 +75,113 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
   const theme = getSeverityTheme(severity);
 
   return (
-    <div className="bg-command-card border border-command-border rounded-lg p-4 relative overflow-hidden">
-      {/* Background visual indicator */}
-      <div className={`absolute top-0 right-0 w-32 h-32 rounded-full ${theme.bgGlow} filter blur-2xl -mr-10 -mt-10 pointer-events-none`} />
-
-      <div className="flex items-center justify-between pb-3 border-b border-command-border/60">
+    <div className="bg-white dark:bg-command-card border border-slate-200 dark:border-command-border rounded-2xl p-4 sm:p-5 font-sans shadow-xs space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-command-border gap-2 flex-wrap">
         <div className="flex items-center gap-2">
-          <ShieldAlert className={`w-4 h-4 ${theme.textColor}`} />
-          <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-command-text">
-            COMPOSITE RISK INDEX
-          </h3>
+          <ShieldAlert className={`w-5 h-5 ${theme.textColor}`} />
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-command-text">
+              Area Hazard Estimate
+            </h3>
+            <span className="text-[11px] text-slate-500 dark:text-command-dim">
+              Prototype estimate based on slope, river, and road data
+            </span>
+          </div>
         </div>
-        <span className={`px-2 py-0.5 rounded border text-[10px] font-mono font-bold tracking-wider ${theme.badgeClass}`}>
+        <span className={`px-2.5 py-1 rounded-full border text-xs font-semibold ${theme.badgeClass}`}>
           {theme.badge}
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 my-4 items-center">
-        {/* Main Score Visual */}
-        <div className="md:col-span-5 flex flex-col items-center justify-center p-3 bg-command-panel rounded-lg border border-command-border">
-          <div className="relative flex items-center justify-center">
-            <span className={`font-mono text-4xl font-extrabold tracking-tight ${theme.textColor}`}>
+      {/* Main Score Visual */}
+      <div className="p-4 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border flex items-center justify-between gap-4">
+        <div>
+          <span className="text-xs text-slate-500 dark:text-command-dim block font-medium">
+            Calculated score for {zoneName}
+          </span>
+          <div className="flex items-baseline gap-1 mt-0.5">
+            <span className={`text-3xl font-extrabold ${theme.textColor}`}>
               {score > 0 ? score : '—'}
             </span>
-            <span className="text-xs font-mono text-command-dim ml-1">/100</span>
+            <span className="text-sm text-slate-400">/ 100</span>
           </div>
-          <span className="text-[10px] font-mono text-command-muted uppercase tracking-wider mt-1 text-center truncate max-w-full">
-            {zoneName}
+          <span className="text-[11px] text-amber-700 dark:text-amber-300 font-medium block mt-0.5">
+            Prototype estimate (Requires field verification)
           </span>
         </div>
 
-        {/* Multi-Criteria Sub-factors */}
-        <div className="md:col-span-7 space-y-2">
-          <div>
-            <div className="flex justify-between text-[11px] font-mono mb-1 text-command-muted">
-              <span>Debris Flow Hazard</span>
-              <span className="text-command-text font-bold">{breakdown.debrisFactor}%</span>
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-command-border text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-white dark:text-command-muted dark:hover:bg-command-surface flex items-center gap-1 transition-all cursor-pointer"
+        >
+          <span>{showDetails ? 'Hide factors' : 'Why this score?'}</span>
+          {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+        </button>
+      </div>
+
+      {/* Progressive Disclosure: Main Factors (Requirement 7) */}
+      {showDetails && (
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-command-panel border border-slate-200 dark:border-command-border space-y-3 text-xs animate-in slide-in-from-top-1">
+          <div className="font-semibold text-slate-700 dark:text-command-text">
+            Key factors behind this calculation:
+          </div>
+
+          <div className="space-y-2">
+            <div>
+              <div className="flex justify-between text-xs mb-1 text-slate-600 dark:text-command-muted">
+                <span>Steep slope & landslide susceptibility</span>
+                <span className="font-semibold text-slate-800 dark:text-command-text">{breakdown.debrisFactor}%</span>
+              </div>
+              <div className="w-full h-2 bg-slate-200 dark:bg-command-surface rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-rose-500 rounded-full" 
+                  style={{ width: `${breakdown.debrisFactor}%` }} 
+                />
+              </div>
             </div>
-            <div className="w-full h-1.5 bg-command-surface rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-rose-500 rounded-full transition-all duration-500" 
-                style={{ width: `${breakdown.debrisFactor}%` }} 
-              />
+
+            <div>
+              <div className="flex justify-between text-xs mb-1 text-slate-600 dark:text-command-muted">
+                <span>River flood corridor proximity</span>
+                <span className="font-semibold text-slate-800 dark:text-command-text">{breakdown.floodFactor}%</span>
+              </div>
+              <div className="w-full h-2 bg-slate-200 dark:bg-command-surface rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-cyan-600 rounded-full" 
+                  style={{ width: `${breakdown.floodFactor}%` }} 
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between text-xs mb-1 text-slate-600 dark:text-command-muted">
+                <span>Road access & isolation risk</span>
+                <span className="font-semibold text-slate-800 dark:text-command-text">{breakdown.isolationFactor}%</span>
+              </div>
+              <div className="w-full h-2 bg-slate-200 dark:bg-command-surface rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-amber-500 rounded-full" 
+                  style={{ width: `${breakdown.isolationFactor}%` }} 
+                />
+              </div>
             </div>
           </div>
 
-          <div>
-            <div className="flex justify-between text-[11px] font-mono mb-1 text-command-muted">
-              <span>Flood Inundation Velocity</span>
-              <span className="text-command-text font-bold">{breakdown.floodFactor}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-command-surface rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-sky-500 rounded-full transition-all duration-500" 
-                style={{ width: `${breakdown.floodFactor}%` }} 
-              />
-            </div>
-          </div>
-
-          <div>
-            <div className="flex justify-between text-[11px] font-mono mb-1 text-command-muted">
-              <span>Lifeline Cutoff / Isolation</span>
-              <span className="text-command-text font-bold">{breakdown.isolationFactor}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-command-surface rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-amber-500 rounded-full transition-all duration-500" 
-                style={{ width: `${breakdown.isolationFactor}%` }} 
-              />
+          {/* Scientific / Verification Notice */}
+          <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-900 dark:text-amber-200 text-[11px] leading-relaxed flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              A high calculated score indicates elevated environmental vulnerability in model data. It does not certify that a disaster has occurred or that a building is damaged without confirmation from local authorities.
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Provenance & Confidence footer */}
-      <div className="pt-3 border-t border-command-border/60 flex flex-wrap items-center justify-between gap-2 text-xs">
+      {/* Provenance footer */}
+      <div className="pt-2 border-t border-slate-200 dark:border-command-border/60 flex items-center justify-between text-xs">
         <DataSourceBadge provenance={provenance} />
-        <ConfidenceBadge confidence={provenance.confidence} method={provenance.algorithm} />
+        <span className="text-[11px] text-slate-500">Method: Multi-Factor Model</span>
       </div>
     </div>
   );

@@ -32,18 +32,38 @@ export const AppShell: React.FC = () => {
   const [selectedLocation, setSelectedLocation] = useState<SearchableLocation | null>(null);
   const [language, setLanguage] = useState<LanguageMode>('en');
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  // Real-time live feeds state
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  // Real-time live feeds and telemetry status state
   const [liveEarthquakes, setLiveEarthquakes] = useState<LiveEarthquakeEvent[]>([]);
   const [liveWeatherStations, setLiveWeatherStations] = useState<LiveWeatherStation[]>([]);
+  const [basemapStatus, setBasemapStatus] = useState<'OPERATIONAL' | 'DEGRADED' | 'DISCONNECTED'>('OPERATIONAL');
+  const [basemapProvider, setBasemapProvider] = useState<string>('OpenFreeMap Dark Tactical (Vector)');
+  const [liveFeedsStatus, setLiveFeedsStatus] = useState<'OPERATIONAL' | 'DEGRADED' | 'DISCONNECTED' | 'CHECKING'>('CHECKING');
 
   // Fetch real-time feeds on mount & poll every 3 minutes
   useEffect(() => {
     const loadFeeds = async () => {
+      let eqSuccess = false;
+      let wxSuccess = false;
+
       try {
         const eqData = await fetchLiveEarthquakes(2.0);
-        if (eqData.events) {
+        if (eqData && Array.isArray(eqData.events)) {
           setLiveEarthquakes(eqData.events);
+          eqSuccess = true;
         }
       } catch (e) {
         console.warn('Failed to load live earthquakes:', e);
@@ -51,11 +71,20 @@ export const AppShell: React.FC = () => {
 
       try {
         const wxData = await fetchLiveWeather();
-        if (wxData.stations) {
+        if (wxData && Array.isArray(wxData.stations)) {
           setLiveWeatherStations(wxData.stations);
+          wxSuccess = true;
         }
       } catch (e) {
         console.warn('Failed to load live weather:', e);
+      }
+
+      if (eqSuccess && wxSuccess) {
+        setLiveFeedsStatus('OPERATIONAL');
+      } else if (eqSuccess || wxSuccess) {
+        setLiveFeedsStatus('DEGRADED');
+      } else {
+        setLiveFeedsStatus('DISCONNECTED');
       }
     };
 
@@ -405,6 +434,14 @@ export const AppShell: React.FC = () => {
         onToggleLanguage={() => setLanguage((l) => (l === 'en' ? 'np' : 'en'))}
         isDemoMode={isDemoMode}
         onToggleDemoMode={() => setIsDemoMode((d) => !d)}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+        basemapStatus={basemapStatus}
+        basemapProvider={basemapProvider}
+        boundariesStatus="OPERATIONAL"
+        liveFeedsStatus={liveFeedsStatus}
+        liveEarthquakesCount={liveEarthquakes.length}
+        liveWeatherCount={liveWeatherStations.length}
       />
 
       {/* Main Command Workspace */}
@@ -439,6 +476,7 @@ export const AppShell: React.FC = () => {
                 onOpacityChange={handleOpacityChange}
                 onApproveAction={handleApproveAction}
                 isMapFocused={isMapFocused}
+                onToggleFocusMap={() => setIsMapFocused((prev) => !prev)}
                 selectedLocation={selectedLocation}
                 onSelectLocation={setSelectedLocation}
                 onNavigateTab={setCurrentTab}
@@ -446,6 +484,12 @@ export const AppShell: React.FC = () => {
                 language={language}
                 liveEarthquakes={liveEarthquakes}
                 liveWeatherStations={liveWeatherStations}
+                basemapStatus={basemapStatus}
+                basemapProvider={basemapProvider}
+                onBasemapStatusChange={(status, provider) => {
+                  setBasemapStatus(status);
+                  setBasemapProvider(provider);
+                }}
               />
             )}
 
@@ -500,23 +544,23 @@ export const AppShell: React.FC = () => {
         }}
       />
 
-      {/* Compact Telemetry & Attribution Footer */}
-      <footer className="h-6 bg-command-panel border-t border-command-border px-4 flex items-center justify-between text-[10px] font-mono text-command-dim z-30 shrink-0">
+      {/* Clean Attribution Footer */}
+      <footer className="h-7 bg-white dark:bg-command-panel border-t border-slate-200 dark:border-command-border px-4 flex items-center justify-between text-xs text-slate-500 dark:text-command-dim z-30 shrink-0 font-sans">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>GEO-ENGINE: MAPLIBRE GL</span>
+          <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>MapLibre GL</span>
           </div>
-          <span>|</span>
-          <span>CRS: <strong className="text-command-text">EPSG:4326 (WGS 84)</strong></span>
-          <span>|</span>
-          <span className="hidden sm:inline">PROVENANCE: <strong className="text-sky-400">geoBoundaries / USGS / Open-Meteo</strong></span>
+          <span>•</span>
+          <span>Coordinates: <strong className="text-slate-800 dark:text-command-text">WGS 84 (GPS)</strong></span>
+          <span>•</span>
+          <span className="hidden sm:inline">Data: <strong className="text-blue-600 dark:text-sky-400">geoBoundaries Nepal / USGS / Open-Meteo</strong></span>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="hidden md:inline">{liveEarthquakes.length} SEISMIC EVENTS • {liveWeatherStations.length} WX STATIONS</span>
-          <span>|</span>
-          <span className="text-command-muted">HIMALAYA-SHIELD EOC</span>
+          <span className="hidden md:inline">{liveEarthquakes.length} Earthquakes • {liveWeatherStations.length} Weather Stations</span>
+          <span>•</span>
+          <span className="text-slate-600 dark:text-command-muted font-medium">Nepal Disaster Public Safety</span>
         </div>
       </footer>
     </div>

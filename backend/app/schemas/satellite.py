@@ -33,3 +33,27 @@ class SatelliteAnalysisDelta(BaseModel):
     confidenceNote: str = Field(default="CONFIDENCE: Not available (Omitted until empirical ground-truth validation is connected)")
     spatialFootprint: List[Tuple[float, float]]
     provenance: ProvenanceMeta
+
+
+class PipelineRunResult(BaseModel):
+    status: str
+    executionId: str
+    runtimeMs: float
+    totalCandidateClusters: int
+    totalDetectedChangeSqKm: float
+    corridorDetectedChangeSqKm: Optional[float] = None
+    preEventScene: dict
+    postEventScene: dict
+    manifest: dict
+    geojson: dict
+    rasterEndpoints: dict
+    provenance: ProvenanceMeta
+
+
+class PipelineStatus(BaseModel):
+    realDataLoaded: bool
+    preEventAvailable: bool
+    postEventAvailable: bool
+    lastExecutionTimestamp: Optional[str] = None
+    latestManifest: Optional[dict] = None
+    provenance: ProvenanceMeta

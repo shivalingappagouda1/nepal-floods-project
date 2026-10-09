@@ -3,9 +3,13 @@ import {
   Map as MapLibreMap, 
   NavigationControl, 
   ScaleControl,
-  LngLatBounds
+  LngLatBounds,
+  setWorkerUrl
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+if (typeof window !== 'undefined') {
+  setWorkerUrl('https://unpkg.com/maplibre-gl@6.13.0/dist/maplibre-gl-worker.mjs');
+}
 import type { 
   MapLayerConfig, 
   BasemapStyle, 
@@ -14,9 +18,11 @@ import type {
   LiveWeatherStation 
 } from '../../types';
 import { 
-  DARK_TACTICAL_STYLE, 
+  DARK_TACTICAL_STYLE_URL,
+  STREETS_STYLE_URL,
+  DARK_TACTICAL_FALLBACK_STYLE,
   SATELLITE_STYLE,
-  STREETS_STYLE,
+  BASEMAP_ATTRIBUTION_HTML,
   NEPAL_NATION_CENTER,
   NEPAL_NATION_ZOOM,
   NEPAL_NATION_PITCH,
@@ -45,13 +51,16 @@ import { nepalDistrictsGeoJson } from '../../data/nepalDistrictsGeoJson';
 import type { SearchableLocation } from '../../data/searchLocations';
 import { MapPopup } from './MapPopup';
 import { LoadingState } from '../common/LoadingState';
-import { ErrorState } from '../common/ErrorState';
 import { 
   Layers,
   Globe,
   Map as MapIcon,
   Maximize2,
-  Info
+  Minimize2,
+  Info,
+  ShieldAlert,
+  AlertTriangle,
+  RotateCcw
 } from 'lucide-react';
 import { HumanMapLegend } from '../tactical/HumanMapLegend';
 import { I18N } from '../../data/i18n';
@@ -71,6 +80,9 @@ interface InteractiveMapProps {
   language?: LanguageMode;
   liveEarthquakes?: LiveEarthquakeEvent[];
   liveWeatherStations?: LiveWeatherStation[];
+  isMapFocused?: boolean;
+  onToggleFocusMap?: () => void;
+  onBasemapStatusChange?: (status: 'OPERATIONAL' | 'DEGRADED' | 'DISCONNECTED', provider: string) => void;
 }
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
@@ -88,16 +100,28 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   language = 'en',
   liveEarthquakes = [],
   liveWeatherStations = [],
+  isMapFocused = false,
+  onToggleFocusMap,
+  onBasemapStatusChange,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
 
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapTileError, setMapTileError] = useState<string | null>(null);
+  const [useFallbackRaster, setUseFallbackRaster] = useState(false);
   const [showLayerDrawer, setShowLayerDrawer] = useState(showLayerDrawerDefault);
   const [hoveredProvince, setHoveredProvince] = useState<string | null>(null);
   const [basemap, setBasemap] = useState<BasemapStyle>('dark');
-  const [selectedPinInfo, setSelectedPinInfo] = useState<any | null>(null);
+  const [selectedPinInfo, setSelectedPinInfo] = useState<{
+    title: string;
+    subtitle: string;
+    badge: string;
+    details: string;
+    link?: string;
+    coordinates: [number, number];
+  } | null>(null);
 
   const t = I18N[language] || I18N.en;
 
@@ -107,19 +131,79 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     coordinates: [number, number];
   } | null>(null);
 
-  const getBasemapStyle = (style: BasemapStyle) => {
+  const getProviderName = useCallback((style: BasemapStyle, fallback: boolean) => {
+    if (fallback) return 'OpenStreetMap Dark Raster (Offline Fallback)';
+    switch (style) {
+      case 'satellite':
+        return 'Esri World Imagery (Satellite) + Boundaries';
+      case 'streets':
+        return 'OpenFreeMap Liberty (Vector)';
+      default:
+        return 'OpenFreeMap Dark Tactical (Vector)';
+    }
+  }, []);
+
+  const getBasemapStyle = useCallback((style: BasemapStyle, fallback: boolean) => {
+    if (fallback) {
+      return style === 'satellite' ? SATELLITE_STYLE : DARK_TACTICAL_FALLBACK_STYLE;
+    }
     switch (style) {
       case 'satellite':
         return SATELLITE_STYLE;
       case 'streets':
-        return STREETS_STYLE;
+        return STREETS_STYLE_URL;
       default:
-        return DARK_TACTICAL_STYLE;
+        return DARK_TACTICAL_STYLE_URL;
     }
-  };
+  }, []);
+
+  // Sync visibility of all thematic layers
+  const syncAllLayers = useCallback((map: MapLibreMap, layerConfigs: MapLayerConfig[]) => {
+    layerConfigs.forEach((layer) => {
+      const visibility = layer.enabled ? 'visible' : 'none';
+
+      switch (layer.id) {
+        case 'provinces':
+          if (map.getLayer('provinces-fill')) map.setLayoutProperty('provinces-fill', 'visibility', visibility);
+          if (map.getLayer('provinces-line')) map.setLayoutProperty('provinces-line', 'visibility', visibility);
+          break;
+        case 'districts':
+          if (map.getLayer('nepal-districts-line')) map.setLayoutProperty('nepal-districts-line', 'visibility', visibility);
+          break;
+        case 'earthquakes':
+          if (map.getLayer('live-earthquakes-circle')) map.setLayoutProperty('live-earthquakes-circle', 'visibility', visibility);
+          break;
+        case 'weather':
+          if (map.getLayer('live-weather-circle')) map.setLayoutProperty('live-weather-circle', 'visibility', visibility);
+          break;
+        case 'flood':
+          if (map.getLayer('flood-layer')) map.setLayoutProperty('flood-layer', 'visibility', visibility);
+          if (map.getLayer('flood-outline-layer')) map.setLayoutProperty('flood-outline-layer', 'visibility', visibility);
+          break;
+        case 'landslide':
+          if (map.getLayer('landslide-layer')) map.setLayoutProperty('landslide-layer', 'visibility', visibility);
+          break;
+        case 'damage':
+          if (map.getLayer('damage-layer')) map.setLayoutProperty('damage-layer', 'visibility', visibility);
+          break;
+        case 'buildings':
+          if (map.getLayer('buildings-layer')) map.setLayoutProperty('buildings-layer', 'visibility', visibility);
+          break;
+        case 'roads':
+          if (map.getLayer('roads-layer')) map.setLayoutProperty('roads-layer', 'visibility', visibility);
+          break;
+        case 'hospitals':
+          if (map.getLayer('hospitals-layer')) map.setLayoutProperty('hospitals-layer', 'visibility', visibility);
+          break;
+        case 'caseStudy':
+          if (map.getLayer('case-study-layer')) map.setLayoutProperty('case-study-layer', 'visibility', visibility);
+          break;
+      }
+    });
+  }, []);
 
   // Helper to add all data sources & layers to map
-  const addAllGeoLayers = (map: MapLibreMap) => {
+  const addAllGeoLayers = useCallback((map: MapLibreMap) => {
     // 1. NEPAL NATIONAL BOUNDARY SOURCE & LAYER (ADM0)
     if (!map.getSource('nepal-national-source')) {
       map.addSource('nepal-national-source', {
@@ -174,7 +258,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           'fill-color': [
             'match',
             ['get', 'id'],
-            'PROV-3', 'rgba(225, 29, 72, 0.16)', // Bagmati (Active Disaster Zone)
+            'PROV-3', 'rgba(225, 29, 72, 0.16)', // Bagmati
             'PROV-1', 'rgba(245, 158, 11, 0.06)', // Koshi
             'PROV-4', 'rgba(245, 158, 11, 0.06)', // Gandaki
             'rgba(56, 189, 248, 0.03)',
@@ -395,9 +479,9 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           'circle-color': [
             'step',
             ['get', 'magnitude'],
-            '#eab308', // < 3.5 yellow
-            3.5, '#f97316', // 3.5 - 4.5 orange
-            4.5, '#ef4444', // >= 4.5 red
+            '#eab308', // < 3.5 yellow (minor tremor)
+            3.5, '#f97316', // 3.5 - 4.5 orange (light/moderate)
+            4.5, '#ef4444', // >= 4.5 red (moderate-to-strong epicentral energy)
           ],
           'circle-opacity': 0.85,
           'circle-stroke-width': 2.5,
@@ -409,10 +493,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         if (!e.features || e.features.length === 0) return;
         const props = e.features[0].properties as any;
         setSelectedPinInfo({
-          title: `USGS Earthquake: M ${props.magnitude}`,
+          title: `USGS Seismic Event: M ${props.magnitude}`,
           subtitle: props.place,
-          badge: 'LIVE OBSERVED (USGS)',
-          details: `Magnitude: M ${props.magnitude} | Depth: ${props.depth_km} km\nRecorded Time: ${props.time}`,
+          badge: 'INSTRUMENT RECORD (USGS)',
+          details: `Magnitude: M ${props.magnitude} | Focal Depth: ${props.depth_km} km\nRecorded Time: ${props.time}\n\nNotice: Recorded magnitude measures energy release at the epicenter. Ground shaking and local impact depend on focal depth and soil geomorphology. Magnitude is not proof of local damage or structural collapse. Await official impact reports from NDRRMA.`,
           link: props.url,
           coordinates: [e.lngLat.lng, e.lngLat.lat],
         });
@@ -512,7 +596,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       });
     }
 
-    // 12. DYNAMIC SELECTED LOCATION HIGHLIGHT (POLYGON OR POINT PIN)
+    // 12. DYNAMIC SELECTED LOCATION HIGHLIGHT
     if (!map.getSource('selected-location-highlight-source')) {
       map.addSource('selected-location-highlight-source', {
         type: 'geojson',
@@ -580,11 +664,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         },
       });
     }
-  };
+  }, [language, liveEarthquakes, liveWeatherStations, onSelectProvince]);
 
   // Initialize MapLibre instance
   useEffect(() => {
     if (!mapContainerRef.current) return;
+
+    let isMounted = true;
+    const providerName = getProviderName(basemap, useFallbackRaster);
 
     try {
       const initialCenter = initialViewMode === 'NATION' ? NEPAL_NATION_CENTER : NEPAL_CENTER;
@@ -594,7 +681,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       const map = new MapLibreMap({
         container: mapContainerRef.current,
-        style: getBasemapStyle(basemap),
+        style: getBasemapStyle(basemap, useFallbackRaster),
         center: initialCenter,
         zoom: initialZoom,
         pitch: initialPitch,
@@ -623,23 +710,45 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         'bottom-left'
       );
 
+      // Tile & Style Error Listener
+      map.on('error', (e) => {
+        if (!isMounted) return;
+        const errStr = e.error?.message || '';
+        // If tile request failed or style failed
+        if (errStr.includes('Failed to fetch') || errStr.includes('NetworkError') || (e.error as any)?.status === 404 || (e.error as any)?.status === 403) {
+          console.warn('MapLibre tile connection issue:', e.error);
+          setMapTileError(`Basemap tile warning (${providerName}): Network request failed. Some tiles may be delayed.`);
+          onBasemapStatusChange?.('DEGRADED', providerName);
+        }
+      });
+
       map.on('load', () => {
+        if (!isMounted) return;
         addAllGeoLayers(map);
+        syncAllLayers(map, layers);
         setIsMapLoaded(true);
+        setMapError(null);
+        setMapTileError(null);
+        onBasemapStatusChange?.('OPERATIONAL', providerName);
       });
 
       mapRef.current = map;
     } catch (err: any) {
-      setMapError(err.message || 'WebGL acceleration failed to start.');
+      if (isMounted) {
+        const msg = err.message || 'WebGL acceleration failed to start.';
+        setMapError(msg);
+        onBasemapStatusChange?.('DISCONNECTED', providerName);
+      }
     }
 
     return () => {
+      isMounted = false;
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [basemap, initialViewMode]);
+  }, [basemap, initialViewMode, useFallbackRaster, getBasemapStyle, getProviderName, addAllGeoLayers, syncAllLayers, layers, onBasemapStatusChange]);
 
   // Update Live Earthquake & Weather GeoJSON Sources whenever props change
   useEffect(() => {
@@ -694,7 +803,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     }
   }, [liveEarthquakes, liveWeatherStations, isMapLoaded]);
 
-  // Responsive map resize on container dimension change
+  // Responsive map resize on container dimension change & focus change
   useEffect(() => {
     if (!mapContainerRef.current) return;
     const observer = new ResizeObserver(() => {
@@ -706,6 +815,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     };
   }, []);
 
+  // Explicit resize trigger when map focus mode changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      mapRef.current?.resize();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [isMapFocused]);
+
   // Update selected location highlight polygon & flyTo
   useEffect(() => {
     const map = mapRef.current;
@@ -716,7 +833,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     if (!polySource || !pointSource) return;
 
     if (selectedLocation) {
-      // 1. Find if there is an actual matching polygon in provinces, districts, or boundaryGeoJson
       let actualGeometry: any = selectedLocation.boundaryGeoJson || null;
 
       if (!actualGeometry) {
@@ -736,7 +852,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       }
 
       if (actualGeometry && (actualGeometry.type === 'Polygon' || actualGeometry.type === 'MultiPolygon')) {
-        // Render actual boundary polygon
         polySource.setData({
           type: 'FeatureCollection',
           features: [
@@ -756,7 +871,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           features: [],
         });
 
-        // Compute bounding box to fit polygon accurately
         try {
           const bounds = new LngLatBounds();
           const coords = actualGeometry.coordinates;
@@ -781,7 +895,6 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           });
         }
       } else {
-        // Point result: place pin marker and DO NOT fabricate approximate area polygon
         polySource.setData({
           type: 'FeatureCollection',
           features: [],
@@ -832,71 +945,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !isMapLoaded) return;
-
-    layers.forEach((layer) => {
-      const visibility = layer.enabled ? 'visible' : 'none';
-
-      switch (layer.id) {
-        case 'provinces':
-          if (map.getLayer('provinces-fill') && map.getLayer('provinces-line')) {
-            map.setLayoutProperty('provinces-fill', 'visibility', visibility);
-            map.setLayoutProperty('provinces-line', 'visibility', visibility);
-          }
-          break;
-        case 'districts':
-          if (map.getLayer('nepal-districts-line')) {
-            map.setLayoutProperty('nepal-districts-line', 'visibility', visibility);
-          }
-          break;
-        case 'earthquakes':
-          if (map.getLayer('live-earthquakes-circle')) {
-            map.setLayoutProperty('live-earthquakes-circle', 'visibility', visibility);
-          }
-          break;
-        case 'weather':
-          if (map.getLayer('live-weather-circle')) {
-            map.setLayoutProperty('live-weather-circle', 'visibility', visibility);
-          }
-          break;
-        case 'flood':
-          if (map.getLayer('flood-layer') && map.getLayer('flood-outline-layer')) {
-            map.setLayoutProperty('flood-layer', 'visibility', visibility);
-            map.setLayoutProperty('flood-outline-layer', 'visibility', visibility);
-          }
-          break;
-        case 'landslide':
-          if (map.getLayer('landslide-layer')) {
-            map.setLayoutProperty('landslide-layer', 'visibility', visibility);
-          }
-          break;
-        case 'damage':
-          if (map.getLayer('damage-layer')) {
-            map.setLayoutProperty('damage-layer', 'visibility', visibility);
-          }
-          break;
-        case 'buildings':
-          if (map.getLayer('buildings-layer')) {
-            map.setLayoutProperty('buildings-layer', 'visibility', visibility);
-          }
-          break;
-        case 'roads':
-          if (map.getLayer('roads-layer')) {
-            map.setLayoutProperty('roads-layer', 'visibility', visibility);
-          }
-          break;
-        case 'hospitals':
-          if (map.getLayer('hospitals-layer')) {
-            map.setLayoutProperty('hospitals-layer', 'visibility', visibility);
-          }
-          break;
-        case 'caseStudy':
-          if (map.getLayer('case-study-layer')) {
-            map.setLayoutProperty('case-study-layer', 'visibility', visibility);
-          }
-          break;
-      }
-    });
-  }, [layers, isMapLoaded]);
+    syncAllLayers(map, layers);
+  }, [layers, isMapLoaded, syncAllLayers]);
 
   const handleFitNepalCountry = useCallback(() => {
     if (!mapRef.current) return;
@@ -920,11 +970,90 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     });
   }, []);
 
+  const handleRetry = useCallback(() => {
+    setMapError(null);
+    setMapTileError(null);
+    setIsMapLoaded(false);
+  }, []);
+
+  const handleSwitchToFallback = useCallback(() => {
+    setUseFallbackRaster(true);
+    setMapError(null);
+    setMapTileError(null);
+    setIsMapLoaded(false);
+  }, []);
+
+  const currentProvider = getProviderName(basemap, useFallbackRaster);
+
   return (
     <div className={`relative w-full ${heightClass} bg-command-bg rounded-2xl overflow-hidden border border-command-border shadow-2xl transition-all`}>
-      {/* Loading & Error Overlays */}
-      {!isMapLoaded && !mapError && <LoadingState message="Initializing Geographic MapLibre Engine..." />}
-      {mapError && <ErrorState error={mapError} onRetry={() => setIsMapLoaded(false)} />}
+      {/* Loading Overlay */}
+      {!isMapLoaded && !mapError && (
+        <LoadingState message={`Initializing ${currentProvider}...`} />
+      )}
+
+      {/* Explicit Map Unavailable Screen if Critical Initialization Fails */}
+      {mapError && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-command-bg/95 p-6 backdrop-blur-sm">
+          <div className="max-w-md w-full bg-command-card border border-rose-600 rounded-2xl p-6 text-center space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-rose-950 border border-rose-600 flex items-center justify-center mx-auto text-rose-400">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-command-text uppercase tracking-wider">MAP BASEMAP UNAVAILABLE</h3>
+              <p className="text-xs text-command-muted mt-1 leading-relaxed">
+                Could not connect to {currentProvider}. Check internet connection or CORS/firewall settings.
+              </p>
+            </div>
+            <div className="text-[11px] text-rose-300 bg-rose-950/80 p-2.5 rounded-xl border border-rose-800/80 font-mono text-left break-words">
+              {mapError}
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <button
+                onClick={handleRetry}
+                className="px-3.5 py-2 rounded-xl bg-command-accent hover:bg-sky-500 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Retry Connection</span>
+              </button>
+              {!useFallbackRaster && (
+                <button
+                  onClick={handleSwitchToFallback}
+                  className="px-3.5 py-2 rounded-xl bg-command-surface hover:bg-command-border text-command-text border border-command-border font-bold text-xs transition-colors"
+                >
+                  Use Offline Fallback
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Non-blocking Tile Warning Banner */}
+      {mapTileError && isMapLoaded && (
+        <div className="absolute top-16 left-4 right-14 z-20 bg-amber-950/95 border border-amber-600/90 rounded-xl p-2.5 text-xs font-mono shadow-2xl flex items-center justify-between gap-3 text-amber-200 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="text-[11px]">{mapTileError}</span>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {!useFallbackRaster && (
+              <button
+                onClick={handleSwitchToFallback}
+                className="px-2 py-0.5 rounded bg-amber-900 hover:bg-amber-800 border border-amber-700 text-[10px] font-bold text-white transition-colors"
+              >
+                Switch to Fallback
+              </button>
+            )}
+            <button
+              onClick={() => setMapTileError(null)}
+              className="px-1.5 py-0.5 rounded text-amber-400 hover:text-white text-[11px]"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* MapLibre DOM Container */}
       <div ref={mapContainerRef} className="w-full h-full" />
@@ -946,7 +1075,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             className={`px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition-all ${
               basemap === 'dark' ? 'bg-command-accent text-white shadow-sm' : 'text-command-dim hover:text-command-text'
             }`}
-            title="Dark Cartographic Map"
+            title="Clean OpenFreeMap Dark Tactical Vector Map"
           >
             <MapIcon className="w-3 h-3" />
             <span className="hidden sm:inline">Dark</span>
@@ -956,7 +1085,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             className={`px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition-all ${
               basemap === 'satellite' ? 'bg-command-accent text-white shadow-sm' : 'text-command-dim hover:text-command-text'
             }`}
-            title="High-Resolution Satellite Imagery"
+            title="High-Resolution Esri Satellite Imagery + Boundaries"
           >
             <Globe className="w-3 h-3" />
             <span className="hidden sm:inline">{language === 'np' ? 'उपग्रह' : 'Satellite'}</span>
@@ -983,6 +1112,31 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <span className="hidden md:inline">{language === 'np' ? 'विपद् क्षेत्र' : 'AOI CORRIDOR'}</span>
         </button>
 
+        {/* Focus Map (Maximize Usable Map Area) */}
+        {onToggleFocusMap && (
+          <button
+            onClick={onToggleFocusMap}
+            className={`px-2.5 py-1 rounded-lg font-bold flex items-center gap-1.5 transition-all border ${
+              isMapFocused
+                ? 'bg-command-accent text-white border-sky-400 shadow-sm'
+                : 'bg-command-surface hover:bg-command-border text-command-text hover:text-command-accent-glow border-command-border'
+            }`}
+            title={isMapFocused ? 'Restore Normal Layout' : 'Focus Map (Maximize Map Viewport)'}
+          >
+            {isMapFocused ? (
+              <>
+                <Minimize2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">RESTORE</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-3.5 h-3.5 text-command-accent-glow" />
+                <span className="hidden sm:inline">FOCUS</span>
+              </>
+            )}
+          </button>
+        )}
+
         {/* Toggle Layer Drawer */}
         <button
           onClick={() => setShowLayerDrawer(!showLayerDrawer)}
@@ -1000,6 +1154,15 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
       {/* Floating Human-Friendly Legend */}
       <div className="absolute bottom-4 left-4 z-10">
         <HumanMapLegend language={language} />
+      </div>
+
+      {/* Verified Map Legal Attribution Pill */}
+      <div className="absolute bottom-1 right-2 z-10 px-2 py-0.5 rounded bg-command-panel/90 backdrop-blur-sm border border-command-border/60 text-[9px] font-mono text-command-dim flex items-center gap-1.5 select-text shadow-sm pointer-events-auto">
+        <span
+          dangerouslySetInnerHTML={{
+            __html: basemap === 'satellite' ? BASEMAP_ATTRIBUTION_HTML.satellite : BASEMAP_ATTRIBUTION_HTML.dark,
+          }}
+        />
       </div>
 
       {/* Layer Control Drawer */}
@@ -1051,7 +1214,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Popup when Live Pin or Marker is Clicked */}
       {selectedPinInfo && (
-        <div className="absolute top-20 left-4 z-30 max-w-xs bg-command-card/95 backdrop-blur-md border border-command-border rounded-xl p-3.5 shadow-2xl font-mono text-xs space-y-2">
+        <div className="absolute top-20 left-4 z-30 max-w-sm bg-command-card/95 backdrop-blur-md border border-command-border rounded-xl p-3.5 shadow-2xl font-mono text-xs space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="font-bold text-command-text text-sm">{selectedPinInfo.title}</div>
@@ -1065,7 +1228,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
             </button>
           </div>
 
-          <div className="text-[11px] text-command-muted whitespace-pre-line leading-relaxed bg-command-panel p-2 rounded-lg border border-command-border">
+          <div className="text-[11px] text-command-muted whitespace-pre-line leading-relaxed bg-command-panel p-2.5 rounded-lg border border-command-border">
             {selectedPinInfo.details}
           </div>
 
