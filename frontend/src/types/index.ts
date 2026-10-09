@@ -5,18 +5,24 @@ export type NavigationTab =
   | 'risk' 
   | 'response';
 
-export type SeverityLevel = 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW' | 'INFORMATIONAL';
+export type SeverityLevel = 'CRITICAL' | 'HIGH' | 'MODERATE' | 'LOW' | 'INFORMATIONAL' | 'NORMAL';
 
-export type DataTier = 'VERIFIED' | 'AI_COMPUTED' | 'DEMO_VALUE' | 'AWAITING_PASS';
+export type DataTier = 'VERIFIED' | 'AI_COMPUTED' | 'DEMO_VALUE' | 'AWAITING_PASS' | 'LIVE_OBSERVED' | 'VERIFIED_GEODATASET';
+
+export type BasemapStyle = 'dark' | 'satellite' | 'streets';
+
+export type LanguageMode = 'en' | 'np';
 
 export interface ProvenanceMeta {
-  tier: DataTier;
+  tier: DataTier | string;
   source: string;
   timestamp?: string;
   algorithm?: string;
   sensor?: string;
   confidence?: number;
   isDemoValue?: boolean;
+  is_live?: boolean;
+  license?: string;
 }
 
 export interface IncidentInfo {
@@ -57,10 +63,10 @@ export interface KPICardData {
 export interface MapLayerConfig {
   id: string;
   label: string;
-  category: 'IMAGERY' | 'HAZARD' | 'INFRASTRUCTURE' | 'DEMOGRAPHICS';
+  category: 'IMAGERY' | 'HAZARD' | 'INFRASTRUCTURE' | 'DEMOGRAPHICS' | 'BOUNDARIES';
   enabled: boolean;
   opacity: number;
-  badge: DataTier;
+  badge: DataTier | string;
   description: string;
   availableInMvp: boolean;
 }
@@ -102,4 +108,48 @@ export interface RiskZoneMetric {
   severedLifelines: string;
   isolationRiskScore: number;
   provenance: ProvenanceMeta;
+}
+
+export interface LiveEarthquakeEvent {
+  id: string;
+  title: string;
+  magnitude: number;
+  place: string;
+  time: string;
+  depth_km: number;
+  coordinates: [number, number]; // [lng, lat]
+  status?: string;
+  url?: string;
+  provenance: ProvenanceMeta;
+}
+
+export interface LiveWeatherStation {
+  station_id: string;
+  name: string;
+  province: string;
+  coordinates: [number, number]; // [lng, lat]
+  is_active_aoi?: boolean;
+  temperature_c: number;
+  precipitation_mm: number;
+  rain_mm: number;
+  relative_humidity_percent: number;
+  wind_speed_kmh: number;
+  weather_code?: number;
+  hazard_level: 'CRITICAL' | 'HIGH' | 'MODERATE' | 'NORMAL';
+  hazard_label: string;
+  observation_time: string;
+  provenance: ProvenanceMeta;
+}
+
+export interface FeedStatusItem {
+  name: string;
+  coverage: string;
+  type: string;
+  is_live: boolean;
+  status: string;
+  item_count?: number;
+  latency_ms?: number;
+  last_updated?: string;
+  license?: string;
+  notes?: string;
 }

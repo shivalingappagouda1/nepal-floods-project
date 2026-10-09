@@ -18,6 +18,8 @@ export interface SearchableLocation {
   searchRadiusKm?: number;
   relatedZoneId?: string; // 'ZONE-A', 'ZONE-B', etc.
   authoritativeSource: string;
+  hasActualBoundary?: boolean;
+  boundaryGeoJson?: any;
 }
 
 export const NEPAL_SEARCH_LOCATIONS: SearchableLocation[] = [

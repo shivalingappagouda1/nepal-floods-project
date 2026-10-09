@@ -4,7 +4,7 @@ import type { StyleSpecification } from 'maplibre-gl';
  * Nepal National Center Coordinates and Initial Viewport
  */
 export const NEPAL_NATION_CENTER: [number, number] = [84.1240, 28.3949]; // [lng, lat]
-export const NEPAL_NATION_ZOOM = 6.4;
+export const NEPAL_NATION_ZOOM = 6.6;
 export const NEPAL_NATION_PITCH = 0;
 export const NEPAL_NATION_BEARING = 0;
 
@@ -12,7 +12,7 @@ export const NEPAL_NATION_BEARING = 0;
  * Disaster AOI Corridor Coordinates (Bhote Koshi / Tatopani)
  */
 export const NEPAL_CENTER: [number, number] = [85.9380, 27.9150]; // [lng, lat]
-export const NEPAL_INITIAL_ZOOM = 12;
+export const NEPAL_INITIAL_ZOOM = 12.2;
 export const NEPAL_PITCH = 35;
 export const NEPAL_BEARING = -15;
 
@@ -27,11 +27,11 @@ export const TRANSBOUNDARY_AOI_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 /**
- * Clean Tactical Geographic Basemap Style Definition for MapLibre GL JS
+ * Clean Tactical Dark Basemap Style Definition for MapLibre GL JS
  */
 export const DARK_TACTICAL_STYLE: StyleSpecification = {
   version: 8,
-  name: 'Himalaya Tactical Geographic',
+  name: 'Himalaya Dark Tactical',
   sources: {
     'carto-dark': {
       type: 'raster',
@@ -49,6 +49,77 @@ export const DARK_TACTICAL_STYLE: StyleSpecification = {
       id: 'carto-dark-layer',
       type: 'raster',
       source: 'carto-dark',
+      minzoom: 0,
+      maxzoom: 20,
+    },
+  ],
+};
+
+/**
+ * High-Resolution Satellite Basemap Style Definition
+ */
+export const SATELLITE_STYLE: StyleSpecification = {
+  version: 8,
+  name: 'Himalaya Satellite Imagery',
+  sources: {
+    'esri-satellite': {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      ],
+      tileSize: 256,
+      attribution: 'Esri, Maxar, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community',
+    },
+    'carto-labels': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png',
+        'https://b.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png',
+      ],
+      tileSize: 256,
+    }
+  },
+  layers: [
+    {
+      id: 'satellite-base-layer',
+      type: 'raster',
+      source: 'esri-satellite',
+      minzoom: 0,
+      maxzoom: 20,
+    },
+    {
+      id: 'satellite-labels-layer',
+      type: 'raster',
+      source: 'carto-labels',
+      minzoom: 0,
+      maxzoom: 20,
+    }
+  ],
+};
+
+/**
+ * Standard Light / Streets Basemap Style
+ */
+export const STREETS_STYLE: StyleSpecification = {
+  version: 8,
+  name: 'Himalaya Standard Streets',
+  sources: {
+    'osm-streets': {
+      type: 'raster',
+      tiles: [
+        'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      ],
+      tileSize: 256,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    },
+  },
+  layers: [
+    {
+      id: 'osm-streets-layer',
+      type: 'raster',
+      source: 'osm-streets',
       minzoom: 0,
       maxzoom: 20,
     },
